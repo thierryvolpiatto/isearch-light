@@ -38,7 +38,7 @@
               (goto-char (overlay-start ov)))
           (message "no more occurences of %s" il-search-pattern)
           (sit-for 0.5)
-          (setq il-search-iterator (iterator:list (reverse il-search-item-overlays)))
+          (setq il-search-iterator (iterator:list il-search-item-overlays))
           )))))
 
 (defun il-search-goto-next ()
@@ -81,7 +81,8 @@
             (setq ov (make-overlay (match-beginning 0) (match-end 0)))
             (push ov il-search-item-overlays)
             (overlay-put ov 'face '(:background "brown")))
-          (setq il-search-iterator (iterator:list (reverse il-search-item-overlays))))))))
+          (setq il-search-item-overlays (reverse il-search-item-overlays))
+          (setq il-search-iterator (iterator:list il-search-item-overlays)))))))
 
 (defun il-search-check-input ()
   (let ((input (minibuffer-contents)))
@@ -96,7 +97,8 @@
             (lambda ()
               (setq timer (run-with-idle-timer
                            0.1 'repeat #'il-search-check-input)))
-          (read-from-minibuffer prompt nil il-search-map))
+          (read-from-minibuffer
+           prompt nil il-search-map nil nil (thing-at-point 'symbol)))
       (cancel-timer timer))))
 
 (defun il-search-1 ()
