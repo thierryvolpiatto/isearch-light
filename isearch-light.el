@@ -32,13 +32,10 @@
       (overlay-put il-search-last-overlay 'face '(:background "brown")))
     (when il-search-iterator
       (let ((ov (iterator:next il-search-iterator)))
-        (if ov
-            (progn
-              (setq il-search-last-overlay ov)
-              (overlay-put ov 'face '(:background "green"))
-              (goto-char (overlay-start ov)))
-          (message "no more occurences of %s" il-search-pattern)
-          (sit-for 0.5))))))
+        (when ov
+          (setq il-search-last-overlay ov)
+          (overlay-put ov 'face '(:background "green"))
+          (goto-char (overlay-start ov)))))))
 
 (defun il-search-goto-next ()
   (interactive)
@@ -88,11 +85,14 @@
         (il-search--set-iterator)))))
 
 (defun il-search--set-iterator ()
-  (if (eq il-search-direction 'forward)
-      (setq il-search-iterator
-            (iterator:list (member il-search-last-overlay il-search-item-overlays)))
-    (setq il-search-iterator
-          (iterator:list (member il-search-last-overlay (reverse il-search-item-overlays))))))
+  (let* ((revlst (if (eq il-search-direction 'forward)
+                     il-search-item-overlays
+                   (reverse il-search-item-overlays))) 
+         (ovlst (append (member il-search-last-overlay revlst)
+                        (butlast revlst
+                                 (length (member il-search-last-overlay
+                                                 revlst))))))
+      (setq il-search-iterator (iterator:circular ovlst))))
 
 (defun il-search-check-input ()
   (let ((input (minibuffer-contents)))
