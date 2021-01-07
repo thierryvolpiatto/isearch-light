@@ -28,7 +28,7 @@
 ;;
 (defun il-search-goto-next-1 ()
   (with-selected-window (get-buffer-window il-search-current-buffer)
-    (when il-search-last-overlay
+    (when (overlayp il-search-last-overlay)
       (overlay-put il-search-last-overlay 'face '(:background "brown")))
     (when il-search-iterator
       (let ((ov (iterator:next il-search-iterator)))
@@ -38,58 +38,67 @@
               (overlay-put ov 'face '(:background "green"))
               (goto-char (overlay-start ov)))
           (message "no more occurences of %s" il-search-pattern)
-          (sit-for 0.5)
-          (setq il-search-iterator (iterator:list il-search-item-overlays))
-          )))))
+          (sit-for 0.5))))))
 
 (defun il-search-goto-next ()
   (interactive)
   (when (eq il-search-direction 'backward)
-    (setq il-search-direction 'forward
-          il-search-pattern ""
-          il-search-last-overlay nil)
-    (il-search-check-input))
+    (setq il-search-direction 'forward)
+    (il-search--set-iterator)
+    (message "Changing direction"))
   (il-search-goto-next-1))
 
 (defun il-search-goto-prev ()
   (interactive)
   (when (eq il-search-direction 'forward)
-    (setq il-search-direction 'backward
-          il-search-pattern ""
-          il-search-last-overlay nil)
-    (il-search-check-input))
+    (setq il-search-direction 'backward)
+    (il-search--set-iterator)
+    (message "Changing direction"))
   (il-search-goto-next-1))
 
 (defun il-search-exit-at-point ()
   (interactive)
-  (exit-minibuffer))
+  (exit-minibuffer)
+  (recenter-top-bottom))
 
 (defun il-search-delete-overlays ()
   (when il-search-item-overlays
     (mapc 'delete-overlay il-search-item-overlays)
     (setq il-search-item-overlays nil)))
 
-(defun il-search-update-overlays (direction)
+(defun il-search-update-overlays ()
   (with-selected-window (get-buffer-window il-search-current-buffer)
     (il-search-delete-overlays)
-    (let (ov
-          (fn (cl-case direction
-                (forward #'re-search-forward)
-                (backward #'re-search-backward))))
+    (let (ov)
       (with-local-quit
         (save-excursion
-          (while (funcall fn il-search-pattern nil t)
+          (goto-char (point-min))
+          (while (re-search-forward il-search-pattern nil t)
             (setq ov (make-overlay (match-beginning 0) (match-end 0)))
             (push ov il-search-item-overlays)
             (overlay-put ov 'face '(:background "brown")))
-          (setq il-search-item-overlays (reverse il-search-item-overlays))
-          (setq il-search-iterator (iterator:list il-search-item-overlays)))))))
+          (setq il-search-item-overlays (reverse il-search-item-overlays)))
+        (goto-char
+         (if (eq il-search-direction 'forward)
+             (next-overlay-change (point))
+           (previous-overlay-change (point))))
+        (when il-search-item-overlays
+          (setq il-search-last-overlay
+                (car (overlays-in (previous-overlay-change (point)) (point)))))
+        (il-search--set-iterator)))))
+
+(defun il-search--set-iterator ()
+  (if (eq il-search-direction 'forward)
+      (setq il-search-iterator
+            (iterator:list (member il-search-last-overlay il-search-item-overlays)))
+    (setq il-search-iterator
+          (iterator:list (member il-search-last-overlay (reverse il-search-item-overlays))))))
 
 (defun il-search-check-input ()
   (let ((input (minibuffer-contents)))
     (when (not (string= input il-search-pattern))
       (setq il-search-pattern input)
-      (il-search-update-overlays il-search-direction))))
+      (il-search-update-overlays))))
 
 (defun il-search-read-from-minibuffer (prompt)
   (let (timer)
@@ -108,7 +117,7 @@
         il-search-current-buffer (current-buffer))
   (condition-case-unless-debug nil
       (unwind-protect
-          (il-search-read-from-minibuffer "test: ")
+          (il-search-read-from-minibuffer "search: ")
         (il-search-delete-overlays))
     (quit (goto-char il-initial-pos))))
 
