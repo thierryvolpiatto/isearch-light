@@ -67,7 +67,7 @@
   (with-selected-window (get-buffer-window il-search-current-buffer)
     (il-search-delete-overlays)
     (let (ov)
-      (with-local-quit
+      (while-no-input
         (save-excursion
           (goto-char (point-min))
           (while (re-search-forward il-search-pattern nil t)
@@ -75,14 +75,20 @@
             (push ov il-search-item-overlays)
             (overlay-put ov 'face '(:background "brown")))
           (setq il-search-item-overlays (reverse il-search-item-overlays)))
-        (goto-char
-         (if (eq il-search-direction 'forward)
-             (next-overlay-change (point))
-           (previous-overlay-change (point))))
         (when il-search-item-overlays
           (setq il-search-last-overlay
-                (car (overlays-in (previous-overlay-change (point)) (point)))))
+                (il-search-closest-overlay (point) il-search-item-overlays))
+          (goto-char (overlay-start il-search-last-overlay)))
         (il-search--set-iterator)))))
+
+(defun il-search-closest-overlay (pos overlays)
+  "Return closest overlay from POS in OVERLAYS list."
+  (cl-loop for ov in overlays
+           for ovpos = (overlay-start ov)
+           for diff = (if (> pos ovpos) (- pos ovpos) (- ovpos pos))
+           collect (cons diff ov) into res
+           minimize diff into min
+           finally return (cdr (assq min res))))
 
 (defun il-search--set-iterator ()
   (let* ((revlst (if (eq il-search-direction 'forward)
@@ -122,19 +128,11 @@
     (quit (goto-char il-initial-pos))))
 
 ;;;###autoload
-(defun il-search-forward ()
+(defun il-search ()
   (interactive)
   (setq il-search-direction 'forward
         il-initial-pos (point))
   (il-search-1))
-
-;;;###autoload
-(defun il-search-backward ()
-  (interactive)
-  (setq il-search-direction 'backward
-        il-initial-pos (point))
-  (il-search-1))
-
 
 (provide 'isearch-light)
 
