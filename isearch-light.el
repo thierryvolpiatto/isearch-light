@@ -56,7 +56,7 @@
 (defun il-search-exit-at-point ()
   (interactive)
   (exit-minibuffer)
-  (recenter-top-bottom))
+  (recenter (1- (/ (window-height) 2))))
 
 (defun il-search-delete-overlays ()
   (when il-search-item-overlays
