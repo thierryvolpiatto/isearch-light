@@ -72,18 +72,19 @@
     (il-search-delete-overlays)
     (let (ov)
       (while-no-input
-        (save-excursion
-          (goto-char (point-min))
-          (while (re-search-forward il-search-pattern nil t)
-            (setq ov (make-overlay (match-beginning 0) (match-end 0)))
-            (push ov il-search-item-overlays)
-            (overlay-put ov 'face '(:background "brown")))
-          (setq il-search-item-overlays (reverse il-search-item-overlays)))
-        (when il-search-item-overlays
-          (setq il-search-last-overlay
-                (il-search-closest-overlay (point) il-search-item-overlays))
-          (goto-char (overlay-start il-search-last-overlay)))
-        (il-search--set-iterator)))))
+        (unless (string= il-search-pattern "")
+          (save-excursion
+            (goto-char (point-min))
+            (while (re-search-forward il-search-pattern nil t)
+              (setq ov (make-overlay (match-beginning 0) (match-end 0)))
+              (push ov il-search-item-overlays)
+              (overlay-put ov 'face '(:background "brown")))
+            (setq il-search-item-overlays (reverse il-search-item-overlays)))
+          (when il-search-item-overlays
+            (setq il-search-last-overlay
+                  (il-search-closest-overlay (point) il-search-item-overlays))
+            (goto-char (overlay-start il-search-last-overlay)))
+          (il-search--set-iterator))))))
 
 (defun il-search-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
@@ -105,10 +106,11 @@
       (setq il-search-iterator (iterator:circular ovlst))))
 
 (defun il-search-check-input ()
-  (let ((input (minibuffer-contents)))
-    (when (not (string= input il-search-pattern))
-      (setq il-search-pattern input)
-      (il-search-update-overlays))))
+  (with-selected-window (minibuffer-window)
+    (let ((input (minibuffer-contents)))
+      (when (not (string= input il-search-pattern))
+        (setq il-search-pattern input)
+        (il-search-update-overlays)))))
 
 (defun il-search-read-from-minibuffer (prompt)
   (let (timer)
