@@ -59,8 +59,8 @@
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
       (overlay-put ov 'face '(:background "red"))
       (sit-for 0.1)
-      (delete-overlay ov)))
-  (exit-minibuffer))
+      (delete-overlay ov))
+    (exit-minibuffer)))
 
 (defun il-search-delete-overlays ()
   (when il-search-item-overlays
