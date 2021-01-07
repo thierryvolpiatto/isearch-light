@@ -13,6 +13,7 @@
 (defvar il-search-iterator nil)
 (defvar il-search-last-overlay nil)
 (defvar il-search-direction nil)
+(defvar il-initial-pos nil)
 
 (defvar il-search-map
   (let ((map (make-sparse-keymap)))
@@ -109,18 +110,20 @@
       (unwind-protect
           (il-search-read-from-minibuffer "test: ")
         (il-search-delete-overlays))
-    (quit nil)))
+    (quit (goto-char il-initial-pos))))
 
 ;;;###autoload
 (defun il-search-forward ()
   (interactive)
-  (setq il-search-direction 'forward)
+  (setq il-search-direction 'forward
+        il-initial-pos (point))
   (il-search-1))
 
 ;;;###autoload
 (defun il-search-backward ()
   (interactive)
-  (setq il-search-direction 'backward)
+  (setq il-search-direction 'backward
+        il-initial-pos (point))
   (il-search-1))
 
 
