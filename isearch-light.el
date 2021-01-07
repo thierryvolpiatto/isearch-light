@@ -55,8 +55,12 @@
 
 (defun il-search-exit-at-point ()
   (interactive)
-  (exit-minibuffer)
-  (recenter (1- (/ (window-height) 2))))
+  (with-selected-window (get-buffer-window il-search-current-buffer)
+    (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
+      (overlay-put ov 'face '(:background "red"))
+      (sit-for 0.1)
+      (delete-overlay ov)))
+  (exit-minibuffer))
 
 (defun il-search-delete-overlays ()
   (when il-search-item-overlays
