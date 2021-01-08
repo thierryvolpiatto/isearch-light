@@ -104,7 +104,7 @@
                         il-search-pattern)
                 'face '(:foreground "Gray")))
             (setq il-search-last-overlay
-                  (il-search-closest-overlay (point) il-search-item-overlays))
+                  (il-search-closest-overlay il-initial-pos il-search-item-overlays))
             (overlay-put il-search-last-overlay 'face '(:background "green"))
             (il-search--set-iterator)
             (goto-char (overlay-start (iterator:next il-search-iterator)))))))))
