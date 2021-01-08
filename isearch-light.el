@@ -82,11 +82,18 @@
               (push ov il-search-item-overlays)
               (overlay-put ov 'face '(:background "brown")))
             (setq il-search-item-overlays (reverse il-search-item-overlays)))
-          (when il-search-item-overlays
+          (if (null il-search-item-overlays)
+              (progn
+                (let ((mode-line-format (propertize
+                                         " [No matches]"
+                                         'face '(:foreground "DimGray"))))
+                  (force-mode-line-update)
+                  (sit-for 12))
+                (force-mode-line-update))
             (setq il-search-last-overlay
                   (il-search-closest-overlay (point) il-search-item-overlays))
-            (goto-char (overlay-start il-search-last-overlay)))
-          (il-search--set-iterator))))))
+            (goto-char (overlay-start il-search-last-overlay))
+            (il-search--set-iterator)))))))
 
 (defun il-search-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
@@ -115,7 +122,8 @@
         (il-search-update-overlays)))))
 
 (defun il-search-read-from-minibuffer (prompt)
-  (let (timer)
+  (let (timer
+        (cursor-in-echo-area t))
     (unwind-protect
         (minibuffer-with-setup-hook
             (lambda ()
