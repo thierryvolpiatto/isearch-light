@@ -47,7 +47,10 @@
   (when (eq isl-direction 'backward)
     (setq isl-direction 'forward)
     (isl--set-iterator)
-    (message "Searching forward"))
+    (message "%s%s"
+             (apply #'propertize "search (forward): "
+                    minibuffer-prompt-properties)
+             isl-pattern))
   (isl-goto-next-1))
 
 (defun isl-goto-prev ()
@@ -55,7 +58,10 @@
   (when (eq isl-direction 'forward)
     (setq isl-direction 'backward)
     (isl--set-iterator)
-    (message "Searching backward"))
+    (message "%s%s"
+             (apply #'propertize "search (backward): "
+                    minibuffer-prompt-properties)
+             isl-pattern))
   (isl-goto-next-1))
 
 (defun isl-exit-at-point ()
