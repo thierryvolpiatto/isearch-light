@@ -17,6 +17,7 @@
 (defvar isl-case-fold-search 'smart
   "The `case-fold-search' value.")
 (defvar isl-number-results 0)
+(defvar isl-history nil)
 
 (defvar isl-map
   (let ((map (make-sparse-keymap)))
@@ -153,7 +154,7 @@
               (setq timer (run-with-idle-timer
                            0.1 'repeat #'isl-check-input)))
           (read-from-minibuffer
-           prompt nil isl-map nil nil (thing-at-point 'symbol)))
+           prompt nil isl-map nil 'isl-history (thing-at-point 'symbol)))
       (cancel-timer timer))))
 
 (defun isl-1 ()
