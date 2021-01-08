@@ -174,6 +174,13 @@
         isl-initial-pos (point))
   (isl-1))
 
+;;;###autoload
+(defun isl-narrow-to-defun ()
+  (interactive)
+  (save-restriction
+    (narrow-to-defun)
+    (isl)))
+
 (provide 'isearch-light)
 
 ;;; isearch-light.el ends here
