@@ -7,109 +7,109 @@
 
 (require 'iterator)
 
-(defvar il-search-pattern "")
-(defvar il-search-current-buffer nil)
-(defvar il-search-item-overlays nil)
-(defvar il-search-iterator nil)
-(defvar il-search-last-overlay nil)
-(defvar il-search-direction nil)
-(defvar il-initial-pos nil)
-(defvar il-search-case-fold-search 'smart
+(defvar isl-pattern "")
+(defvar isl-current-buffer nil)
+(defvar isl-item-overlays nil)
+(defvar isl-iterator nil)
+(defvar isl-last-overlay nil)
+(defvar isl-direction nil)
+(defvar isl-initial-pos nil)
+(defvar isl-case-fold-search 'smart
   "The `case-fold-search' value.")
 
-(defvar il-search-map
+(defvar isl-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map minibuffer-local-map)
-    (define-key map (kbd "C-z") 'il-search-goto-next)
-    (define-key map (kbd "M-z") 'il-search-goto-prev)
-    (define-key map (kbd "<down>") 'il-search-goto-next)
-    (define-key map (kbd "<up>") 'il-search-goto-prev)
-    (define-key map (kbd "RET") 'il-search-exit-at-point)
+    (define-key map (kbd "C-z")    'isl-goto-next)
+    (define-key map (kbd "M-z")    'isl-goto-prev)
+    (define-key map (kbd "<down>") 'isl-goto-next)
+    (define-key map (kbd "<up>")   'isl-goto-prev)
+    (define-key map (kbd "RET")    'isl-exit-at-point)
     map))
 
 
 ;;; Actions
 ;;
-(defun il-search-goto-next-1 ()
-  (with-selected-window (get-buffer-window il-search-current-buffer)
-    (when (overlayp il-search-last-overlay)
-      (overlay-put il-search-last-overlay 'face '(:background "brown")))
-    (when il-search-iterator
-      (let ((ov (iterator:next il-search-iterator)))
+(defun isl-goto-next-1 ()
+  (with-selected-window (get-buffer-window isl-current-buffer)
+    (when (overlayp isl-last-overlay)
+      (overlay-put isl-last-overlay 'face '(:background "brown")))
+    (when isl-iterator
+      (let ((ov (iterator:next isl-iterator)))
         (when ov
-          (setq il-search-last-overlay ov)
+          (setq isl-last-overlay ov)
           (overlay-put ov 'face '(:background "green"))
           (goto-char (overlay-start ov)))))))
 
-(defun il-search-goto-next ()
+(defun isl-goto-next ()
   (interactive)
-  (when (eq il-search-direction 'backward)
-    (setq il-search-direction 'forward)
-    (il-search--set-iterator)
+  (when (eq isl-direction 'backward)
+    (setq isl-direction 'forward)
+    (isl--set-iterator)
     (message "Searching forward"))
-  (il-search-goto-next-1))
+  (isl-goto-next-1))
 
-(defun il-search-goto-prev ()
+(defun isl-goto-prev ()
   (interactive)
-  (when (eq il-search-direction 'forward)
-    (setq il-search-direction 'backward)
-    (il-search--set-iterator)
+  (when (eq isl-direction 'forward)
+    (setq isl-direction 'backward)
+    (isl--set-iterator)
     (message "Searching backward"))
-  (il-search-goto-next-1))
+  (isl-goto-next-1))
 
-(defun il-search-exit-at-point ()
+(defun isl-exit-at-point ()
   (interactive)
-  (with-selected-window (get-buffer-window il-search-current-buffer)
+  (with-selected-window (get-buffer-window isl-current-buffer)
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
       (overlay-put ov 'face '(:background "red"))
       (sit-for 0.1)
       (delete-overlay ov))
     (exit-minibuffer)))
 
-(defun il-search-delete-overlays ()
-  (when il-search-item-overlays
-    (mapc 'delete-overlay il-search-item-overlays)
-    (setq il-search-item-overlays nil)))
+(defun isl-delete-overlays ()
+  (when isl-item-overlays
+    (mapc 'delete-overlay isl-item-overlays)
+    (setq isl-item-overlays nil)))
 
-(defun il-search-display-string-in-mode-line (str)
+(defun isl-display-string-in-mode-line (str)
   (let ((mode-line-format str))
     (force-mode-line-update)
     (sit-for 12))
   (force-mode-line-update))
 
-(cl-defun il-search-set-case-fold-search (&optional (pattern il-search-pattern))
-  (cl-case il-search-case-fold-search
+(cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
+  (cl-case isl-case-fold-search
     (smart (let ((case-fold-search nil))
              (if (string-match "[[:upper:]]" pattern) nil t)))
-    (t il-search-case-fold-search)))
+    (t isl-case-fold-search)))
 
-(defun il-search-update-overlays ()
-  (with-selected-window (get-buffer-window il-search-current-buffer)
-    (il-search-delete-overlays)
-    (let ((case-fold-search (il-search-set-case-fold-search))
+(defun isl-update-overlays ()
+  (with-selected-window (get-buffer-window isl-current-buffer)
+    (isl-delete-overlays)
+    (let ((case-fold-search (isl-set-case-fold-search))
           ov)
       (while-no-input
-        (unless (string= il-search-pattern "")
+        (unless (string= isl-pattern "")
           (save-excursion
             (goto-char (point-min))
-            (while (re-search-forward il-search-pattern nil t)
+            (while (re-search-forward isl-pattern nil t)
               (setq ov (make-overlay (match-beginning 0) (match-end 0)))
-              (push ov il-search-item-overlays)
+              (push ov isl-item-overlays)
               (overlay-put ov 'face '(:background "brown")))
-            (setq il-search-item-overlays (reverse il-search-item-overlays)))
-          (if (null il-search-item-overlays)
-              (il-search-display-string-in-mode-line
+            (setq isl-item-overlays (reverse isl-item-overlays)))
+          (if (null isl-item-overlays)
+              (isl-display-string-in-mode-line
                (propertize
                 (format " [No matches for `%s']"
-                        il-search-pattern)
+                        isl-pattern)
                 'face '(:foreground "Gray")))
-            (setq il-search-last-overlay
-                  (il-search-closest-overlay il-initial-pos il-search-item-overlays))
-            (overlay-put il-search-last-overlay 'face '(:background "green"))
-            (il-search--set-iterator)
-            (goto-char (overlay-start (iterator:next il-search-iterator)))))))))
+            (setq isl-last-overlay
+                  (isl-closest-overlay isl-initial-pos isl-item-overlays))
+            (overlay-put isl-last-overlay 'face '(:background "green"))
+            (isl--set-iterator)
+            (goto-char (overlay-start (iterator:next isl-iterator)))))))))
 
-(defun il-search-closest-overlay (pos overlays)
+(defun isl-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
   (cl-loop for ov in overlays
            for ovpos = (overlay-start ov)
@@ -118,51 +118,51 @@
            minimize diff into min
            finally return (cdr (assq min res))))
 
-(defun il-search--set-iterator ()
-  (let* ((revlst (if (eq il-search-direction 'forward)
-                     il-search-item-overlays
-                   (reverse il-search-item-overlays))) 
-         (ovlst (append (member il-search-last-overlay revlst)
+(defun isl--set-iterator ()
+  (let* ((revlst (if (eq isl-direction 'forward)
+                     isl-item-overlays
+                   (reverse isl-item-overlays))) 
+         (ovlst (append (member isl-last-overlay revlst)
                         (butlast revlst
-                                 (length (member il-search-last-overlay
+                                 (length (member isl-last-overlay
                                                  revlst))))))
-      (setq il-search-iterator (iterator:circular ovlst))))
+      (setq isl-iterator (iterator:circular ovlst))))
 
-(defun il-search-check-input ()
+(defun isl-check-input ()
   (with-selected-window (minibuffer-window)
     (let ((input (minibuffer-contents)))
-      (when (not (string= input il-search-pattern))
-        (setq il-search-pattern input)
-        (il-search-update-overlays)))))
+      (when (not (string= input isl-pattern))
+        (setq isl-pattern input)
+        (isl-update-overlays)))))
 
-(defun il-search-read-from-minibuffer (prompt)
+(defun isl-read-from-minibuffer (prompt)
   (let (timer
         (cursor-in-echo-area t))
     (unwind-protect
         (minibuffer-with-setup-hook
             (lambda ()
               (setq timer (run-with-idle-timer
-                           0.1 'repeat #'il-search-check-input)))
+                           0.1 'repeat #'isl-check-input)))
           (read-from-minibuffer
-           prompt nil il-search-map nil nil (thing-at-point 'symbol)))
+           prompt nil isl-map nil nil (thing-at-point 'symbol)))
       (cancel-timer timer))))
 
-(defun il-search-1 ()
-  (setq il-search-item-overlays nil
-        il-search-pattern ""
-        il-search-current-buffer (current-buffer))
+(defun isl-1 ()
+  (setq isl-item-overlays nil
+        isl-pattern ""
+        isl-current-buffer (current-buffer))
   (condition-case-unless-debug nil
       (unwind-protect
-          (il-search-read-from-minibuffer "search: ")
-        (il-search-delete-overlays))
-    (quit (goto-char il-initial-pos))))
+          (isl-read-from-minibuffer "search: ")
+        (isl-delete-overlays))
+    (quit (goto-char isl-initial-pos))))
 
 ;;;###autoload
-(defun il-search ()
+(defun isl ()
   (interactive)
-  (setq il-search-direction 'forward
-        il-initial-pos (point))
-  (il-search-1))
+  (setq isl-direction 'forward
+        isl-initial-pos (point))
+  (isl-1))
 
 (provide 'isearch-light)
 
