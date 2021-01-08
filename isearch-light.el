@@ -69,6 +69,12 @@
     (mapc 'delete-overlay il-search-item-overlays)
     (setq il-search-item-overlays nil)))
 
+(defun il-search-display-string-in-mode-line (str)
+  (let ((mode-line-format str))
+    (force-mode-line-update)
+    (sit-for 12))
+  (force-mode-line-update))
+
 (defun il-search-update-overlays ()
   (with-selected-window (get-buffer-window il-search-current-buffer)
     (il-search-delete-overlays)
@@ -83,13 +89,11 @@
               (overlay-put ov 'face '(:background "brown")))
             (setq il-search-item-overlays (reverse il-search-item-overlays)))
           (if (null il-search-item-overlays)
-              (progn
-                (let ((mode-line-format (propertize
-                                         " [No matches]"
-                                         'face '(:foreground "DimGray"))))
-                  (force-mode-line-update)
-                  (sit-for 12))
-                (force-mode-line-update))
+              (il-search-display-string-in-mode-line
+               (propertize
+                (format " [No matches for `%s']"
+                        il-search-pattern)
+                'face '(:foreground "Gray")))
             (setq il-search-last-overlay
                   (il-search-closest-overlay (point) il-search-item-overlays))
             (goto-char (overlay-start il-search-last-overlay))
