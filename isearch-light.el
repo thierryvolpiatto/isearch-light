@@ -16,6 +16,7 @@
 (defvar isl-initial-pos nil)
 (defvar isl-case-fold-search 'smart
   "The `case-fold-search' value.")
+(defvar isl-number-results 0)
 
 (defvar isl-map
   (let ((map (make-sparse-keymap)))
@@ -98,16 +99,24 @@
               (overlay-put ov 'face '(:background "brown")))
             (setq isl-item-overlays (reverse isl-item-overlays)))
           (if (null isl-item-overlays)
-              (isl-display-string-in-mode-line
-               (propertize
-                (format " [No matches for `%s']"
-                        isl-pattern)
-                'face '(:foreground "Gray")))
+              (setq isl-number-results 0)
             (setq isl-last-overlay
-                  (isl-closest-overlay isl-initial-pos isl-item-overlays))
+                  (isl-closest-overlay isl-initial-pos isl-item-overlays)
+                  isl-number-results (length isl-item-overlays))
             (overlay-put isl-last-overlay 'face '(:background "green"))
             (isl--set-iterator)
-            (goto-char (overlay-start (iterator:next isl-iterator)))))))))
+            (goto-char (overlay-start (iterator:next isl-iterator))))))
+      (isl--setup-mode-line))))
+
+(defun isl--setup-mode-line ()
+  (setq mode-line-format
+        (if (string= isl-pattern "")
+            (default-value 'mode-line-format)
+          (format " [%s] results(s) found for `%s'"
+                  (propertize (number-to-string isl-number-results)
+                              'face '(:foreground "red"))
+                  (propertize isl-pattern
+                              'face '(:foreground "green"))))))
 
 (defun isl-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
@@ -154,7 +163,8 @@
   (condition-case-unless-debug nil
       (unwind-protect
           (isl-read-from-minibuffer "search: ")
-        (isl-delete-overlays))
+        (isl-delete-overlays)
+        (setq mode-line-format (default-value 'mode-line-format)))
     (quit (goto-char isl-initial-pos))))
 
 ;;;###autoload
