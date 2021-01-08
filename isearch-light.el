@@ -78,12 +78,6 @@
     (mapc 'delete-overlay isl-item-overlays)
     (setq isl-item-overlays nil)))
 
-(defun isl-display-string-in-mode-line (str)
-  (let ((mode-line-format str))
-    (force-mode-line-update)
-    (sit-for 12))
-  (force-mode-line-update))
-
 (cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
   (cl-case isl-case-fold-search
     (smart (let ((case-fold-search nil))
