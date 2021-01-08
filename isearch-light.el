@@ -20,6 +20,8 @@
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "C-z") 'il-search-goto-next)
     (define-key map (kbd "M-z") 'il-search-goto-prev)
+    (define-key map (kbd "<down>") 'il-search-goto-next)
+    (define-key map (kbd "<up>") 'il-search-goto-prev)
     (define-key map (kbd "RET") 'il-search-exit-at-point)
     map))
 
