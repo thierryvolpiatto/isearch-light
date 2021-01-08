@@ -44,7 +44,7 @@
   (when (eq il-search-direction 'backward)
     (setq il-search-direction 'forward)
     (il-search--set-iterator)
-    (message "Changing direction"))
+    (message "Searching forward"))
   (il-search-goto-next-1))
 
 (defun il-search-goto-prev ()
@@ -52,7 +52,7 @@
   (when (eq il-search-direction 'forward)
     (setq il-search-direction 'backward)
     (il-search--set-iterator)
-    (message "Changing direction"))
+    (message "Searching backward"))
   (il-search-goto-next-1))
 
 (defun il-search-exit-at-point ()
