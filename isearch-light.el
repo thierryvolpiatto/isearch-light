@@ -48,7 +48,7 @@
     (setq isl-direction 'forward)
     (isl--set-iterator)
     (message "%s%s"
-             (apply #'propertize "search (forward): "
+             (apply #'propertize "Search (forward): "
                     minibuffer-prompt-properties)
              isl-pattern))
   (isl-goto-next-1))
@@ -59,7 +59,7 @@
     (setq isl-direction 'backward)
     (isl--set-iterator)
     (message "%s%s"
-             (apply #'propertize "search (backward): "
+             (apply #'propertize "Search (backward): "
                     minibuffer-prompt-properties)
              isl-pattern))
   (isl-goto-next-1))
@@ -162,7 +162,7 @@
         isl-current-buffer (current-buffer))
   (condition-case-unless-debug nil
       (unwind-protect
-          (isl-read-from-minibuffer "search: ")
+          (isl-read-from-minibuffer "Search: ")
         (isl-delete-overlays)
         (setq mode-line-format (default-value 'mode-line-format)))
     (quit (goto-char isl-initial-pos))))
