@@ -14,6 +14,8 @@
 (defvar il-search-last-overlay nil)
 (defvar il-search-direction nil)
 (defvar il-initial-pos nil)
+(defvar il-search-case-fold-search 'smart
+  "The `case-fold-search' value.")
 
 (defvar il-search-map
   (let ((map (make-sparse-keymap)))
@@ -75,10 +77,17 @@
     (sit-for 12))
   (force-mode-line-update))
 
+(cl-defun il-search-set-case-fold-search (&optional (pattern il-search-pattern))
+  (cl-case il-search-case-fold-search
+    (smart (let ((case-fold-search nil))
+             (if (string-match "[[:upper:]]" pattern) nil t)))
+    (t il-search-case-fold-search)))
+
 (defun il-search-update-overlays ()
   (with-selected-window (get-buffer-window il-search-current-buffer)
     (il-search-delete-overlays)
-    (let (ov)
+    (let ((case-fold-search (il-search-set-case-fold-search))
+          ov)
       (while-no-input
         (unless (string= il-search-pattern "")
           (save-excursion
