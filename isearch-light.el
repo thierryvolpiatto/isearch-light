@@ -96,8 +96,9 @@
                 'face '(:foreground "Gray")))
             (setq il-search-last-overlay
                   (il-search-closest-overlay (point) il-search-item-overlays))
-            (goto-char (overlay-start il-search-last-overlay))
-            (il-search--set-iterator)))))))
+            (overlay-put il-search-last-overlay 'face '(:background "green"))
+            (il-search--set-iterator)
+            (goto-char (overlay-start (iterator:next il-search-iterator)))))))))
 
 (defun il-search-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
