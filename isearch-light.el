@@ -1,6 +1,11 @@
 ;;; isearch-light.el --- simple incremental search in current-buffer -*- lexical-binding: t -*- 
 
-;; Copyright (C) 2012 ~ 2020 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2021 Thierry Volpiatto <thievol@posteo.net>
+
+;; X-URL: https://github.com/thierryvolpiatto/isearch-light
+
+;; Compatibility: GNU Emacs 26.3+
+;; Package-Requires: ((emacs "26") (cl-lib "0.5") (iterator 1.0))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -17,6 +22,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'iterator)
 
 ;; Internals
