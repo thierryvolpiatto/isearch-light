@@ -22,6 +22,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Isearch-light is a small package to search regexp incrementaly in
+;; current-buffer.  It is simple to use, just call M-x `isl'.
+
 ;;; Code:
 
 (require 'cl-lib)
