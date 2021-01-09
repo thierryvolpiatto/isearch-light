@@ -1,7 +1,9 @@
 ;;; isearch-light.el --- simple incremental search in current-buffer -*- lexical-binding: t -*- 
 
+;; Author:      Thierry Volpiatto <thievol@posteo.net>
 ;; Copyright (C) 2021 Thierry Volpiatto <thievol@posteo.net>
 
+;; Version: 1.0
 ;; X-URL: https://github.com/thierryvolpiatto/isearch-light
 
 ;; Compatibility: GNU Emacs 26.3+
