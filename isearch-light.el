@@ -252,7 +252,7 @@
               (setq timer (run-with-idle-timer
                            0.1 'repeat #'isl-check-input)))
           (read-from-minibuffer
-           prompt nil isl-map nil 'isl-history (thing-at-point 'symbol)))
+           prompt nil isl-map nil 'isl-history (thing-at-point 'symbol t)))
       (cancel-timer timer))))
 
 (defun isl-1 ()
