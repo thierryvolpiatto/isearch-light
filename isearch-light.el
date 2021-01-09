@@ -7,6 +7,7 @@
 
 (require 'iterator)
 
+;; Internals
 (defvar isl-pattern "")
 (defvar isl-current-buffer nil)
 (defvar isl-item-overlays nil)
@@ -14,10 +15,38 @@
 (defvar isl-last-overlay nil)
 (defvar isl-direction nil)
 (defvar isl-initial-pos nil)
-(defvar isl-case-fold-search 'smart
-  "The `case-fold-search' value.")
 (defvar isl-number-results 0)
 (defvar isl-history nil)
+
+;; User vars
+(defvar isl-case-fold-search 'smart
+  "The `case-fold-search' value.")
+
+(defgroup isearch-light nil
+  "Open isl."
+  :prefix "isl-"
+  :group 'matching)
+
+(defface isl-match
+  `((t :background "Brown4"))
+  "Face used to highlight the items matched."
+  :group 'isearch-light)
+
+(defface isl-on
+  `((t :background "SandyBrown"
+       :foreground "black"))
+  "Face used to highlight the item where point is."
+  :group 'isearch-light)
+
+(defface isl-line
+  `((t :background "Darkgoldenrod1"))
+  "Face used to flash line on exit."
+  :group 'isearch-light)
+
+(defface isl-number
+  `((t :foreground "red"))
+  "Face used to highlight number in mode-line."
+  :group 'isearch-light)
 
 (defvar isl-map
   (let ((map (make-sparse-keymap)))
@@ -35,12 +64,12 @@
 (defun isl-goto-next-1 ()
   (with-selected-window (get-buffer-window isl-current-buffer)
     (when (overlayp isl-last-overlay)
-      (overlay-put isl-last-overlay 'face '(:background "brown")))
+      (overlay-put isl-last-overlay 'face 'isl-match))
     (when isl-iterator
       (let ((ov (iterator:next isl-iterator)))
         (when ov
           (setq isl-last-overlay ov)
-          (overlay-put ov 'face '(:background "green"))
+          (overlay-put ov 'face 'isl-on)
           (goto-char (overlay-start ov)))))))
 
 (defun isl-goto-next ()
@@ -69,7 +98,7 @@
   (interactive)
   (with-selected-window (get-buffer-window isl-current-buffer)
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
-      (overlay-put ov 'face '(:background "red"))
+      (overlay-put ov 'face 'isl-line)
       (sit-for 0.1)
       (delete-overlay ov))
     (exit-minibuffer)))
@@ -97,14 +126,14 @@
             (while (re-search-forward isl-pattern nil t)
               (setq ov (make-overlay (match-beginning 0) (match-end 0)))
               (push ov isl-item-overlays)
-              (overlay-put ov 'face '(:background "brown")))
+              (overlay-put ov 'face 'isl-match))
             (setq isl-item-overlays (reverse isl-item-overlays)))
           (if (null isl-item-overlays)
               (setq isl-number-results 0)
             (setq isl-last-overlay
                   (isl-closest-overlay isl-initial-pos isl-item-overlays)
                   isl-number-results (length isl-item-overlays))
-            (overlay-put isl-last-overlay 'face '(:background "green"))
+            (overlay-put isl-last-overlay 'face 'isl-on)
             (isl--set-iterator)
             (goto-char (overlay-start (iterator:next isl-iterator))))))
       (isl--setup-mode-line))))
@@ -115,9 +144,9 @@
             (default-value 'mode-line-format)
           (format " [%s] results(s) found for `%s'"
                   (propertize (number-to-string isl-number-results)
-                              'face '(:foreground "red"))
+                              'face 'isl-number)
                   (propertize isl-pattern
-                              'face '(:foreground "green"))))))
+                              'face 'isl-on)))))
 
 (defun isl-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
