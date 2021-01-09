@@ -202,16 +202,20 @@
           (cond ((string= isl-pattern "")
                  (default-value 'mode-line-format))
                 ((zerop isl-number-results)
-                 (format " No results found for `%s' [%s]"
-                         (propertize isl-pattern
-                                     'face 'isl-on)
-                         style))
-                (t (format " [%s] results(s) found for `%s' [%s]"
-                           (propertize (number-to-string isl-number-results)
-                                       'face 'isl-number)
-                           (propertize isl-pattern
-                                       'face 'isl-string)
-                           style))))))
+                 `(" " mode-line-buffer-identification " "
+                   (:eval ,(format "No results found for `%s' [%s]"
+                                   (propertize isl-pattern
+                                               'face 'isl-on)
+                                   style))
+                   " " mode-line-position))
+                (t `(" " mode-line-buffer-identification " "
+                     (:eval ,(format "[%s] results(s) found for `%s' [%s]"
+                                     (propertize (number-to-string isl-number-results)
+                                                 'face 'isl-number)
+                                     (propertize isl-pattern
+                                                 'face 'isl-string)
+                                     style))
+                     " " mode-line-position))))))
 
 (defun isl-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
