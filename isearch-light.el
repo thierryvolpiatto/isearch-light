@@ -72,7 +72,7 @@
       (overlay-put isl-last-overlay 'face 'isl-match))
     (when isl-iterator
       (let* ((ov (iterator:next isl-iterator))
-             (pos (and ov (overlay-start ov))))
+             (pos (and ov (overlay-end ov))))
         (when (and ov pos)
           (setq isl-last-overlay ov)
           (overlay-put ov 'face 'isl-on)
@@ -143,7 +143,7 @@
                   isl-number-results (length isl-item-overlays))
             (overlay-put isl-last-overlay 'face 'isl-on)
             (isl--set-iterator)
-            (goto-char (overlay-start (iterator:next isl-iterator))))))
+            (goto-char (overlay-end (iterator:next isl-iterator))))))
       (isl--setup-mode-line))))
 
 (defun isl--setup-mode-line ()
