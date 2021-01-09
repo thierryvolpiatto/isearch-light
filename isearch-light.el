@@ -129,10 +129,12 @@
         (unless (string= isl-pattern "")
           (save-excursion
             (goto-char (point-min))
-            (while (re-search-forward isl-pattern nil t)
-              (setq ov (make-overlay (match-beginning 0) (match-end 0)))
-              (push ov isl-item-overlays)
-              (overlay-put ov 'face 'isl-match))
+            (condition-case-unless-debug nil
+                (while (re-search-forward isl-pattern nil t)
+                  (setq ov (make-overlay (match-beginning 0) (match-end 0)))
+                  (push ov isl-item-overlays)
+                  (overlay-put ov 'face 'isl-match))
+              (invalid-regexp nil))
             (setq isl-item-overlays (reverse isl-item-overlays)))
           (if (null isl-item-overlays)
               (setq isl-number-results 0)
