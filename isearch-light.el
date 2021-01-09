@@ -17,6 +17,7 @@
 (defvar isl-initial-pos nil)
 (defvar isl-number-results 0)
 (defvar isl-history nil)
+(defvar isl-yank-point nil)
 
 ;; User vars
 (defvar isl-case-fold-search 'smart
@@ -61,9 +62,9 @@
     (define-key map (kbd "<down>") 'isl-goto-next)
     (define-key map (kbd "<up>")   'isl-goto-prev)
     (define-key map (kbd "RET")    'isl-exit-at-point)
+    (define-key map (kbd "C-w")    'isl-yank-word-at-point)
     map))
 
-
 ;;; Actions
 ;;
 (defun isl-goto-next-1 ()
@@ -76,7 +77,8 @@
         (when (and ov pos)
           (setq isl-last-overlay ov)
           (overlay-put ov 'face 'isl-on)
-          (goto-char pos))))))
+          (goto-char pos)
+          (setq isl-yank-point pos))))))
 
 (defun isl-goto-next ()
   (interactive)
@@ -108,6 +110,21 @@
       (sit-for 0.1)
       (delete-overlay ov))
     (exit-minibuffer)))
+
+(defun isl-yank-word-at-point ()
+  (interactive)
+  (let (str)
+    (with-current-buffer isl-current-buffer
+      (when (or (memq (char-syntax (or (char-after) 0)) '(?w))
+                (memq (char-syntax (or (char-after (1+ (point))) 0))
+                      '(?w)))
+        (setq str (buffer-substring-no-properties (or isl-yank-point (point))
+                                                  (save-excursion
+                                                    (forward-word)
+                                                    (point))))))
+    (when str
+      (with-selected-window (minibuffer-window)
+        (insert str)))))
 
 (defun isl-delete-overlays ()
   (when isl-item-overlays
@@ -143,7 +160,8 @@
                   isl-number-results (length isl-item-overlays))
             (overlay-put isl-last-overlay 'face 'isl-on)
             (isl--set-iterator)
-            (goto-char (overlay-end (iterator:next isl-iterator))))))
+            (goto-char (overlay-end (iterator:next isl-iterator)))
+            (setq isl-yank-point (point)))))
       (isl--setup-mode-line))))
 
 (defun isl--setup-mode-line ()
@@ -206,7 +224,8 @@
       (unwind-protect
           (isl-read-from-minibuffer "Search: ")
         (isl-delete-overlays)
-        (setq mode-line-format (default-value 'mode-line-format)))
+        (setq mode-line-format (default-value 'mode-line-format)
+              isl-yank-point nil))
     (quit (goto-char isl-initial-pos))))
 
 ;;;###autoload
