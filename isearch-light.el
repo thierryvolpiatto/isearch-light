@@ -184,7 +184,7 @@
               (invalid-regexp nil))
             (setq isl-item-overlays (reverse isl-item-overlays)))
           (if (null isl-item-overlays)
-              (setq isl-number-results 0)
+              (progn (setq isl-number-results 0) (goto-char isl-initial-pos))
             (setq isl-last-overlay
                   (isl-closest-overlay isl-initial-pos isl-item-overlays)
                   isl-number-results (length isl-item-overlays))
