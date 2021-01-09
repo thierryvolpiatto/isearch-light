@@ -173,10 +173,10 @@
   (let* ((revlst (if (eq isl-direction 'forward)
                      isl-item-overlays
                    (reverse isl-item-overlays))) 
-         (ovlst (append (member isl-last-overlay revlst)
+         (ovlst (append (memql isl-last-overlay revlst)
                         (butlast revlst
-                                 (length (member isl-last-overlay
-                                                 revlst))))))
+                                 (length (memql isl-last-overlay
+                                                revlst))))))
       (setq isl-iterator (iterator:circular ovlst))))
 
 (defun isl-check-input ()
