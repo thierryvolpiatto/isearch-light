@@ -44,8 +44,13 @@
   :group 'isearch-light)
 
 (defface isl-number
-  `((t :foreground "red"))
+  `((t :foreground "green"))
   "Face used to highlight number in mode-line."
+  :group 'isearch-light)
+
+(defface isl-string
+  `((t :foreground "Lightgoldenrod1" :bold t))
+  "Face used to highlight pattern in mode-line."
   :group 'isearch-light)
 
 (defvar isl-map
@@ -66,11 +71,12 @@
     (when (overlayp isl-last-overlay)
       (overlay-put isl-last-overlay 'face 'isl-match))
     (when isl-iterator
-      (let ((ov (iterator:next isl-iterator)))
-        (when ov
+      (let* ((ov (iterator:next isl-iterator))
+             (pos (and ov (overlay-start ov))))
+        (when (and ov pos)
           (setq isl-last-overlay ov)
           (overlay-put ov 'face 'isl-on)
-          (goto-char (overlay-start ov)))))))
+          (goto-char pos))))))
 
 (defun isl-goto-next ()
   (interactive)
@@ -140,13 +146,17 @@
 
 (defun isl--setup-mode-line ()
   (setq mode-line-format
-        (if (string= isl-pattern "")
-            (default-value 'mode-line-format)
-          (format " [%s] results(s) found for `%s'"
-                  (propertize (number-to-string isl-number-results)
-                              'face 'isl-number)
-                  (propertize isl-pattern
-                              'face 'isl-on)))))
+        (cond ((string= isl-pattern "")
+               (default-value 'mode-line-format))
+              ((zerop isl-number-results)
+               (format " No results found for `%s'"
+                       (propertize isl-pattern
+                                   'face 'isl-on)))
+              (t (format " [%s] results(s) found for `%s'"
+                         (propertize (number-to-string isl-number-results)
+                                     'face 'isl-number)
+                         (propertize isl-pattern
+                                     'face 'isl-string))))))
 
 (defun isl-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
