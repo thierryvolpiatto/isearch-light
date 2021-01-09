@@ -142,12 +142,19 @@
 
 (defun isl-toggle-regexp-matching ()
   (interactive)
-  (setq isl-search-function
-        (if (eq isl-search-function 're-search-forward)
-            #'search-forward
-          #'re-search-forward))
   (with-current-buffer isl-current-buffer
+    (setq-local isl-search-function
+                (if (eq isl-search-function 're-search-forward)
+                    #'search-forward
+                  #'re-search-forward))
+    (let* ((style (cl-case isl-search-function
+                    (re-search-forward "Regex")
+                    (search-forward "Litteral")))
+           (mode-line-format (format " Switching to %s searching" style)))
+      (force-mode-line-update)
+      (sit-for 1))
     (isl--setup-mode-line)))
+
 
 (defun isl-delete-overlays ()
   (when isl-item-overlays
@@ -253,7 +260,8 @@
           (isl-read-from-minibuffer "Search: ")
         (isl-delete-overlays)
         (setq mode-line-format (default-value 'mode-line-format)
-              isl-yank-point nil))
+              isl-yank-point nil
+              isl-search-function (default-value 'isl-search-function)))
     (quit (goto-char isl-initial-pos))))
 
 ;;;###autoload
