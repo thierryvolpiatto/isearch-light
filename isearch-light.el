@@ -30,6 +30,7 @@
 (defvar isl-number-results 0)
 (defvar isl-history nil)
 (defvar isl-yank-point nil)
+(defvar isl-search-function #'re-search-forward)
 
 ;; User vars
 (defvar isl-case-fold-search 'smart
@@ -75,6 +76,7 @@
     (define-key map (kbd "<up>")   'isl-goto-prev)
     (define-key map (kbd "RET")    'isl-exit-at-point)
     (define-key map (kbd "C-w")    'isl-yank-word-at-point)
+    (define-key map (kbd "M-r")    'isl-toggle-regexp-matching)
     map))
 
 ;;; Actions
@@ -137,6 +139,15 @@
     (when str
       (with-selected-window (minibuffer-window)
         (insert str)))))
+
+(defun isl-toggle-regexp-matching ()
+  (interactive)
+  (setq isl-search-function
+        (if (eq isl-search-function 're-search-forward)
+            #'search-forward
+          #'re-search-forward))
+  (with-current-buffer isl-current-buffer
+    (isl--setup-mode-line)))
 
 (defun isl-delete-overlays ()
   (when isl-item-overlays
@@ -159,7 +170,7 @@
           (save-excursion
             (goto-char (point-min))
             (condition-case-unless-debug nil
-                (while (re-search-forward isl-pattern nil t)
+                (while (funcall isl-search-function isl-pattern nil t)
                   (setq ov (make-overlay (match-beginning 0) (match-end 0)))
                   (push ov isl-item-overlays)
                   (overlay-put ov 'face 'isl-match))
@@ -177,18 +188,23 @@
       (isl--setup-mode-line))))
 
 (defun isl--setup-mode-line ()
-  (setq mode-line-format
-        (cond ((string= isl-pattern "")
-               (default-value 'mode-line-format))
-              ((zerop isl-number-results)
-               (format " No results found for `%s'"
-                       (propertize isl-pattern
-                                   'face 'isl-on)))
-              (t (format " [%s] results(s) found for `%s'"
-                         (propertize (number-to-string isl-number-results)
-                                     'face 'isl-number)
+  (let ((style (cl-case isl-search-function
+                 (re-search-forward "Regex")
+                 (search-forward "Litteral"))))
+    (setq mode-line-format
+          (cond ((string= isl-pattern "")
+                 (default-value 'mode-line-format))
+                ((zerop isl-number-results)
+                 (format " No results found for `%s' [%s]"
                          (propertize isl-pattern
-                                     'face 'isl-string))))))
+                                     'face 'isl-on)
+                         style))
+                (t (format " [%s] results(s) found for `%s' [%s]"
+                           (propertize (number-to-string isl-number-results)
+                                       'face 'isl-number)
+                           (propertize isl-pattern
+                                       'face 'isl-string)
+                           style))))))
 
 (defun isl-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
