@@ -165,7 +165,7 @@
                   #'re-search-forward))
     (let* ((style (cl-case isl-search-function
                     (re-search-forward "Regex")
-                    (search-forward "Litteral")))
+                    (search-forward "Literal")))
            (mode-line-format (format " Switching to %s searching" style)))
       (force-mode-line-update)
       (sit-for 1))
@@ -213,7 +213,7 @@
 (defun isl--setup-mode-line ()
   (let ((style (cl-case isl-search-function
                  (re-search-forward "Regex")
-                 (search-forward "Litteral")))
+                 (search-forward "Literal")))
         (position (with-current-buffer isl-current-buffer
                      (if (> (point) isl-initial-pos)
                          isl-down-position-string
