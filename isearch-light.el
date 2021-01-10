@@ -263,16 +263,15 @@ the initial position i.e. the position before launching isl."
 
 (defun isl-set-iterator (&optional skip-first)
   "Build `isl-iterator' against `isl-item-overlays' according to context.
-When SKIP-FIRST is specified build overlay without the current overlay."
+When SKIP-FIRST is specified build overlay with the current overlay
+appended at end."
   (let* ((revlst (if (eq isl-direction 'forward)
                      isl-item-overlays
-                   (reverse isl-item-overlays))) 
-         (ovlst (append (if skip-first
-                            (cdr (memql isl-last-overlay revlst))
-                          (memql isl-last-overlay revlst))
-                        (butlast revlst
-                                 (length (memql isl-last-overlay
-                                                revlst))))))
+                   (reverse isl-item-overlays)))
+         (fwdlst (memql isl-last-overlay revlst))
+         (ovlst (append (if skip-first (cdr fwdlst) fwdlst)
+                        (butlast revlst (length fwdlst))
+                        (list (car fwdlst)))))
       (setq isl-iterator (iterator:circular ovlst))))
 
 (defun isl-check-input ()
