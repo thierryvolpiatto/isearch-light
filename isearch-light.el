@@ -332,6 +332,7 @@ appended at end."
     (quit (goto-char isl-initial-pos))))
 
 (defun isl-cleanup ()
+  "Cleanup various things when isl exit."
   (isl-delete-overlays)
   (setq mode-line-format (default-value 'mode-line-format)
         isl--yank-point nil
