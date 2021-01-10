@@ -35,14 +35,14 @@
 ;; Internals
 (defvar isl-pattern "")
 (defvar isl-current-buffer nil)
-(defvar isl-item-overlays nil)
-(defvar isl-iterator nil)
-(defvar isl-last-overlay nil)
-(defvar isl-direction nil)
+(defvar isl--item-overlays nil)
+(defvar isl--iterator nil)
+(defvar isl--last-overlay nil)
+(defvar isl--direction nil)
 (defvar isl-initial-pos nil)
-(defvar isl-number-results 0)
+(defvar isl--number-results 0)
 (defvar isl-history nil)
-(defvar isl-yank-point nil)
+(defvar isl--yank-point nil)
 
 
 ;; User vars
@@ -126,33 +126,33 @@ in pattern."
 (defun isl-goto-next-1 ()
   "Main function that allow moving from one to another overlay.
 It put overlay on current position, move to next overlay using
-`isl-iterator', set `isl-yank-point' and then setup mode-line."
+`isl--iterator', set `isl--yank-point' and then setup mode-line."
   (with-selected-window (get-buffer-window isl-current-buffer)
-    (when (overlayp isl-last-overlay)
-      (overlay-put isl-last-overlay 'face 'isl-match))
-    (when isl-iterator
-      (let* ((ov (iterator:next isl-iterator))
+    (when (overlayp isl--last-overlay)
+      (overlay-put isl--last-overlay 'face 'isl-match))
+    (when isl--iterator
+      (let* ((ov (iterator:next isl--iterator))
              (pos (and ov (overlay-end ov))))
         (when (and ov pos)
-          (setq isl-last-overlay ov)
+          (setq isl--last-overlay ov)
           (overlay-put ov 'face 'isl-on)
           (goto-char pos)
-          (setq isl-yank-point pos))))
+          (setq isl--yank-point pos))))
     (isl-setup-mode-line)))
 
 (defun isl-goto-next ()
   "Go to next match in isl."
   (interactive)
-  (when (eq isl-direction 'backward)
-    (setq isl-direction 'forward)
+  (when (eq isl--direction 'backward)
+    (setq isl--direction 'forward)
     (isl-set-iterator t))
   (isl-goto-next-1))
 
 (defun isl-goto-prev ()
   "Go to previous match in isl."
   (interactive)
-  (when (eq isl-direction 'forward)
-    (setq isl-direction 'backward)
+  (when (eq isl--direction 'forward)
+    (setq isl--direction 'backward)
     (isl-set-iterator t))
   (isl-goto-next-1))
 
@@ -176,7 +176,7 @@ the initial position i.e. the position before launching isl."
       (when (or (memq (char-syntax (or (char-after) 0)) '(?w))
                 (memq (char-syntax (or (char-after (1+ (point))) 0))
                       '(?w)))
-        (setq str (buffer-substring-no-properties (or isl-yank-point (point))
+        (setq str (buffer-substring-no-properties (or isl--yank-point (point))
                                                   (save-excursion
                                                     (forward-word)
                                                     (point))))))
@@ -204,9 +204,9 @@ the initial position i.e. the position before launching isl."
 
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
-  (when isl-item-overlays
-    (mapc 'delete-overlay isl-item-overlays)
-    (setq isl-item-overlays nil)))
+  (when isl--item-overlays
+    (mapc 'delete-overlay isl--item-overlays)
+    (setq isl--item-overlays nil)))
 
 (cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
   "Return a suitable value for `case-fold-search' according to `isl-case-fold-search'."
@@ -228,19 +228,19 @@ the initial position i.e. the position before launching isl."
             (condition-case-unless-debug nil
                 (while (funcall isl-search-function isl-pattern nil t)
                   (setq ov (make-overlay (match-beginning 0) (match-end 0)))
-                  (push ov isl-item-overlays)
+                  (push ov isl--item-overlays)
                   (overlay-put ov 'face 'isl-match))
               (invalid-regexp nil))
-            (setq isl-item-overlays (reverse isl-item-overlays)))
-          (if (null isl-item-overlays)
-              (progn (setq isl-number-results 0) (goto-char isl-initial-pos))
-            (setq isl-last-overlay
-                  (isl-closest-overlay isl-initial-pos isl-item-overlays)
-                  isl-number-results (length isl-item-overlays))
-            (overlay-put isl-last-overlay 'face 'isl-on)
+            (setq isl--item-overlays (reverse isl--item-overlays)))
+          (if (null isl--item-overlays)
+              (progn (setq isl--number-results 0) (goto-char isl-initial-pos))
+            (setq isl--last-overlay
+                  (isl-closest-overlay isl-initial-pos isl--item-overlays)
+                  isl--number-results (length isl--item-overlays))
+            (overlay-put isl--last-overlay 'face 'isl-on)
             (isl-set-iterator)
-            (goto-char (overlay-end (iterator:next isl-iterator)))
-            (setq isl-yank-point (point)))))
+            (goto-char (overlay-end (iterator:next isl--iterator)))
+            (setq isl--yank-point (point)))))
       (isl-setup-mode-line))))
 
 (defun isl-setup-mode-line ()
@@ -252,13 +252,13 @@ the initial position i.e. the position before launching isl."
                      (if (> (point) isl-initial-pos)
                          isl-before-position-string
                        isl-after-position-string)))
-        (direction (if (eq isl-direction 'forward)
+        (direction (if (eq isl--direction 'forward)
                        isl-direction-down-string
                      isl-direction-up-string)))
     (setq mode-line-format
           (cond ((string= isl-pattern "")
                  (default-value 'mode-line-format))
-                ((zerop isl-number-results)
+                ((zerop isl--number-results)
                  `(" " mode-line-buffer-identification " "
                    (:eval ,(format "No results found for `%s' [%s %s]"
                                    (propertize isl-pattern
@@ -268,7 +268,7 @@ the initial position i.e. the position before launching isl."
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
                      (:eval ,(format "[%s] result(s) found for `%s' [%s %s %s]"
-                                     (propertize (number-to-string isl-number-results)
+                                     (propertize (number-to-string isl--number-results)
                                                  'face 'isl-number)
                                      (propertize isl-pattern
                                                  'face 'isl-string)
@@ -287,17 +287,17 @@ the initial position i.e. the position before launching isl."
            finally return (cdr (assq min res))))
 
 (defun isl-set-iterator (&optional skip-first)
-  "Build `isl-iterator' against `isl-item-overlays' according to context.
+  "Build `isl--iterator' against `isl--item-overlays' according to context.
 When SKIP-FIRST is specified build overlay with the current overlay
 appended at end."
-  (let* ((revlst (if (eq isl-direction 'forward)
-                     isl-item-overlays
-                   (reverse isl-item-overlays)))
-         (fwdlst (memql isl-last-overlay revlst))
+  (let* ((revlst (if (eq isl--direction 'forward)
+                     isl--item-overlays
+                   (reverse isl--item-overlays)))
+         (fwdlst (memql isl--last-overlay revlst))
          (ovlst (append (if skip-first (cdr fwdlst) fwdlst)
                         (butlast revlst (length fwdlst))
                         (list (car fwdlst)))))
-      (setq isl-iterator (iterator:circular ovlst))))
+      (setq isl--iterator (iterator:circular ovlst))))
 
 (defun isl-check-input ()
   "Check minibuffer input."
@@ -322,7 +322,7 @@ appended at end."
 
 (defun isl-1 ()
   "The internal function that call isl."
-  (setq isl-item-overlays nil
+  (setq isl--item-overlays nil
         isl-pattern ""
         isl-current-buffer (current-buffer))
   (condition-case-unless-debug nil
@@ -330,7 +330,7 @@ appended at end."
           (isl-read-from-minibuffer "Search: ")
         (isl-delete-overlays)
         (setq mode-line-format (default-value 'mode-line-format)
-              isl-yank-point nil
+              isl--yank-point nil
               isl-search-function (default-value 'isl-search-function)))
     (quit (goto-char isl-initial-pos))))
 
@@ -338,7 +338,7 @@ appended at end."
 (defun isl ()
   "Start incremental searching in current buffer."
   (interactive)
-  (setq isl-direction 'forward
+  (setq isl--direction 'forward
         isl-initial-pos (point))
   (isl-1))
 
