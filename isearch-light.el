@@ -48,6 +48,8 @@
 ;; User vars
 (defvar isl-case-fold-search 'smart
   "The `case-fold-search' value.")
+(defvar isl-up-position-string "↑")
+(defvar isl-down-position-string "↓")
 
 (defgroup isearch-light nil
   "Open isl."
@@ -105,7 +107,8 @@
           (setq isl-last-overlay ov)
           (overlay-put ov 'face 'isl-on)
           (goto-char pos)
-          (setq isl-yank-point pos))))))
+          (setq isl-yank-point pos))))
+    (isl--setup-mode-line)))
 
 (defun isl-goto-next ()
   (interactive)
@@ -210,7 +213,11 @@
 (defun isl--setup-mode-line ()
   (let ((style (cl-case isl-search-function
                  (re-search-forward "Regex")
-                 (search-forward "Litteral"))))
+                 (search-forward "Litteral")))
+        (position (with-current-buffer isl-current-buffer
+                     (if (> (point) isl-initial-pos)
+                         isl-down-position-string
+                       isl-up-position-string))))
     (setq mode-line-format
           (cond ((string= isl-pattern "")
                  (default-value 'mode-line-format))
@@ -222,12 +229,13 @@
                                    style))
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
-                     (:eval ,(format "[%s] results(s) found for `%s' [%s]"
+                     (:eval ,(format "[%s] results(s) found for `%s' [%s %s]"
                                      (propertize (number-to-string isl-number-results)
                                                  'face 'isl-number)
                                      (propertize isl-pattern
                                                  'face 'isl-string)
-                                     style))
+                                     style
+                                     position))
                      " " mode-line-position))))))
 
 (defun isl-closest-overlay (pos overlays)
