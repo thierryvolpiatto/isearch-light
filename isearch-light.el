@@ -328,11 +328,14 @@ appended at end."
   (condition-case-unless-debug nil
       (unwind-protect
           (isl-read-from-minibuffer "Search: ")
-        (isl-delete-overlays)
-        (setq mode-line-format (default-value 'mode-line-format)
-              isl--yank-point nil
-              isl-search-function (default-value 'isl-search-function)))
+        (isl-cleanup))
     (quit (goto-char isl-initial-pos))))
+
+(defun isl-cleanup ()
+  (isl-delete-overlays)
+  (setq mode-line-format (default-value 'mode-line-format)
+        isl--yank-point nil
+        isl-search-function (default-value 'isl-search-function)))
 
 ;;;###autoload
 (defun isl ()
