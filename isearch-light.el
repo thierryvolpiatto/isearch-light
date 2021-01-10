@@ -99,6 +99,9 @@
 ;;; Actions
 ;;
 (defun isl-goto-next-1 ()
+  "Main function that allow moving from one to another overlay.
+It put overlay on current position, move to next overlay using
+`isl-iterator', set `isl-yank-point' and then setup mode-line."
   (with-selected-window (get-buffer-window isl-current-buffer)
     (when (overlayp isl-last-overlay)
       (overlay-put isl-last-overlay 'face 'isl-match))
@@ -113,6 +116,7 @@
     (isl-setup-mode-line)))
 
 (defun isl-goto-next ()
+  "Go to next match in isl."
   (interactive)
   (when (eq isl-direction 'backward)
     (setq isl-direction 'forward)
@@ -120,6 +124,7 @@
   (isl-goto-next-1))
 
 (defun isl-goto-prev ()
+  "Go to previous match in isl."
   (interactive)
   (when (eq isl-direction 'forward)
     (setq isl-direction 'backward)
@@ -127,6 +132,7 @@
   (isl-goto-next-1))
 
 (defun isl-exit-at-point ()
+  "The exit command for isl."
   (interactive)
   (with-selected-window (get-buffer-window isl-current-buffer)
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
@@ -136,6 +142,9 @@
     (exit-minibuffer)))
 
 (defun isl-yank-word-at-point ()
+  "Yank word at point in minibuffer.
+The word at point is relative to the current position in buffer, not
+the initial position i.e. the position before launching isl."
   (interactive)
   (let (str)
     (with-current-buffer isl-current-buffer
@@ -151,6 +160,7 @@
         (insert str)))))
 
 (defun isl-toggle-style-matching ()
+  "Toggle style matching in isl i.e. regexp/literal."
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-search-function
@@ -168,17 +178,20 @@
 
 
 (defun isl-delete-overlays ()
+  "Cleanup ovelays."
   (when isl-item-overlays
     (mapc 'delete-overlay isl-item-overlays)
     (setq isl-item-overlays nil)))
 
 (cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
+  "Return a suitable value for `case-fold-search' according to `isl-case-fold-search'."
   (cl-case isl-case-fold-search
     (smart (let ((case-fold-search nil))
              (if (string-match "[[:upper:]]" pattern) nil t)))
     (t isl-case-fold-search)))
 
 (defun isl-update-overlays ()
+  "Update `current-buffer' when `isl-pattern' change."
   (with-selected-window (get-buffer-window isl-current-buffer)
     (isl-delete-overlays)
     (let ((case-fold-search (isl-set-case-fold-search))
@@ -206,6 +219,7 @@
       (isl-setup-mode-line))))
 
 (defun isl-setup-mode-line ()
+  "Setup `mode-line-format' for isl."
   (let ((style (cl-case isl-search-function
                  (re-search-forward "Regex")
                  (search-forward "Literal")))
@@ -248,6 +262,8 @@
            finally return (cdr (assq min res))))
 
 (defun isl-set-iterator (&optional skip-first)
+  "Build `isl-iterator' against `isl-item-overlays' according to context.
+When SKIP-FIRST is specified build overlay without the current overlay."
   (let* ((revlst (if (eq isl-direction 'forward)
                      isl-item-overlays
                    (reverse isl-item-overlays))) 
@@ -260,6 +276,7 @@
       (setq isl-iterator (iterator:circular ovlst))))
 
 (defun isl-check-input ()
+  "Check minibuffer input."
   (with-selected-window (minibuffer-window)
     (let ((input (minibuffer-contents)))
       (when (not (string= input isl-pattern))
@@ -267,6 +284,7 @@
         (isl-update-overlays)))))
 
 (defun isl-read-from-minibuffer (prompt)
+  "Read input from minibuffer."
   (let (timer
         (cursor-in-echo-area t))
     (unwind-protect
@@ -279,6 +297,7 @@
       (cancel-timer timer))))
 
 (defun isl-1 ()
+  "The internal function that call isl."
   (setq isl-item-overlays nil
         isl-pattern ""
         isl-current-buffer (current-buffer))
@@ -293,6 +312,7 @@
 
 ;;;###autoload
 (defun isl ()
+  "Start incremental searching in current buffer."
   (interactive)
   (setq isl-direction 'forward
         isl-initial-pos (point))
@@ -300,6 +320,7 @@
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
+  "Start incremental searching in current defun."
   (interactive)
   (save-restriction
     (narrow-to-defun)
