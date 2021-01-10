@@ -116,22 +116,14 @@
   (interactive)
   (when (eq isl-direction 'backward)
     (setq isl-direction 'forward)
-    (isl--set-iterator)
-    (message "%s%s"
-             (apply #'propertize "Search (forward): "
-                    minibuffer-prompt-properties)
-             isl-pattern))
+    (isl--set-iterator t))
   (isl-goto-next-1))
 
 (defun isl-goto-prev ()
   (interactive)
   (when (eq isl-direction 'forward)
     (setq isl-direction 'backward)
-    (isl--set-iterator)
-    (message "%s%s"
-             (apply #'propertize "Search (backward): "
-                    minibuffer-prompt-properties)
-             isl-pattern))
+    (isl--set-iterator t))
   (isl-goto-next-1))
 
 (defun isl-exit-at-point ()
@@ -255,11 +247,13 @@
            minimize diff into min
            finally return (cdr (assq min res))))
 
-(defun isl--set-iterator ()
+(defun isl--set-iterator (&optional skip-first)
   (let* ((revlst (if (eq isl-direction 'forward)
                      isl-item-overlays
                    (reverse isl-item-overlays))) 
-         (ovlst (append (memql isl-last-overlay revlst)
+         (ovlst (append (if skip-first
+                            (cdr (memql isl-last-overlay revlst))
+                          (memql isl-last-overlay revlst))
                         (butlast revlst
                                  (length (memql isl-last-overlay
                                                 revlst))))))
