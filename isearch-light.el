@@ -75,11 +75,11 @@ in pattern."
   "The string used to notify in mode-line when position is below initial pos."
   :type 'string)
 
-(defvar isl-direction-down-string "↓"
+(defcustom isl-direction-down-string "↓"
   "The string used in mode-line to notify search direction."
   :type 'string)
 
-(defvar isl-direction-up-string "↑"
+(defcustom isl-direction-up-string "↑"
   "The string used in mode-line to notify search direction."
   :type 'string)
 
