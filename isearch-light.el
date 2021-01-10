@@ -215,7 +215,7 @@ the initial position i.e. the position before launching isl."
              (if (string-match "[[:upper:]]" pattern) nil t)))
     (t isl-case-fold-search)))
 
-(defun isl-update-overlays ()
+(defun isl-update ()
   "Update `current-buffer' when `isl-pattern' change."
   (with-selected-window (get-buffer-window isl-current-buffer)
     (isl-delete-overlays)
@@ -305,7 +305,7 @@ appended at end."
     (let ((input (minibuffer-contents)))
       (when (not (string= input isl-pattern))
         (setq isl-pattern input)
-        (isl-update-overlays)))))
+        (isl-update)))))
 
 (defun isl-read-from-minibuffer (prompt)
   "Read input from minibuffer."
