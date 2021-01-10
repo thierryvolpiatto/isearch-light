@@ -110,20 +110,20 @@
           (overlay-put ov 'face 'isl-on)
           (goto-char pos)
           (setq isl-yank-point pos))))
-    (isl--setup-mode-line)))
+    (isl-setup-mode-line)))
 
 (defun isl-goto-next ()
   (interactive)
   (when (eq isl-direction 'backward)
     (setq isl-direction 'forward)
-    (isl--set-iterator t))
+    (isl-set-iterator t))
   (isl-goto-next-1))
 
 (defun isl-goto-prev ()
   (interactive)
   (when (eq isl-direction 'forward)
     (setq isl-direction 'backward)
-    (isl--set-iterator t))
+    (isl-set-iterator t))
   (isl-goto-next-1))
 
 (defun isl-exit-at-point ()
@@ -164,7 +164,7 @@
              (mode-line-format (format " Switching to %s searching" style)))
         (force-mode-line-update)
         (sit-for 1)))
-    (isl--setup-mode-line)))
+    (isl-setup-mode-line)))
 
 
 (defun isl-delete-overlays ()
@@ -200,12 +200,12 @@
                   (isl-closest-overlay isl-initial-pos isl-item-overlays)
                   isl-number-results (length isl-item-overlays))
             (overlay-put isl-last-overlay 'face 'isl-on)
-            (isl--set-iterator)
+            (isl-set-iterator)
             (goto-char (overlay-end (iterator:next isl-iterator)))
             (setq isl-yank-point (point)))))
-      (isl--setup-mode-line))))
+      (isl-setup-mode-line))))
 
-(defun isl--setup-mode-line ()
+(defun isl-setup-mode-line ()
   (let ((style (cl-case isl-search-function
                  (re-search-forward "Regex")
                  (search-forward "Literal")))
@@ -247,7 +247,7 @@
            minimize diff into min
            finally return (cdr (assq min res))))
 
-(defun isl--set-iterator (&optional skip-first)
+(defun isl-set-iterator (&optional skip-first)
   (let* ((revlst (if (eq isl-direction 'forward)
                      isl-item-overlays
                    (reverse isl-item-overlays))) 
