@@ -338,6 +338,10 @@ appended at end."
   (isl-delete-overlays)
   (setq mode-line-format (default-value 'mode-line-format)
         isl--yank-point nil
+        isl--iterator nil
+        isl--item-overlays nil
+        isl--last-overlay nil
+        isl--number-results nil
         isl-search-function (default-value 'isl-search-function)))
 
 ;;;###autoload
@@ -345,7 +349,10 @@ appended at end."
   "Start incremental searching in current buffer."
   (interactive)
   (setq isl--direction 'forward
-        isl-initial-pos (point))
+        isl-initial-pos (point)
+        isl--item-overlays nil
+        isl-pattern ""
+        isl-current-buffer (current-buffer))
   (isl-1))
 
 ;;;###autoload
