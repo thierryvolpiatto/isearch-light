@@ -1,4 +1,4 @@
-;;; isearch-light.el --- simple incremental search in current-buffer -*- lexical-binding: t -*- 
+;;; isearch-light.el --- simple incremental search in current-buffer -*- lexical-binding: t -*-
 
 ;; Author:      Thierry Volpiatto <thievol@posteo.net>
 ;; Copyright (C) 2021 Thierry Volpiatto <thievol@posteo.net>
@@ -55,7 +55,7 @@
   "The search function that will be used by default when starting `isl'.
 Possible values are `re-search-forward' and `search-forward', the
 first use regexp matching while the second is using literal matching.
-Its value can be changed during isl session with `\\<isl-map>\\[isl-toggle-style-matching]'."
+Its value can be changed during `isl' session with `\\<isl-map>\\[isl-toggle-style-matching]'."
   :type '(choice
            (function :tag "Regexp matching" re-search-forward)
            (function :tag "Literal matching" search-forward)))
@@ -63,7 +63,7 @@ Its value can be changed during isl session with `\\<isl-map>\\[isl-toggle-style
 (defcustom isl-case-fold-search 'smart
   "The `case-fold-search' value.
 Possible value are nil, t or smart.
-Value smart means use case-fold-search when upcase chars are detected
+Value smart means use `case-fold-search' when upcase chars are detected
 in pattern."
   :type 'symbol)
 
@@ -185,7 +185,7 @@ the initial position i.e. the position before launching isl."
         (insert str)))))
 
 (defun isl-toggle-style-matching ()
-  "Toggle style matching in isl i.e. regexp/literal."
+  "Toggle style matching in `isl' i.e. regexp/literal."
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-search-function
@@ -209,7 +209,9 @@ the initial position i.e. the position before launching isl."
     (setq isl--item-overlays nil)))
 
 (cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
-  "Return a suitable value for `case-fold-search' according to `isl-case-fold-search'."
+  "Return a suitable value for `case-fold-search'.
+This is done according to `isl-case-fold-search'.
+Optional argument PATTERN default to `isl-pattern'."
   (cl-case isl-case-fold-search
     (smart (let ((case-fold-search nil))
              (if (string-match "[[:upper:]]" pattern) nil t)))
@@ -308,7 +310,7 @@ appended at end."
         (isl-update)))))
 
 (defun isl-read-from-minibuffer (prompt)
-  "Read input from minibuffer."
+  "Read input from minibuffer with prompt PROMPT."
   (let (timer
         (cursor-in-echo-area t))
     (unwind-protect
@@ -332,7 +334,7 @@ appended at end."
     (quit (goto-char isl-initial-pos))))
 
 (defun isl-cleanup ()
-  "Cleanup various things when isl exit."
+  "Cleanup various things when `isl' exit."
   (isl-delete-overlays)
   (setq mode-line-format (default-value 'mode-line-format)
         isl--yank-point nil
