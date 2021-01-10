@@ -43,21 +43,46 @@
 (defvar isl-number-results 0)
 (defvar isl-history nil)
 (defvar isl-yank-point nil)
-(defvar isl-search-function #'re-search-forward)
 
-;; User vars
-(defvar isl-case-fold-search 'smart
-  "The `case-fold-search' value.")
-(defvar isl-after-position-string "<")
-(defvar isl-before-position-string ">")
-(defvar isl-direction-down-string "↓")
-(defvar isl-direction-up-string "↑")
 
+;; User vars
 (defgroup isearch-light nil
   "Open isl."
   :prefix "isl-"
   :group 'matching)
 
+(defcustom isl-search-function #'re-search-forward
+  "The search function that will be used by default when starting `isl'.
+Possible values are `re-search-forward' and `search-forward', the
+first use regexp matching while the second is using literal matching.
+Its value can be changed during isl session with `\\<isl-map>\\[isl-toggle-style-matching]'."
+  :type '(choice
+           (function :tag "Regexp matching" re-search-forward)
+           (function :tag "Literal matching" search-forward)))
+
+(defcustom isl-case-fold-search 'smart
+  "The `case-fold-search' value.
+Possible value are nil, t or smart.
+Value smart means use case-fold-search when upcase chars are detected
+in pattern."
+  :type 'symbol)
+
+(defcustom isl-after-position-string "<"
+  "The string used to notify in mode-line when position is above initial pos."
+  :type 'string)
+
+(defcustom isl-before-position-string ">"
+  "The string used to notify in mode-line when position is below initial pos."
+  :type 'string)
+
+(defvar isl-direction-down-string "↓"
+  "The string used in mode-line to notify search direction."
+  :type 'string)
+
+(defvar isl-direction-up-string "↑"
+  "The string used in mode-line to notify search direction."
+  :type 'string)
+
 (defface isl-match
   `((t :background "Brown4"))
   "Face used to highlight the items matched."
