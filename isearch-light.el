@@ -48,8 +48,10 @@
 ;; User vars
 (defvar isl-case-fold-search 'smart
   "The `case-fold-search' value.")
-(defvar isl-up-position-string "↑")
-(defvar isl-down-position-string "↓")
+(defvar isl-after-position-string "<")
+(defvar isl-before-position-string ">")
+(defvar isl-direction-down-string "↓")
+(defvar isl-direction-up-string "↑")
 
 (defgroup isearch-light nil
   "Open isl."
@@ -217,25 +219,30 @@
                  (search-forward "Literal")))
         (position (with-current-buffer isl-current-buffer
                      (if (> (point) isl-initial-pos)
-                         isl-down-position-string
-                       isl-up-position-string))))
+                         isl-before-position-string
+                       isl-after-position-string)))
+        (direction (if (eq isl-direction 'forward)
+                       isl-direction-down-string
+                     isl-direction-up-string)))
     (setq mode-line-format
           (cond ((string= isl-pattern "")
                  (default-value 'mode-line-format))
                 ((zerop isl-number-results)
                  `(" " mode-line-buffer-identification " "
-                   (:eval ,(format "No results found for `%s' [%s]"
+                   (:eval ,(format "No results found for `%s' [%s %s]"
                                    (propertize isl-pattern
                                                'face 'isl-on)
-                                   style))
+                                   style
+                                   direction))
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
-                     (:eval ,(format "[%s] result(s) found for `%s' [%s %s]"
+                     (:eval ,(format "[%s] result(s) found for `%s' [%s %s %s]"
                                      (propertize (number-to-string isl-number-results)
                                                  'face 'isl-number)
                                      (propertize isl-pattern
                                                  'face 'isl-string)
                                      style
+                                     direction
                                      position))
                      " " mode-line-position))))))
 
