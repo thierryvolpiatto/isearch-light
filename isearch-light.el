@@ -91,7 +91,7 @@
     (define-key map (kbd "<up>")   'isl-goto-prev)
     (define-key map (kbd "RET")    'isl-exit-at-point)
     (define-key map (kbd "C-w")    'isl-yank-word-at-point)
-    (define-key map (kbd "M-r")    'isl-toggle-regexp-matching)
+    (define-key map (kbd "M-r")    'isl-toggle-style-matching)
     map))
 
 ;;; Actions
@@ -156,7 +156,7 @@
       (with-selected-window (minibuffer-window)
         (insert str)))))
 
-(defun isl-toggle-regexp-matching ()
+(defun isl-toggle-style-matching ()
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-search-function
