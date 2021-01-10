@@ -230,7 +230,7 @@
                                    style))
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
-                     (:eval ,(format "[%s] results(s) found for `%s' [%s %s]"
+                     (:eval ,(format "[%s] result(s) found for `%s' [%s %s]"
                                      (propertize (number-to-string isl-number-results)
                                                  'face 'isl-number)
                                      (propertize isl-pattern
