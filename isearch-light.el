@@ -85,8 +85,8 @@
 (defvar isl-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map minibuffer-local-map)
-    (define-key map (kbd "C-z")    'isl-goto-next)
-    (define-key map (kbd "M-z")    'isl-goto-prev)
+    (define-key map (kbd "C-s")    'isl-goto-next)
+    (define-key map (kbd "C-r")    'isl-goto-prev)
     (define-key map (kbd "<down>") 'isl-goto-next)
     (define-key map (kbd "<up>")   'isl-goto-prev)
     (define-key map (kbd "RET")    'isl-exit-at-point)
