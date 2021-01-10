@@ -298,7 +298,7 @@ appended at end."
          (fwdlst (memql isl--last-overlay revlst))
          (ovlst (append (if skip-first (cdr fwdlst) fwdlst)
                         (butlast revlst (length fwdlst))
-                        (list (car fwdlst)))))
+                        (and skip-first (list (car fwdlst))))))
       (setq isl--iterator (iterator:circular ovlst))))
 
 (defun isl-check-input ()
