@@ -323,10 +323,7 @@ appended at end."
       (cancel-timer timer))))
 
 (defun isl-1 ()
-  "The internal function that call isl."
-  (setq isl--item-overlays nil
-        isl-pattern ""
-        isl-current-buffer (current-buffer))
+  "The internal function called by `isl'."
   (condition-case-unless-debug nil
       (unwind-protect
           (isl-read-from-minibuffer "Search: ")
