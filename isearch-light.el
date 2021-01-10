@@ -163,12 +163,13 @@
                 (if (eq isl-search-function 're-search-forward)
                     #'search-forward
                   #'re-search-forward))
-    (let* ((style (cl-case isl-search-function
-                    (re-search-forward "Regex")
-                    (search-forward "Literal")))
-           (mode-line-format (format " Switching to %s searching" style)))
-      (force-mode-line-update)
-      (sit-for 1))
+    (when (string= isl-pattern "")
+      (let* ((style (cl-case isl-search-function
+                      (re-search-forward "Regex")
+                      (search-forward "Literal")))
+             (mode-line-format (format " Switching to %s searching" style)))
+        (force-mode-line-update)
+        (sit-for 1)))
     (isl--setup-mode-line)))
 
 
