@@ -173,9 +173,9 @@ the initial position i.e. the position before launching isl."
   (interactive)
   (let (str)
     (with-current-buffer isl-current-buffer
-      (when (or (memq (char-syntax (or (char-after) 0)) '(?w))
+      (when (or (memq (char-syntax (or (char-after) 0)) '(?w ?_))
                 (memq (char-syntax (or (char-after (1+ (point))) 0))
-                      '(?w)))
+                      '(?w ?_)))
         (setq str (buffer-substring-no-properties (or isl--yank-point (point))
                                                   (save-excursion
                                                     (forward-word)
