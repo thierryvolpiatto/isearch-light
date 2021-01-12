@@ -324,7 +324,7 @@ appended at end."
         (minibuffer-with-setup-hook
             (lambda ()
               (setq timer (run-with-idle-timer
-                           0.1 'repeat #'isl-check-input)))
+                           0.3 'repeat #'isl-check-input)))
           (read-from-minibuffer
            prompt nil isl-map nil 'isl-history (thing-at-point 'symbol t)))
       (cancel-timer timer))))
