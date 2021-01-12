@@ -220,10 +220,10 @@ Optional argument PATTERN default to `isl-pattern'."
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' change."
   (with-selected-window (get-buffer-window isl-current-buffer)
-    (isl-delete-overlays)
-    (let ((case-fold-search (isl-set-case-fold-search))
-          ov)
-      (while-no-input
+    (while-no-input
+      (isl-delete-overlays)
+      (let ((case-fold-search (isl-set-case-fold-search))
+            ov)
         (unless (string= isl-pattern "")
           (save-excursion
             (goto-char (point-min))
