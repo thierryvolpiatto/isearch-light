@@ -269,7 +269,13 @@ Optional argument PATTERN default to `isl-pattern'."
                                    direction))
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
-                     (:eval ,(format "[%s] result(s) found for `%s' [%s %s %s]"
+                     (:eval ,(format "[%s/%s] result(s) found for `%s' [%s %s %s]"
+                                     (propertize
+                                      (number-to-string (1+ (iterator:position
+                                                             isl--last-overlay
+                                                             isl--item-overlays
+                                                             :test 'eql)))
+                                      'face 'isl-number)
                                      (propertize (number-to-string
                                                   isl--number-results)
                                                  'face 'isl-number)
