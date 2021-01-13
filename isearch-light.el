@@ -205,7 +205,7 @@ the initial position i.e. the position before launching isl."
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
   (when isl--item-overlays
-    (mapc 'delete-overlay isl--item-overlays)
+    (remove-overlays nil nil 'isl t)
     (setq isl--item-overlays nil)))
 
 (cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
@@ -223,6 +223,7 @@ Optional argument PATTERN default to `isl-pattern'."
     (while-no-input
       (isl-delete-overlays)
       (let ((case-fold-search (isl-set-case-fold-search))
+            (count 1)
             ov)
         (unless (string= isl-pattern "")
           (save-excursion
@@ -231,7 +232,10 @@ Optional argument PATTERN default to `isl-pattern'."
                 (while (funcall isl-search-function isl-pattern nil t)
                   (setq ov (make-overlay (match-beginning 0) (match-end 0)))
                   (push ov isl--item-overlays)
-                  (overlay-put ov 'face 'isl-match))
+                  (overlay-put ov 'isl t)
+                  (overlay-put ov 'pos count)
+                  (overlay-put ov 'face 'isl-match)
+                  (cl-incf count))
               (invalid-regexp nil))
             (setq isl--item-overlays (reverse isl--item-overlays)))
           (if (null isl--item-overlays)
@@ -271,10 +275,8 @@ Optional argument PATTERN default to `isl-pattern'."
                 (t `(" " mode-line-buffer-identification " "
                      (:eval ,(format "[%s/%s] result(s) found for `%s' [%s %s %s]"
                                      (propertize
-                                      (number-to-string (1+ (iterator:position
-                                                             isl--last-overlay
-                                                             isl--item-overlays
-                                                             :test 'eql)))
+                                      (number-to-string
+                                       (overlay-get isl--last-overlay 'pos))
                                       'face 'isl-number)
                                      (propertize (number-to-string
                                                   isl--number-results)
