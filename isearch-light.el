@@ -43,7 +43,7 @@
 (defvar isl--number-results 0)
 (defvar isl-history nil)
 (defvar isl--yank-point nil)
-
+(defvar isl-timer-delay 0.1)
 
 ;; User vars
 (defgroup isearch-light nil
@@ -326,7 +326,7 @@ appended at end."
         (minibuffer-with-setup-hook
             (lambda ()
               (setq timer (run-with-idle-timer
-                           0.3 'repeat #'isl-check-input)))
+                           isl-timer-delay 'repeat #'isl-check-input)))
           (read-from-minibuffer
            prompt nil isl-map nil 'isl-history (thing-at-point 'symbol t)))
       (cancel-timer timer))))
