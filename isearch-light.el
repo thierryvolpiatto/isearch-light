@@ -231,7 +231,9 @@ the initial position i.e. the position before launching isl."
          (setq lis (pcase lis (`(,_ . ,ll) (or ll seq))))
          elm))))
 
-(defalias 'isl-iter-next 'funcall)
+(defun isl-iter-next (iterator)
+  "Return next elm of ITERATOR."
+  (and iterator (funcall iterator)))
 
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
