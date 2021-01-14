@@ -6,8 +6,8 @@
 ;; Version: 1.0
 ;; X-URL: https://github.com/thierryvolpiatto/isearch-light
 
-;; Compatibility: GNU Emacs 26.3+
-;; Package-Requires: ((emacs "26") (cl-lib "0.5") (iterator 1.0))
+;; Compatibility: GNU Emacs 24.1+
+;; Package-Requires: ((emacs "24") (cl-lib "0.5"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'iterator)
 
 ;; Internals
 (defvar isl-pattern "")
@@ -131,7 +130,7 @@ It put overlay on current position, move to next overlay using
     (when (overlayp isl--last-overlay)
       (overlay-put isl--last-overlay 'face 'isl-match))
     (when isl--iterator
-      (let* ((ov (iterator:next isl--iterator))
+      (let* ((ov (isl-iter-next isl--iterator))
              (pos (and ov (overlay-end ov))))
         (when (and ov pos)
           (setq isl--last-overlay ov)
@@ -202,6 +201,16 @@ the initial position i.e. the position before launching isl."
     (isl-setup-mode-line)))
 
 
+(defun isl-iter-circular (seq)
+  "Infinite iteration on SEQ."
+  (let ((lis seq))
+     (lambda ()
+       (let ((elm (car lis)))
+         (setq lis (pcase lis (`(,_ . ,ll) (or ll seq))))
+         elm))))
+
+(defalias 'isl-iter-next 'funcall)
+
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
   (when isl--item-overlays
@@ -245,7 +254,7 @@ Optional argument PATTERN default to `isl-pattern'."
                   isl--number-results (length isl--item-overlays))
             (overlay-put isl--last-overlay 'face 'isl-on)
             (isl-set-iterator)
-            (goto-char (overlay-end (iterator:next isl--iterator)))
+            (goto-char (overlay-end (isl-iter-next isl--iterator)))
             (setq isl--yank-point (point)))))
       (isl-setup-mode-line))))
 
@@ -308,7 +317,7 @@ appended at end."
          (ovlst (append (if skip-first (cdr fwdlst) fwdlst)
                         (butlast revlst (length fwdlst))
                         (and skip-first (list (car fwdlst))))))
-      (setq isl--iterator (iterator:circular ovlst))))
+      (setq isl--iterator (isl-iter-circular ovlst))))
 
 (defun isl-check-input ()
   "Check minibuffer input."
