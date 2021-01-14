@@ -150,7 +150,8 @@ It put overlay on current position, move to next overlay using
                        overlay)))
       (when (overlayp isl--last-overlay)
         (overlay-put isl--last-overlay 'face 'isl-match))
-      (and ov (isl--goto-overlay ov)))))
+      (and ov (isl--goto-overlay ov)))
+    (isl-setup-mode-line)))
 
 (defun isl-goto-first ()
   (interactive)
