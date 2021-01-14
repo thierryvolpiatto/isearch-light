@@ -118,10 +118,20 @@ in pattern."
     (define-key map (kbd "RET")    'isl-exit-at-point)
     (define-key map (kbd "C-w")    'isl-yank-word-at-point)
     (define-key map (kbd "M-r")    'isl-toggle-style-matching)
+    (define-key map (kbd "M-<")    'isl-goto-first)
+    (define-key map (kbd "M->")    'isl-goto-last)
     map))
 
 ;;; Actions
 ;;
+(defun isl--goto-overlay (overlay)
+  (let ((pos (and overlay (overlay-end overlay))))
+    (when (and overlay pos)
+      (setq isl--last-overlay overlay)
+      (overlay-put overlay 'face 'isl-on)
+      (goto-char pos)
+      (setq isl--yank-point pos))))
+
 (defun isl-goto-next-1 ()
   "Main function that allow moving from one to another overlay.
 It put overlay on current position, move to next overlay using
@@ -130,14 +140,25 @@ It put overlay on current position, move to next overlay using
     (when (overlayp isl--last-overlay)
       (overlay-put isl--last-overlay 'face 'isl-match))
     (when isl--iterator
-      (let* ((ov (isl-iter-next isl--iterator))
-             (pos (and ov (overlay-end ov))))
-        (when (and ov pos)
-          (setq isl--last-overlay ov)
-          (overlay-put ov 'face 'isl-on)
-          (goto-char pos)
-          (setq isl--yank-point pos))))
+      (isl--goto-overlay (isl-iter-next isl--iterator)))
     (isl-setup-mode-line)))
+
+(defun isl--find-and-goto-overlay (overlay)
+  (with-selected-window (get-buffer-window isl-current-buffer)
+    (let (ov)
+      (while (not (eql (setq ov (isl-iter-next isl--iterator))
+                       overlay)))
+      (when (overlayp isl--last-overlay)
+        (overlay-put isl--last-overlay 'face 'isl-match))
+      (and ov (isl--goto-overlay ov)))))
+
+(defun isl-goto-first ()
+  (interactive)
+  (isl--find-and-goto-overlay (car isl--item-overlays)))
+
+(defun isl-goto-last ()
+  (interactive)
+  (isl--find-and-goto-overlay (car (last isl--item-overlays))))
 
 (defun isl-goto-next ()
   "Go to next match in isl."
