@@ -364,14 +364,6 @@ appended at end."
            prompt nil isl-map nil 'isl-history (thing-at-point 'symbol t)))
       (cancel-timer timer))))
 
-(defun isl-1 ()
-  "The internal function called by `isl'."
-  (condition-case-unless-debug nil
-      (unwind-protect
-          (isl-read-from-minibuffer "Search: ")
-        (isl-cleanup))
-    (quit (goto-char isl-initial-pos))))
-
 (defun isl-cleanup ()
   "Cleanup various things when `isl' exit."
   (isl-delete-overlays)
@@ -381,18 +373,21 @@ appended at end."
         isl--item-overlays nil
         isl--last-overlay nil
         isl--number-results nil
+        isl--direction 'forward
+        isl-initial-pos (point)
+        isl-pattern ""
+        isl-current-buffer (current-buffer)
         isl-search-function (default-value 'isl-search-function)))
 
 ;;;###autoload
 (defun isl ()
   "Start incremental searching in current buffer."
   (interactive)
-  (setq isl--direction 'forward
-        isl-initial-pos (point)
-        isl--item-overlays nil
-        isl-pattern ""
-        isl-current-buffer (current-buffer))
-  (isl-1))
+  (condition-case-unless-debug nil
+      (unwind-protect
+          (isl-read-from-minibuffer "Search: ")
+        (isl-cleanup))
+    (quit (goto-char isl-initial-pos))))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
