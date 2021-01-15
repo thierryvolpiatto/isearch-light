@@ -35,24 +35,24 @@ With =use-package= and binding =C-s=
 
 ** Usage
 
-M-x src
+=M-x src=
 
 The mode-line give you several infos, arrows up/down tell you the
-direction when you are actually moving, the ">" and "<" mean you are
+direction where you are actually moving, the =>= and =<= mean you are
 either below or above initial position in buffer. Regex or literal
 tell you the style of search you are using.
 
 Here the commands available:
 
-- C-s    isl-goto-next
-- C-r    isl-goto-prev
-- <down> isl-goto-next
-- <up>   isl-goto-prev
-- RET    isl-exit-at-point
-- C-w    isl-yank-word-at-point
-- M-r    isl-toggle-style-matching
-- M-<    isl-goto-first
-- M->    isl-goto-last
+| C-s    | isl-goto-next             |
+| C-r    | isl-goto-prev             |
+| <down> | isl-goto-next             |
+| <up>   | isl-goto-prev             |
+| RET    | isl-exit-at-point         |
+| C-w    | isl-yank-word-at-point    |
+| M-r    | isl-toggle-style-matching |
+| M-<    | isl-goto-first            |
+| M->    | isl-goto-last             |
 
 
 
