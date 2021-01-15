@@ -381,16 +381,16 @@ appended at end."
         isl--item-overlays nil
         isl--last-overlay nil
         isl--number-results nil
-        isl--direction 'forward
-        isl-initial-pos (point)
-        isl-pattern ""
-        isl-current-buffer (current-buffer)
         isl-search-function (default-value 'isl-search-function)))
 
 ;;;###autoload
 (defun isl ()
   "Start incremental searching in current buffer."
   (interactive)
+  (setq isl-initial-pos (point)
+        isl-pattern ""
+        isl--direction 'forward
+        isl-current-buffer (current-buffer))
   (condition-case-unless-debug nil
       (unwind-protect
           (isl-read-from-minibuffer "Search: ")
