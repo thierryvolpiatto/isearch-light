@@ -42,9 +42,10 @@
 (defvar isl--number-results 0)
 (defvar isl-history nil)
 (defvar isl--yank-point nil)
-(defvar isl-timer-delay 0.1)
 
 ;; User vars
+(defvar isl-timer-delay 0.1)
+
 (defgroup isearch-light nil
   "Open isl."
   :prefix "isl-"
@@ -125,6 +126,7 @@ in pattern."
 ;;; Actions
 ;;
 (defun isl--goto-overlay (overlay)
+  "Goto OVERLAY."
   (let ((pos (and overlay (overlay-end overlay))))
     (when (and overlay pos)
       (setq isl--last-overlay overlay)
@@ -132,32 +134,38 @@ in pattern."
       (goto-char pos)
       (setq isl--yank-point pos))))
 
+(defun isl--highlight-last-overlay (face)
+  "Highlight `isl--last-overlay' with FACE."
+  (when (overlayp isl--last-overlay)
+    (overlay-put isl--last-overlay 'face face)))
+
 (defun isl-goto-next-1 ()
   "Main function that allow moving from one to another overlay.
 It put overlay on current position, move to next overlay using
 `isl--iterator', set `isl--yank-point' and then setup mode-line."
   (with-selected-window (get-buffer-window isl-current-buffer)
-    (when (overlayp isl--last-overlay)
-      (overlay-put isl--last-overlay 'face 'isl-match))
+    (isl--highlight-last-overlay 'isl-match)
     (when isl--iterator
       (isl--goto-overlay (isl-iter-next isl--iterator)))
     (isl-setup-mode-line)))
 
 (defun isl--find-and-goto-overlay (overlay)
+  "Consume iterators up to OVERLAY and jump to it."
   (with-selected-window (get-buffer-window isl-current-buffer)
     (let (ov)
       (while (not (eql (setq ov (isl-iter-next isl--iterator))
                        overlay)))
-      (when (overlayp isl--last-overlay)
-        (overlay-put isl--last-overlay 'face 'isl-match))
+      (isl--highlight-last-overlay 'isl-match)
       (and ov (isl--goto-overlay ov)))
     (isl-setup-mode-line)))
 
 (defun isl-goto-first ()
+  "Goto first match."
   (interactive)
   (isl--find-and-goto-overlay (car isl--item-overlays)))
 
 (defun isl-goto-last ()
+  "Goto last match."
   (interactive)
   (isl--find-and-goto-overlay (car (last isl--item-overlays))))
 
@@ -276,7 +284,7 @@ Optional argument PATTERN default to `isl-pattern'."
             (setq isl--last-overlay
                   (isl-closest-overlay isl-initial-pos isl--item-overlays)
                   isl--number-results (length isl--item-overlays))
-            (overlay-put isl--last-overlay 'face 'isl-on)
+            (isl--highlight-last-overlay 'isl-on)
             (isl-set-iterator)
             (goto-char (overlay-end (isl-iter-next isl--iterator)))
             (setq isl--yank-point (point)))))
