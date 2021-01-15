@@ -1,0 +1,58 @@
+* isearch-light
+
+An Isearch replacement for Emacs.
+It aims to keep simple with only the needed features, no extra
+features you will never use.
+
+** install
+
+*** From source
+
+Add isearch-light.el to =load-path=.
+
+Then add =(require 'isearch-light)= in your init file.
+
+Even better, you can autoload it:
+
+#+begin_src elisp
+    (autoload 'isl "isearch-light" nil t)
+#+end_src
+
+With =use-package= and binding =C-s=
+
+#+begin_src elisp
+    (use-package isearch-light
+      :bind (("C-s" . isl)))
+#+end_src
+
+*** With [[https://github.com/raxod502/straight.el][Straight]]
+
+#+begin_src elisp
+    (use-package isearch-light
+      :straight (isearch-light :host github :repo "thierryvolpiatto/isearch-light")
+      :bind (("C-s" . isl)))
+#+end_src
+
+** Usage
+
+M-x src
+
+The mode-line give you several infos, arrows up/down tell you the
+direction when you are actually moving, the ">" and "<" mean you are
+either below or above initial position in buffer. Regex or literal
+tell you the style of search you are using.
+
+Here the commands available:
+
+- C-s    isl-goto-next
+- C-r    isl-goto-prev
+- <down> isl-goto-next
+- <up>   isl-goto-prev
+- RET    isl-exit-at-point
+- C-w    isl-yank-word-at-point
+- M-r    isl-toggle-style-matching
+- M-<    isl-goto-first
+- M->    isl-goto-last
+
+
+
