@@ -44,7 +44,7 @@
 (defvar isl--yank-point nil)
 
 ;; User vars
-(defvar isl-timer-delay 0.1)
+(defvar isl-timer-delay 0.01)
 
 (defgroup isearch-light nil
   "Open isl."
