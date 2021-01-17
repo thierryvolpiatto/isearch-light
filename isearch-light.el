@@ -85,28 +85,28 @@ in pattern."
   :type 'string)
 
 (defface isl-match
-  `((t :background "Brown4"))
+  '((t :background "Brown4"))
   "Face used to highlight the items matched."
   :group 'isearch-light)
 
 (defface isl-on
-  `((t :background "SandyBrown"
+  '((t :background "SandyBrown"
        :foreground "black"))
   "Face used to highlight the item where point is."
   :group 'isearch-light)
 
 (defface isl-line
-  `((t :background "Darkgoldenrod1"))
+  '((t :background "Darkgoldenrod1"))
   "Face used to flash line on exit."
   :group 'isearch-light)
 
 (defface isl-number
-  `((t :foreground "green"))
+  '((t :foreground "green"))
   "Face used to highlight number in mode-line."
   :group 'isearch-light)
 
 (defface isl-string
-  `((t :foreground "Lightgoldenrod1" :bold t))
+  '((t :foreground "Lightgoldenrod1" :bold t))
   "Face used to highlight pattern in mode-line."
   :group 'isearch-light)
 
