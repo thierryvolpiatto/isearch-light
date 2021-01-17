@@ -54,5 +54,22 @@ Here the commands available:
 | M-<    | isl-goto-first            |
 | M->    | isl-goto-last             |
 
+** Use isearch-light for helm-help
+
+Starting from Emacs-27 Isearch works more or less with unexpected
+effects, you have better time using =isl= as the search command for
+helm-help, here how to replace default setting by `isl` in helm-help:
+
+#+begin_src elisp
+    (use-package helm-lib
+      :config
+      (use-package isearch-light
+        :straight (isearch-light :host github :repo "thierryvolpiatto/isearch-light"))
+      (helm-help-define-key "C-s" nil)
+      (helm-help-define-key "C-r" nil)
+      (helm-help-define-key "C-s" 'isl))
+#+end_src
+
+An alternative is to customize `helm-help-hkmap` from the customize interface.
 
 
