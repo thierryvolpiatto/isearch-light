@@ -42,6 +42,7 @@
 (defvar isl--number-results 0)
 (defvar isl-history nil)
 (defvar isl--yank-point nil)
+(defvar-local isl--buffer-invisibility-spec nil)
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
@@ -146,7 +147,9 @@ It put overlay on current position, move to next overlay using
   (with-selected-window (get-buffer-window isl-current-buffer)
     (isl--highlight-last-overlay 'isl-match)
     (when isl--iterator
-      (isl--goto-overlay (isl-iter-next isl--iterator)))
+      (isl--goto-overlay (isl-iter-next isl--iterator))
+      (when (invisible-p (get-text-property (point) 'invisible))
+        (mapc 'remove-from-invisibility-spec buffer-invisibility-spec)))
     (isl-setup-mode-line)))
 
 (defun isl--find-and-goto-overlay (overlay)
@@ -381,7 +384,8 @@ appended at end."
         isl--item-overlays nil
         isl--last-overlay nil
         isl--number-results nil
-        isl-search-function (default-value 'isl-search-function)))
+        isl-search-function (default-value 'isl-search-function)
+        buffer-invisibility-spec isl--buffer-invisibility-spec))
 
 ;;;###autoload
 (defun isl ()
@@ -390,7 +394,8 @@ appended at end."
   (setq isl-initial-pos (point)
         isl-pattern ""
         isl--direction 'forward
-        isl-current-buffer (current-buffer))
+        isl-current-buffer (current-buffer)
+        isl--buffer-invisibility-spec buffer-invisibility-spec)
   (condition-case-unless-debug nil
       (unwind-protect
           (isl-read-from-minibuffer "Search: ")
