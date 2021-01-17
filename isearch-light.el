@@ -68,11 +68,11 @@ Value smart means use `case-fold-search' when upcase chars are detected
 in pattern."
   :type 'symbol)
 
-(defcustom isl-after-position-string "<"
+(defcustom isl-after-position-string ">"
   "The string used to notify in mode-line when position is above initial pos."
   :type 'string)
 
-(defcustom isl-before-position-string ">"
+(defcustom isl-before-position-string "<"
   "The string used to notify in mode-line when position is below initial pos."
   :type 'string)
 
@@ -295,8 +295,8 @@ Optional argument PATTERN default to `isl-pattern'."
                  (search-forward "Literal")))
         (position (with-current-buffer isl-current-buffer
                      (if (> (point) isl-initial-pos)
-                         isl-before-position-string
-                       isl-after-position-string)))
+                         isl-after-position-string
+                       isl-before-position-string)))
         (direction (if (eq isl--direction 'forward)
                        isl-direction-down-string
                      isl-direction-up-string)))
