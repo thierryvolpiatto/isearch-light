@@ -86,29 +86,24 @@ in pattern."
 
 (defface isl-match
   '((t :background "Brown4"))
-  "Face used to highlight the items matched."
-  :group 'isearch-light)
+  "Face used to highlight the items matched.")
 
 (defface isl-on
   '((t :background "SandyBrown"
        :foreground "black"))
-  "Face used to highlight the item where point is."
-  :group 'isearch-light)
+  "Face used to highlight the item where point is.")
 
 (defface isl-line
   '((t :background "Darkgoldenrod1"))
-  "Face used to flash line on exit."
-  :group 'isearch-light)
+  "Face used to flash line on exit.")
 
 (defface isl-number
   '((t :foreground "green"))
-  "Face used to highlight number in mode-line."
-  :group 'isearch-light)
+  "Face used to highlight number in mode-line.")
 
 (defface isl-string
   '((t :foreground "Lightgoldenrod1" :bold t))
-  "Face used to highlight pattern in mode-line."
-  :group 'isearch-light)
+  "Face used to highlight pattern in mode-line.")
 
 (defvar isl-map
   (let ((map (make-sparse-keymap)))
