@@ -94,7 +94,7 @@ in pattern."
   "Face used to highlight the item where point is.")
 
 (defface isl-line
-  '((t :background "Darkgoldenrod1"))
+  '((t :background "Darkgoldenrod1" :extend t))
   "Face used to flash line on exit.")
 
 (defface isl-number
@@ -144,7 +144,9 @@ It put overlay on current position, move to next overlay using
     (when isl--iterator
       (isl--goto-overlay (isl-iter-next isl--iterator))
       (when (invisible-p (get-text-property (point) 'invisible))
-        (mapc 'remove-from-invisibility-spec buffer-invisibility-spec)))
+        (if (listp buffer-invisibility-spec)
+            (mapc 'remove-from-invisibility-spec buffer-invisibility-spec)
+          (remove-from-invisibility-spec buffer-invisibility-spec))))
     (isl-setup-mode-line)))
 
 (defun isl--find-and-goto-overlay (overlay)
