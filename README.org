@@ -53,6 +53,7 @@ Here the commands available:
 | M-r    | isl-toggle-style-matching |
 | M-<    | isl-goto-first            |
 | M->    | isl-goto-last             |
+| M-s    | isl-jump-to-helm-occur    |
 
 ** Use isearch-light for helm-help
 
