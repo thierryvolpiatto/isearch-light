@@ -233,6 +233,14 @@ the initial position i.e. the position before launching isl."
         (sit-for 1)))
     (isl-setup-mode-line)))
 
+(defun isl-jump-to-helm-occur ()
+  "Invoke `helm-occur' from isl."
+  (interactive)
+  (cl-assert (require 'helm-occur nil t))
+  (let ((input isl-pattern)
+        (bufs (list isl-current-buffer)))
+    (run-at-time 0.1 nil #'helm-multi-occur-1 bufs input)
+    (abort-recursive-edit)))
 
 (defun isl-iter-circular (seq)
   "Infinite iteration on SEQ."
@@ -401,15 +409,6 @@ appended at end."
           (isl-read-from-minibuffer "Search: ")
         (isl-cleanup))
     (quit (goto-char isl-initial-pos))))
-
-(defun isl-jump-to-helm-occur ()
-  "Invoke `helm-occur' from isl."
-  (interactive)
-  (cl-assert (require 'helm-occur nil t))
-  (let ((input isl-pattern)
-        (bufs (list isl-current-buffer)))
-    (run-at-time 0.1 nil #'helm-multi-occur-1 bufs input)
-    (abort-recursive-edit)))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
