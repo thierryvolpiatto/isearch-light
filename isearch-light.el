@@ -403,9 +403,7 @@ appended at end."
     (quit (goto-char isl-initial-pos))))
 
 (defun isl-jump-to-helm-occur ()
-  "Invoke `helm-occur' from isl.
-
-To use this bind it to a key in `isl-map'."
+  "Invoke `helm-occur' from isl."
   (interactive)
   (cl-assert (require 'helm-occur nil t))
   (let ((input isl-pattern)
