@@ -32,6 +32,7 @@
 (require 'cl-lib)
 
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
+(defvar helm-occur-always-search-in-current)
 
 ;; Internals
 (defvar isl-pattern "")
@@ -240,7 +241,9 @@ the initial position i.e. the position before launching isl."
   (cl-assert (require 'helm-occur nil t))
   (let ((input isl-pattern)
         (bufs (list isl-current-buffer)))
-    (run-at-time 0.1 nil #'helm-multi-occur-1 bufs input)
+    (run-at-time 0.1 nil (lambda ()
+                           (let ((helm-occur-always-search-in-current t))
+                             (helm-multi-occur-1 bufs input))))
     (abort-recursive-edit)))
 
 (defun isl-iter-circular (seq)
