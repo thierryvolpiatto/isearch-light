@@ -150,6 +150,7 @@ It put overlay on current position, move to next overlay using
         (if (listp buffer-invisibility-spec)
             (mapc 'remove-from-invisibility-spec buffer-invisibility-spec)
           (remove-from-invisibility-spec buffer-invisibility-spec))))
+    (recenter)
     (isl-setup-mode-line)))
 
 (defun isl--find-and-goto-overlay (overlay)
