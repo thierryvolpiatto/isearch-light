@@ -241,9 +241,12 @@ the initial position i.e. the position before launching isl."
   (cl-assert (require 'helm-occur nil t))
   (let ((input isl-pattern)
         (bufs (list isl-current-buffer)))
-    (run-at-time 0.1 nil (lambda ()
-                           (let ((helm-occur-always-search-in-current t))
-                             (helm-multi-occur-1 bufs input))))
+    (run-at-time 0.1 nil
+                 (lambda ()
+                   ;; Use `helm-occur-always-search-in-current' as a
+                   ;; flag for `helm-occur--select-closest-candidate'.
+                   (let ((helm-occur-always-search-in-current t))
+                     (helm-multi-occur-1 bufs input))))
     (abort-recursive-edit)))
 
 (defun isl-iter-circular (seq)
