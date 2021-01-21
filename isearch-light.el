@@ -31,6 +31,8 @@
 
 (require 'cl-lib)
 
+(declare-function helm-multi-occur-1 "ext:helm-occur.el")
+
 ;; Internals
 (defvar isl-pattern "")
 (defvar isl-current-buffer nil)
@@ -117,6 +119,7 @@ in pattern."
     (define-key map (kbd "M-r")    'isl-toggle-style-matching)
     (define-key map (kbd "M-<")    'isl-goto-first)
     (define-key map (kbd "M->")    'isl-goto-last)
+    (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     map))
 
 ;;; Actions
@@ -398,6 +401,17 @@ appended at end."
           (isl-read-from-minibuffer "Search: ")
         (isl-cleanup))
     (quit (goto-char isl-initial-pos))))
+
+(defun isl-jump-to-helm-occur ()
+  "Invoke `helm-occur' from isl.
+
+To use this bind it to a key in `isl-map'."
+  (interactive)
+  (cl-assert (require 'helm-occur nil t))
+  (let ((input isl-pattern)
+        (bufs (list isl-current-buffer)))
+    (run-at-time 0.1 nil #'helm-multi-occur-1 bufs input)
+    (abort-recursive-edit)))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
