@@ -123,6 +123,14 @@ in pattern."
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     map))
 
+;;; Compatibility
+;;
+;; Workaround broken `exit-minibuffer' in emacs-28.
+(defun isl-exit-minibuffer ()
+  "This is the definition of `exit-minibuffer' prior to emacs-28."
+  (setq deactivate-mark nil)
+  (throw 'exit nil))
+
 ;;; Actions
 ;;
 (defun isl--goto-overlay (overlay)
@@ -198,7 +206,7 @@ It put overlay on current position, move to next overlay using
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.1)
       (delete-overlay ov))
-    (exit-minibuffer)))
+    (isl-exit-minibuffer)))
 
 (defun isl-yank-word-at-point ()
   "Yank word at point in minibuffer.
