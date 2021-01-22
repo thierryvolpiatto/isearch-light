@@ -197,8 +197,10 @@ It put overlay on current position, move to next overlay using
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.1)
-      (delete-overlay ov))
-    (exit-minibuffer)))
+      (delete-overlay ov)))
+  ;; Call `exit-minibuffer' out of the `with-selected-window' block to
+  ;; avoid error with the emacs-28 version.
+  (exit-minibuffer))
 
 (defun isl-yank-word-at-point ()
   "Yank word at point in minibuffer.
