@@ -143,7 +143,7 @@ in pattern."
   "Main function that allow moving from one to another overlay.
 It put overlay on current position, move to next overlay using
 `isl--iterator', set `isl--yank-point' and then setup mode-line."
-  (with-selected-window (get-buffer-window isl-current-buffer)
+  (with-selected-window (minibuffer-selected-window)
     (isl--highlight-last-overlay 'isl-match)
     (when isl--iterator
       (isl--goto-overlay (isl-iter-next isl--iterator))
@@ -155,7 +155,7 @@ It put overlay on current position, move to next overlay using
 
 (defun isl--find-and-goto-overlay (overlay)
   "Consume iterators up to OVERLAY and jump to it."
-  (with-selected-window (get-buffer-window isl-current-buffer)
+  (with-selected-window (minibuffer-selected-window)
     (let (ov)
       (while (not (eql (setq ov (isl-iter-next isl--iterator))
                        overlay)))
@@ -192,7 +192,7 @@ It put overlay on current position, move to next overlay using
 (defun isl-exit-at-point ()
   "The exit command for isl."
   (interactive)
-  (with-selected-window (get-buffer-window isl-current-buffer)
+  (with-selected-window (minibuffer-selected-window)
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.1)
@@ -279,7 +279,7 @@ Optional argument PATTERN default to `isl-pattern'."
 
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' change."
-  (with-selected-window (get-buffer-window isl-current-buffer)
+  (with-selected-window (minibuffer-selected-window)
     (while-no-input
       (isl-delete-overlays)
       (let ((case-fold-search (isl-set-case-fold-search))
