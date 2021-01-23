@@ -1,13 +1,13 @@
-;;; isearch-light.el --- simple incremental search in current-buffer -*- lexical-binding: t -*-
+;;; isearch-light.el --- Simple incremental search in current-buffer -*- lexical-binding: t -*-
 
 ;; Author:      Thierry Volpiatto <thievol@posteo.net>
 ;; Copyright (C) 2021 Thierry Volpiatto <thievol@posteo.net>
 
 ;; Version: 1.0
-;; X-URL: https://github.com/thierryvolpiatto/isearch-light
+;; URL: https://github.com/thierryvolpiatto/isearch-light
 
-;; Compatibility: GNU Emacs 24.1+
-;; Package-Requires: ((emacs "24") (cl-lib "0.5"))
+;; Compatibility: GNU Emacs 24.3+
+;; Package-Requires: ((emacs "24.3"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@
 
 (defgroup isearch-light nil
   "Open isl."
-  :prefix "isl-"
+  :prefix "isl"
   :group 'matching)
 
 (defcustom isl-search-function #'re-search-forward
