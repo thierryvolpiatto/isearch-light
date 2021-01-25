@@ -46,6 +46,9 @@
 (defvar isl-history nil)
 (defvar isl--yank-point nil)
 (defvar-local isl--buffer-invisibility-spec nil)
+(defconst isl-search-functions
+  '(re-search-forward search-forward isl-multi-search-fwd))
+(defvar isl--search-functions-iterator nil)
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
@@ -62,7 +65,8 @@ first use regexp matching while the second is using literal matching.
 Its value can be changed during `isl' session with `\\<isl-map>\\[isl-toggle-style-matching]'."
   :type '(choice
            (function :tag "Regexp matching" re-search-forward)
-           (function :tag "Literal matching" search-forward)))
+           (function :tag "Literal matching" search-forward)
+           (function :tag "Multi matching" isl-multi-search-fwd)))
 
 (defcustom isl-case-fold-search 'smart
   "The `case-fold-search' value.
@@ -223,14 +227,18 @@ the initial position i.e. the position before launching isl."
   "Toggle style matching in `isl' i.e. regexp/literal."
   (interactive)
   (with-current-buffer isl-current-buffer
+    (unless (eq last-command 'isl-toggle-style-matching)
+      (setq isl--search-functions-iterator
+            (isl-iter-circular
+             (append (remove isl-search-function isl-search-functions)
+                     (list isl-search-function)))))
     (setq-local isl-search-function
-                (if (eq isl-search-function 're-search-forward)
-                    #'search-forward
-                  #'re-search-forward))
+                (isl-iter-next isl--search-functions-iterator))
     (when (string= isl-pattern "")
       (let* ((style (cl-case isl-search-function
                       (re-search-forward "Regex")
-                      (search-forward "Literal")))
+                      (search-forward "Literal")
+                      (isl-multi-search-fwd "Multi")))
              (mode-line-format (format " Switching to %s searching" style)))
         (force-mode-line-update)
         (sit-for 1)))
@@ -277,6 +285,23 @@ Optional argument PATTERN default to `isl-pattern'."
              (if (string-match "[[:upper:]]" pattern) nil t)))
     (t isl-case-fold-search)))
 
+(defun isl-multi-search-fwd (str &optional _bound _noerror)
+  (let ((pattern (cl-loop for s in (split-string str)
+                          collect (if (char-equal ?! (aref s 0))
+                                      (cons 'not (substring s 1))
+                                    (cons 'identity s)))))
+    (cl-loop while (re-search-forward (cdar pattern) nil t)
+             for boundary = (if (cdr pattern)
+                                (bounds-of-thing-at-point 'symbol)
+                              (cons (match-beginning 0) (match-end 0)))
+             if (cl-loop for (pred . re) in (cdr pattern)
+                         always (funcall pred
+                                         (progn (goto-char (car boundary))
+                                                (re-search-forward re (cdr boundary) t))))
+             do (goto-char (cdr boundary)) and return boundary
+             else do (goto-char (cdr boundary))
+             finally return nil)))
+
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' change."
   (with-selected-window (minibuffer-selected-window)
@@ -284,13 +309,16 @@ Optional argument PATTERN default to `isl-pattern'."
       (isl-delete-overlays)
       (let ((case-fold-search (isl-set-case-fold-search))
             (count 1)
-            ov)
+            ov
+            bounds)
         (unless (string= isl-pattern "")
           (save-excursion
             (goto-char (point-min))
             (condition-case-unless-debug nil
-                (while (funcall isl-search-function isl-pattern nil t)
-                  (setq ov (make-overlay (match-beginning 0) (match-end 0)))
+                (while (setq bounds (funcall isl-search-function isl-pattern nil t))
+                  (when (integerp bounds)
+                    (setq bounds (cons (match-beginning 0) (match-end 0))))
+                  (setq ov (make-overlay (car bounds) (cdr bounds)))
                   (push ov isl--item-overlays)
                   (overlay-put ov 'isl t)
                   (overlay-put ov 'pos count)
@@ -313,7 +341,8 @@ Optional argument PATTERN default to `isl-pattern'."
   "Setup `mode-line-format' for isl."
   (let ((style (cl-case isl-search-function
                  (re-search-forward "Regex")
-                 (search-forward "Literal")))
+                 (search-forward "Literal")
+                 (isl-multi-search-fwd "Multi")))
         (position (with-current-buffer isl-current-buffer
                      (if (> (point) isl-initial-pos)
                          isl-after-position-string
