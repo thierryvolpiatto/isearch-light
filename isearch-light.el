@@ -294,16 +294,16 @@ Optional argument PATTERN default to `isl-pattern'."
                       '(identity . "")))
          (next (cdr pattern)))
     (cl-loop while (re-search-forward (cdr initial) nil t)
-             for boundary = (if next
-                                (bounds-of-thing-at-point 'symbol)
-                              (cons (match-beginning 0) (match-end 0)))
+             for bounds = (if next
+                              (bounds-of-thing-at-point 'symbol)
+                            (cons (match-beginning 0) (match-end 0)))
              if (or (not next)
                     (cl-loop for (pred . re) in next
                              always (funcall pred
-                                             (progn (goto-char (car boundary))
-                                                    (re-search-forward re (cdr boundary) t)))))
-             do (goto-char (cdr boundary)) and return boundary
-             else do (goto-char (cdr boundary))
+                                             (progn (goto-char (car bounds))
+                                                    (re-search-forward re (cdr bounds) t)))))
+             do (goto-char (cdr bounds)) and return bounds
+             else do (goto-char (cdr bounds))
              finally return nil)))
 
 (defun isl-update ()
