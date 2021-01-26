@@ -62,7 +62,7 @@
   "The search function that will be used by default when starting `isl'.
 Possible values are `re-search-forward' and `search-forward', the
 first use regexp matching while the second is using literal matching.
-Its value can be changed during `isl' session with `\\<isl-map>\\[isl-toggle-style-matching]'."
+Its value can be changed during `isl' session with `\\<isl-map>\\[isl-change-matching-style]'."
   :type '(choice
            (function :tag "Regexp matching" re-search-forward)
            (function :tag "Literal matching" search-forward)
@@ -121,7 +121,7 @@ in pattern."
     (define-key map (kbd "<up>")   'isl-goto-prev)
     (define-key map (kbd "RET")    'isl-exit-at-point)
     (define-key map (kbd "C-w")    'isl-yank-word-at-point)
-    (define-key map (kbd "M-r")    'isl-toggle-style-matching)
+    (define-key map (kbd "M-r")    'isl-change-matching-style)
     (define-key map (kbd "M-<")    'isl-goto-first)
     (define-key map (kbd "M->")    'isl-goto-last)
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
@@ -223,11 +223,11 @@ the initial position i.e. the position before launching isl."
       (with-selected-window (minibuffer-window)
         (insert str)))))
 
-(defun isl-toggle-style-matching ()
-  "Toggle style matching in `isl' i.e. regexp/literal."
+(defun isl-change-matching-style ()
+  "Toggle style matching in `isl' i.e. regexp/literal/multi."
   (interactive)
   (with-current-buffer isl-current-buffer
-    (unless (eq last-command 'isl-toggle-style-matching)
+    (unless (eq last-command 'isl-change-matching-style)
       (setq isl--search-functions-iterator
             (isl-iter-circular
              (append (remove isl-search-function isl-search-functions)
