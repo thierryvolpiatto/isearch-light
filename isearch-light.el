@@ -286,12 +286,16 @@ Optional argument PATTERN default to `isl-pattern'."
     (t isl-case-fold-search)))
 
 (defun isl-patterns (str)
+  "Returns an alist of (pred . regexp) elements from STR."
   (cl-loop for s in (split-string str)
            collect (if (char-equal ?! (aref s 0))
                        (cons 'not (substring s 1))
                      (cons 'identity s))))
 
 (defun isl-multi-search-fwd (str &optional _bound _noerror)
+  "Returns position of symbol matched by STR.
+Arg STR is converted in patterns, when first pattern of list match a
+symbol subsequent patterns are used to check if all patterns match symbol."
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
