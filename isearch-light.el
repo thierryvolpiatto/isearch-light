@@ -285,11 +285,14 @@ Optional argument PATTERN default to `isl-pattern'."
              (if (string-match "[[:upper:]]" pattern) nil t)))
     (t isl-case-fold-search)))
 
+(defun isl-patterns (str)
+  (cl-loop for s in (split-string str)
+           collect (if (char-equal ?! (aref s 0))
+                       (cons 'not (substring s 1))
+                     (cons 'identity s))))
+
 (defun isl-multi-search-fwd (str &optional _bound _noerror)
-  (let* ((pattern (cl-loop for s in (split-string str)
-                           collect (if (char-equal ?! (aref s 0))
-                                       (cons 'not (substring s 1))
-                                     (cons 'identity s))))
+  (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
          (next (cdr pattern)))
