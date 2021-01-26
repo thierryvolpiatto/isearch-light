@@ -58,7 +58,7 @@
   :prefix "isl"
   :group 'matching)
 
-(defcustom isl-search-function #'re-search-forward
+(defcustom isl-search-function #'isl-multi-search-fwd
   "The search function that will be used by default when starting `isl'.
 Possible values are `re-search-forward' and `search-forward', the
 first use regexp matching while the second is using literal matching.
