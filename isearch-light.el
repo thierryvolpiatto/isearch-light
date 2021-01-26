@@ -315,7 +315,7 @@ symbol.  The return value is a cons cell (beg . end)."
              finally return nil)))
 
 (defun isl-update ()
-  "Update `current-buffer' when `isl-pattern' change."
+  "Update `current-buffer' when `isl-pattern' changes."
   (with-selected-window (minibuffer-selected-window)
     (while-no-input
       (isl-delete-overlays)
