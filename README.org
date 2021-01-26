@@ -1,10 +1,16 @@
 * isearch-light
 
 An Isearch replacement for Emacs.
+
+Provide multi matching, a real minibuffer, no unexpected quit or
+errors and comprehensive mode-line indicators.
+
 It aims to keep simple with only the needed features, no extra
 features you will never use.
 
 ** install
+
+No installation from Melpa and package.el is provided and will be provided.
 
 *** From source
 
@@ -39,7 +45,7 @@ With =use-package= and binding =C-s=
 
 The mode-line give you several infos, arrows up/down tell you the
 direction where you are actually moving, the =>= and =<= mean you are
-either below or above initial position in buffer. Regex or literal
+either below or above initial position in buffer. Regex, Multi or Literal
 tell you the style of search you are using.
 
 Here the commands available:
