@@ -308,8 +308,10 @@ symbol.  The return value is a cons cell (beg . end)."
              if (or (not rest)
                     (cl-loop for (pred . re) in rest
                              always (funcall pred
-                                             (progn (goto-char (car bounds))
-                                                    (re-search-forward re (cdr bounds) t)))))
+                                             (progn
+                                               (goto-char (car bounds))
+                                               (re-search-forward
+                                                re (cdr bounds) t)))))
              do (goto-char (cdr bounds)) and return bounds
              else do (goto-char (cdr bounds))
              finally return nil)))
