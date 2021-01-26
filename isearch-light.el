@@ -295,13 +295,13 @@ Optional argument PATTERN default to `isl-pattern'."
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
-         (next (cdr pattern)))
+         (rest    (cdr pattern)))
     (cl-loop while (re-search-forward (cdr initial) nil t)
-             for bounds = (if next
+             for bounds = (if rest
                               (bounds-of-thing-at-point 'symbol)
                             (cons (match-beginning 0) (match-end 0)))
-             if (or (not next)
-                    (cl-loop for (pred . re) in next
+             if (or (not rest)
+                    (cl-loop for (pred . re) in rest
                              always (funcall pred
                                              (progn (goto-char (car bounds))
                                                     (re-search-forward re (cdr bounds) t)))))
