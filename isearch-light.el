@@ -242,7 +242,7 @@ the initial position i.e. the position before launching isl."
              (mode-line-format (format " Switching to %s searching" style)))
         (force-mode-line-update)
         (sit-for 1)))
-    (isl-setup-mode-line)))
+    (isl-update)))
 
 (defun isl-jump-to-helm-occur ()
   "Invoke `helm-occur' from isl."
