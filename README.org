@@ -56,7 +56,7 @@ Here the commands available:
 | <up>   | isl-goto-prev             |
 | RET    | isl-exit-at-point         |
 | C-w    | isl-yank-word-at-point    |
-| M-r    | isl-toggle-style-matching |
+| M-r    | isl-change-matching-style |
 | M-<    | isl-goto-first            |
 | M->    | isl-goto-last             |
 | M-s    | isl-jump-to-helm-occur    |
