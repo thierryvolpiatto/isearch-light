@@ -48,6 +48,8 @@
 (defvar-local isl--buffer-invisibility-spec nil)
 (defconst isl-search-functions
   '(re-search-forward search-forward isl-multi-search-fwd))
+(defconst isl-space-regexp "\\s\\\\s-"
+  "Match a quoted space in a string.")
 (defvar isl--search-functions-iterator nil)
 
 ;; User vars
@@ -294,9 +296,14 @@ Optional argument PATTERN default to `isl-pattern'."
              (if (string-match "[[:upper:]]" pattern) nil t)))
     (t isl-case-fold-search)))
 
+(defun isl-split-string (str)
+  (split-string
+   (replace-regexp-in-string
+    isl-space-regexp "\\s-" str nil t)))
+
 (defun isl-patterns (str)
   "Returns an alist of (pred . regexp) elements from STR."
-  (cl-loop for s in (split-string str)
+  (cl-loop for s in (isl-split-string str)
            collect (if (char-equal ?! (aref s 0))
                        (cons 'not (substring s 1))
                      (cons 'identity s))))
