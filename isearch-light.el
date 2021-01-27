@@ -60,9 +60,11 @@
 
 (defcustom isl-search-function #'isl-multi-search-fwd
   "The search function that will be used by default when starting `isl'.
-Possible values are `re-search-forward' and `search-forward', the
-first use regexp matching while the second is using literal matching.
-Its value can be changed during `isl' session with `\\<isl-map>\\[isl-change-matching-style]'."
+Possible values are `isl-multi-search-fwd', `re-search-forward'
+and `search-forward', the first use multi matching, the second
+regexp matching while the last is using literal matching.  Its
+value can be changed during `isl' session with
+`\\<isl-map>\\[isl-change-matching-style]'."
   :type '(choice
            (function :tag "Regexp matching" re-search-forward)
            (function :tag "Literal matching" search-forward)
