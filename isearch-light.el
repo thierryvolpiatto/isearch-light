@@ -98,6 +98,10 @@ in pattern."
 (defcustom isl-save-pos-to-mark-ring t
   "Save initial position to mark-ring on exit when non nil."
   :type 'boolean)
+
+(defcustom isl-requires-pattern 2
+  "Start updating after this number of chars."
+  :type 'integer)
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -437,7 +441,8 @@ appended at end."
     (let ((input (minibuffer-contents)))
       (when (not (string= input isl-pattern))
         (setq isl-pattern input)
-        (isl-update)))))
+        (when (> (length input) isl-requires-pattern)
+          (isl-update))))))
 
 (defun isl-read-from-minibuffer (prompt)
   "Read input from minibuffer with prompt PROMPT."
