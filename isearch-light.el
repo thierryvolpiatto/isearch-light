@@ -238,6 +238,13 @@ the initial position i.e. the position before launching isl."
       (with-selected-window (minibuffer-window)
         (insert str)))))
 
+(defun isl-matching-style ()
+  "Return current matching style as a string."
+  (cl-case isl-search-function
+    (re-search-forward "Regex")
+    (search-forward "Literal")
+    (isl-multi-search-fwd "Multi")))
+
 (defun isl-change-matching-style ()
   "Toggle style matching in `isl' i.e. regexp/literal/multi."
   (interactive)
@@ -250,10 +257,7 @@ the initial position i.e. the position before launching isl."
     (setq-local isl-search-function
                 (isl-iter-next isl--search-functions-iterator))
     (when (string= isl-pattern "")
-      (let* ((style (cl-case isl-search-function
-                      (re-search-forward "Regex")
-                      (search-forward "Literal")
-                      (isl-multi-search-fwd "Multi")))
+      (let* ((style (isl-matching-style))
              (mode-line-format (format " Switching to %s searching" style)))
         (force-mode-line-update)
         (sit-for 1)))
@@ -381,10 +385,7 @@ text position."
 
 (defun isl-setup-mode-line ()
   "Setup `mode-line-format' for isl."
-  (let ((style (cl-case isl-search-function
-                 (re-search-forward "Regex")
-                 (search-forward "Literal")
-                 (isl-multi-search-fwd "Multi")))
+  (let ((style (isl-matching-style))
         (position (with-current-buffer isl-current-buffer
                      (if (> (point) isl-initial-pos)
                          isl-after-position-string
