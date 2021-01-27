@@ -92,6 +92,10 @@ in pattern."
 (defcustom isl-direction-up-string "↑"
   "The string used in mode-line to notify search direction."
   :type 'string)
+
+(defcustom isl-save-pos-to-mark-ring t
+  "Save initial position to mark-ring on exit when non nil."
+  :type 'boolean)
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -199,6 +203,9 @@ It put overlay on current position, move to next overlay using
   "The exit command for isl."
   (interactive)
   (with-selected-window (minibuffer-selected-window)
+    (when isl-save-pos-to-mark-ring
+      (set-marker (mark-marker) isl-initial-pos)
+      (push-mark isl-initial-pos 'nomsg))
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.1)
