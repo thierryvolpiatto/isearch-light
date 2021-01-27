@@ -389,7 +389,7 @@ symbol position."
                  `(" " mode-line-buffer-identification " "
                    (:eval ,(format "No results found for `%s' [%s %s]"
                                    (propertize isl-pattern
-                                               'face 'isl-on)
+                                               'face 'isl-string)
                                    style
                                    direction))
                    " " mode-line-position))
