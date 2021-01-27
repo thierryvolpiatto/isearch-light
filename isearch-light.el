@@ -316,25 +316,20 @@ Optional argument PATTERN default to `isl-pattern'."
                        (cons 'not (substring s 1))
                      (cons 'identity s))))
 
-(defun isl--point-at-eol ()
-  "The position of `end-of-visual-line'."
-  (save-excursion (end-of-visual-line) (point)))
-
 (defun isl-multi-search-fwd (str &optional _bound _noerror)
-  "Returns position of text matched by different parts of STR.
+  "Returns position of symbol matched by STR.
 When arg STR contains spaces, it is converted in patterns with
-`isl-patterns' , when first pattern of list match some text
+`isl-patterns' , when first pattern of list match a symbol
 subsequent patterns are used to check if all patterns match this
-text.  The return value is a cons cell (beg . end) denoting
-text position."
+symbol.  The return value is a cons cell (beg . end) denoting
+symbol position."
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
-         (rest    (cdr pattern))
-         end)
+         (rest    (cdr pattern)))
     (cl-loop while (re-search-forward (cdr initial) nil t)
              for bounds = (if rest
-                              (cons (match-beginning 0) (isl--point-at-eol))
+                              (bounds-of-thing-at-point 'symbol)
                             (cons (match-beginning 0) (match-end 0)))
              if (or (not rest)
                     (cl-loop for (pred . re) in rest
@@ -343,8 +338,7 @@ text position."
                                                (goto-char (car bounds))
                                                (re-search-forward
                                                 re (cdr bounds) t)))))
-             do (goto-char (setq end (match-end 0)))
-             and return (cons (car bounds) end)
+             do (goto-char (cdr bounds)) and return bounds
              else do (goto-char (cdr bounds))
              finally return nil)))
 
