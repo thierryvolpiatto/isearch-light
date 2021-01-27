@@ -453,8 +453,7 @@ appended at end."
 
 (defun isl-read-from-minibuffer (prompt)
   "Read input from minibuffer with prompt PROMPT."
-  (let (timer
-        (cursor-in-echo-area t))
+  (let (timer)
     (unwind-protect
         (minibuffer-with-setup-hook
             (lambda ()
