@@ -101,7 +101,7 @@ in pattern."
   "Save initial position to mark-ring on exit when non nil."
   :type 'boolean)
 
-(defcustom isl-requires-pattern 2
+(defcustom isl-requires-pattern 1
   "Start updating after this number of chars."
   :type 'integer)
 
