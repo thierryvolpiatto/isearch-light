@@ -389,7 +389,9 @@ symbol position."
                        isl-direction-down-string
                      isl-direction-up-string)))
     (setq mode-line-format
-          (cond ((string= isl-pattern "")
+          (cond ((or (string= isl-pattern "")
+                     (<= (length isl-pattern)
+                         isl-requires-pattern))
                  (default-value 'mode-line-format))
                 ((zerop isl--number-results)
                  `(" " mode-line-buffer-identification " "
@@ -443,8 +445,12 @@ appended at end."
     (let ((input (minibuffer-contents)))
       (when (not (string= input isl-pattern))
         (setq isl-pattern input)
-        (when (> (length input) isl-requires-pattern)
-          (isl-update))))))
+        (if (> (length input) isl-requires-pattern)
+            (isl-update)
+          (with-selected-window (minibuffer-selected-window)
+            (isl-delete-overlays)
+            (isl-setup-mode-line)
+            (goto-char isl-initial-pos)))))))
 
 (defun isl-read-from-minibuffer (prompt)
   "Read input from minibuffer with prompt PROMPT."
