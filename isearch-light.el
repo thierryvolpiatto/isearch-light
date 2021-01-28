@@ -31,6 +31,8 @@
 
 (require 'cl-lib)
 
+(declare-function outline-show-entry "outline.el")
+(declare-function org-reveal "org.el")
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
 (defvar helm-occur-always-search-in-current)
 
@@ -162,11 +164,7 @@ It put overlay on current position, move to next overlay using
   (with-selected-window (minibuffer-selected-window)
     (isl--highlight-last-overlay 'isl-match)
     (when isl--iterator
-      (isl--goto-overlay (isl-iter-next isl--iterator))
-      (when (invisible-p (get-text-property (point) 'invisible))
-        (if (listp buffer-invisibility-spec)
-            (mapc 'remove-from-invisibility-spec buffer-invisibility-spec)
-          (remove-from-invisibility-spec buffer-invisibility-spec))))
+      (isl--goto-overlay (isl-iter-next isl--iterator)))
     (isl-setup-mode-line)))
 
 (defun isl--find-and-goto-overlay (overlay)
@@ -347,6 +345,9 @@ symbol position."
   (with-selected-window (minibuffer-selected-window)
     (while-no-input
       (isl-delete-overlays)
+      (when (and buffer-invisibility-spec
+                 (listp buffer-invisibility-spec))
+        (mapc 'remove-from-invisibility-spec buffer-invisibility-spec))
       (let ((case-fold-search (isl-set-case-fold-search))
             (count 1)
             ov
@@ -467,7 +468,11 @@ appended at end."
         isl--last-overlay nil
         isl--number-results nil
         isl-search-function (default-value 'isl-search-function)
-        buffer-invisibility-spec isl--buffer-invisibility-spec))
+        buffer-invisibility-spec isl--buffer-invisibility-spec)
+  (cond ((eq major-mode 'org-mode)
+         (ignore-errors (org-reveal)))
+        ((eq major-mode 'outline-mode)
+         (outline-show-entry))))
 
 ;;;###autoload
 (defun isl ()
