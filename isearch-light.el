@@ -480,10 +480,11 @@ appended at end."
         buffer-invisibility-spec isl--buffer-invisibility-spec)
   (if isl--quit
       (setq isl--quit nil)
-    (cond ((eq major-mode 'org-mode)
-           (ignore-errors (org-reveal)))
-          ((eq major-mode 'outline-mode)
-           (outline-show-entry)))))
+    (ignore-errors
+      (cond ((eq major-mode 'org-mode)
+             (org-reveal))
+            ((eq major-mode 'outline-mode)
+             (outline-show-entry))))))
 
 ;;;###autoload
 (defun isl ()
