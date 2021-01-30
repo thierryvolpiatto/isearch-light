@@ -207,6 +207,8 @@ It put overlay on current position, move to next overlay using
   "The exit command for isl."
   (interactive)
   (with-selected-window (minibuffer-selected-window)
+    ;; Ensure user haven't scrolled to another place.
+    (goto-char (overlay-end isl--last-overlay))
     (when isl-save-pos-to-mark-ring
       (set-marker (mark-marker) isl-initial-pos)
       (push-mark isl-initial-pos 'nomsg))
