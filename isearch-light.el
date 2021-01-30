@@ -47,6 +47,7 @@
 (defvar isl--number-results 0)
 (defvar isl-history nil)
 (defvar isl--yank-point nil)
+(defvar isl--quit nil)
 (defvar-local isl--buffer-invisibility-spec nil)
 (defconst isl-search-functions
   '(re-search-forward search-forward isl-multi-search-fwd))
@@ -477,10 +478,12 @@ appended at end."
         isl--number-results nil
         isl-search-function (default-value 'isl-search-function)
         buffer-invisibility-spec isl--buffer-invisibility-spec)
-  (cond ((eq major-mode 'org-mode)
-         (ignore-errors (org-reveal)))
-        ((eq major-mode 'outline-mode)
-         (outline-show-entry))))
+  (if isl--quit
+      (setq isl--quit nil)
+    (cond ((eq major-mode 'org-mode)
+           (ignore-errors (org-reveal)))
+          ((eq major-mode 'outline-mode)
+           (outline-show-entry)))))
 
 ;;;###autoload
 (defun isl ()
@@ -491,11 +494,13 @@ appended at end."
         isl--direction 'forward
         isl-current-buffer (current-buffer)
         isl--buffer-invisibility-spec buffer-invisibility-spec)
-  (condition-case-unless-debug nil
-      (unwind-protect
+  (unwind-protect
+      (condition-case-unless-debug nil
           (isl-read-from-minibuffer "Search: ")
-        (isl-cleanup))
-    (quit (goto-char isl-initial-pos))))
+        (quit
+         (setq isl--quit t)
+         (goto-char isl-initial-pos)))
+    (isl-cleanup)))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
