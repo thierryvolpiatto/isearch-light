@@ -61,6 +61,20 @@ Here the commands available:
 | M->    | isl-goto-last             |
 | M-s    | isl-jump-to-helm-occur    |
 
+** About multi matching
+
+By default =isl= use multi matching like Helm, with limitation to
+symbol, not line like in Helm, that's mean "foo bar" match "foo-bar"
+or "bar-foo" but not a line with "foo" and "bar" inside e.g. "foo some
+text bar", when you want to match something like this you have to use
+regexp e.g. "foo.*bar".
+
+To use multi matching, separate text with one space, each pattern
+beginning by "!" will mean match everything but this, e.g. "foo !bar"
+will not match "foo-bar" but will match "foo-baz".
+
+[[screen_shot1.png]]
+
 ** Use isearch-light for helm-help
 
 Starting from Emacs-27 Isearch works more or less with unexpected
