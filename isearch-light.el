@@ -215,7 +215,7 @@ It put overlay on current position, move to next overlay using
       (push-mark isl-initial-pos 'nomsg))
     (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
       (overlay-put ov 'face 'isl-line)
-      (sit-for 0.1)
+      (sit-for 0.2)
       (delete-overlay ov)))
   ;; Call `exit-minibuffer' out of the `with-selected-window' block to
   ;; avoid error with the emacs-28 version.
@@ -501,7 +501,8 @@ appended at end."
         (quit
          (setq isl--quit t)
          (goto-char isl-initial-pos)))
-    (isl-cleanup)))
+    (isl-cleanup)
+    (recenter)))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
