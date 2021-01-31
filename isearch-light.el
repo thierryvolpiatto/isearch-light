@@ -35,6 +35,7 @@
 (declare-function org-reveal "org.el")
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
 (declare-function hs-show-block "hideshow.el")
+(declare-function markdown-show-entry "markdown-mode.el")
 (declare-function iedit-lib-cleanup "ext:iedit-lib.el")
 (declare-function iedit-start "ext:iedit.el")
 (declare-function iedit-done "ext:iedit.el")
@@ -525,13 +526,18 @@ appended at end."
           buffer-invisibility-spec isl--buffer-invisibility-spec)
     (if isl--quit
         (setq isl--quit nil)
-      (ignore-errors
+      (condition-case-unless-debug _err
         (cond ((eq major-mode 'org-mode)
                (org-reveal))
               ((eq major-mode 'outline-mode)
                (outline-show-entry))
-              (hs-minor-mode
-               (hs-show-block)))))))
+              ((and (boundp 'hs-minor-mode)
+                    hs-minor-mode)
+               (hs-show-block))
+              ((and (boundp 'markdown-mode-map)
+                    (derived-mode-p 'markdown-mode))
+               (markdown-show-entry)))
+        (error nil)))))
 
 ;;;###autoload
 (defun isl ()
