@@ -351,6 +351,11 @@ symbol position."
   (with-selected-window (minibuffer-selected-window)
     (while-no-input
       (isl-delete-overlays)
+      ;; We don't use the isearch-invisible mechanism which is heavy
+      ;; and don't behave as we want, instead remove invisibility in
+      ;; all buffer and on exit restore it and unhide only the place
+      ;; where point is with appropriate functions belonging to
+      ;; major-mode e.g. org => org-reveal etc...
       (when (and buffer-invisibility-spec
                  (listp buffer-invisibility-spec))
         (mapc 'remove-from-invisibility-spec buffer-invisibility-spec))
