@@ -34,10 +34,16 @@
 (declare-function outline-show-entry "outline.el")
 (declare-function org-reveal "org.el")
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
+(declare-function hs-show-block "hideshow.el")
+(declare-function iedit-lib-cleanup "ext:iedit-lib.el")
+(declare-function iedit-start "ext:iedit.el")
+(declare-function iedit-done "ext:iedit.el")
 (defvar helm-occur-always-search-in-current)
 (defvar hs-minor-mode)
 (defvar hs-show-hook)
-(declare-function hs-show-block "hideshow.el")
+(defvar iedit-case-sensitive)
+(defvar iedit-occurrences-overlays)
+(defvar iedit-mode)
 
 ;; Internals
 (defvar isl-pattern "")
@@ -143,6 +149,7 @@ in pattern."
     (define-key map (kbd "M-<")    'isl-goto-first)
     (define-key map (kbd "M->")    'isl-goto-last)
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
+    (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
     map))
 
 ;;; Actions
@@ -279,6 +286,34 @@ the initial position i.e. the position before launching isl."
                    ;; flag for `helm-occur--select-closest-candidate'.
                    (let ((helm-occur-always-search-in-current t))
                      (helm-multi-occur-1 bufs input))))
+    (abort-recursive-edit)))
+
+(defun isl-jump-to-iedit-mode ()
+  "Start Iedit mode from `isl' using last search string as the regexp."
+  (interactive)
+  (cl-assert (require 'iedit nil t))
+  (let ((regexp (if (eq isl-search-function 'search-forward)
+                    (regexp-quote isl-pattern)
+                  isl-pattern))
+        (pos (with-current-buffer isl-current-buffer
+               (overlay-end isl--last-overlay))))
+    (run-at-time 0.1 nil (lambda ()
+                           (let ((iedit-case-sensitive (not (isl-set-case-fold-search regexp)))
+	                         result)
+                             (setq mark-active nil)
+                             (run-hooks 'deactivate-mark-hook)
+                             (when iedit-mode
+                               (iedit-lib-cleanup))
+                             (setq result
+	                           (catch 'not-same-length
+	                             (iedit-start regexp (point-min) (point-max))))
+                             (cond ((not iedit-occurrences-overlays)
+                                    (message "No matches found for %s" regexp)
+                                    (iedit-done))
+                                   ((equal result 'not-same-length)
+                                    (message "Matches are not the same length.")
+                                    (iedit-done)))
+                             (goto-char pos))))
     (abort-recursive-edit)))
 
 (defun isl-iter-circular (seq)
