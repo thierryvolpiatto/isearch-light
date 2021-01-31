@@ -556,7 +556,8 @@ appended at end."
          (setq isl--quit t)
          (goto-char isl-initial-pos)))
     (isl-cleanup)
-    (recenter)))
+    (and (not (string= isl-pattern ""))
+         (recenter))))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
