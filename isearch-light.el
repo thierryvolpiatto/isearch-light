@@ -513,8 +513,9 @@ appended at end."
 
 (defun isl-cleanup ()
   "Cleanup various things when `isl' exit."
-  (let* ((pos (overlay-end isl--last-overlay))
-         (hs-show-hook (list (lambda () (goto-char pos)))))
+  (let* ((pos (and isl--last-overlay ; nil when quitting with no results.
+                   (overlay-end isl--last-overlay)))
+         (hs-show-hook (list (lambda () (and pos (goto-char pos))))))
     (isl-delete-overlays)
     (setq mode-line-format (default-value 'mode-line-format)
           isl--yank-point nil
