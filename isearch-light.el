@@ -35,6 +35,9 @@
 (declare-function org-reveal "org.el")
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
 (defvar helm-occur-always-search-in-current)
+(defvar hs-minor-mode)
+(defvar hs-show-hook)
+(declare-function hs-show-block "hideshow.el")
 
 ;; Internals
 (defvar isl-pattern "")
@@ -469,22 +472,26 @@ appended at end."
 
 (defun isl-cleanup ()
   "Cleanup various things when `isl' exit."
-  (isl-delete-overlays)
-  (setq mode-line-format (default-value 'mode-line-format)
-        isl--yank-point nil
-        isl--iterator nil
-        isl--item-overlays nil
-        isl--last-overlay nil
-        isl--number-results nil
-        isl-search-function (default-value 'isl-search-function)
-        buffer-invisibility-spec isl--buffer-invisibility-spec)
-  (if isl--quit
-      (setq isl--quit nil)
-    (ignore-errors
-      (cond ((eq major-mode 'org-mode)
-             (org-reveal))
-            ((eq major-mode 'outline-mode)
-             (outline-show-entry))))))
+  (let* ((pos (overlay-end isl--last-overlay))
+         (hs-show-hook (list (lambda () (goto-char pos)))))
+    (isl-delete-overlays)
+    (setq mode-line-format (default-value 'mode-line-format)
+          isl--yank-point nil
+          isl--iterator nil
+          isl--item-overlays nil
+          isl--last-overlay nil
+          isl--number-results nil
+          isl-search-function (default-value 'isl-search-function)
+          buffer-invisibility-spec isl--buffer-invisibility-spec)
+    (if isl--quit
+        (setq isl--quit nil)
+      (ignore-errors
+        (cond ((eq major-mode 'org-mode)
+               (org-reveal))
+              ((eq major-mode 'outline-mode)
+               (outline-show-entry))
+              (hs-minor-mode
+               (hs-show-block)))))))
 
 ;;;###autoload
 (defun isl ()
