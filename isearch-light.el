@@ -151,6 +151,7 @@ in pattern."
     (define-key map (kbd "M-r")    'isl-change-matching-style)
     (define-key map (kbd "M-<")    'isl-goto-first)
     (define-key map (kbd "M->")    'isl-goto-last)
+    (define-key map (kbd "M-=")    'isl-goto-closest-from-start)
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
     map))
@@ -200,6 +201,12 @@ It put overlay on current position, move to next overlay using
   "Goto last match."
   (interactive)
   (isl--find-and-goto-overlay (car (last isl--item-overlays))))
+
+(defun isl-goto-closest-from-start ()
+  "Goto closest match from start."
+  (interactive)
+  (isl--find-and-goto-overlay
+   (isl-closest-overlay isl-initial-pos isl--item-overlays)))
 
 (defun isl-goto-next ()
   "Go to next match in isl."
