@@ -59,11 +59,8 @@
 (defvar isl--yank-point nil)
 (defvar isl--quit nil)
 (defvar-local isl--buffer-invisibility-spec nil)
-(defconst isl-search-functions
-  '(re-search-forward search-forward isl-multi-search-fwd))
 (defconst isl-space-regexp "\\s\\\\s-"
   "Match a quoted space in a string.")
-(defvar isl--search-functions-iterator nil)
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
@@ -73,17 +70,14 @@
   :prefix "isl"
   :group 'matching)
 
-(defcustom isl-search-function #'isl-multi-search-fwd
+(defcustom isl-search-function #'re-search-forward
   "The search function that will be used by default when starting `isl'.
-Possible values are `isl-multi-search-fwd', `re-search-forward'
-and `search-forward', the first use multi matching, the second
-regexp matching while the last is using literal matching.  Its
-value can be changed during `isl' session with
-`\\<isl-map>\\[isl-change-matching-style]'."
+Possible values are `re-search-forward' and `search-forward', the
+first use regexp matching while the second is using literal matching.
+Its value can be changed during `isl' session with `\\<isl-map>\\[isl-change-matching-style]'."
   :type '(choice
            (function :tag "Regexp matching" re-search-forward)
-           (function :tag "Literal matching" search-forward)
-           (function :tag "Multi matching" isl-multi-search-fwd)))
+           (function :tag "Literal matching" search-forward)))
 
 (defcustom isl-case-fold-search 'smart
   "The `case-fold-search' value.
@@ -254,20 +248,17 @@ the initial position i.e. the position before launching isl."
   "Return current matching style as a string."
   (cl-case isl-search-function
     (re-search-forward "Regex")
-    (search-forward "Literal")
-    (isl-multi-search-fwd "Multi")))
+    (search-forward "Literal")))
 
 (defun isl-change-matching-style ()
-  "Toggle style matching in `isl' i.e. regexp/literal/multi."
+  "Toggle style matching in `isl' i.e. regexp/literal."
   (interactive)
   (with-current-buffer isl-current-buffer
-    (unless (eq last-command 'isl-change-matching-style)
-      (setq isl--search-functions-iterator
-            (isl-iter-circular
-             (append (remove isl-search-function isl-search-functions)
-                     (list isl-search-function)))))
     (setq-local isl-search-function
-                (isl-iter-next isl--search-functions-iterator))
+                (cl-case isl-search-function
+                  (re-search-forward #'search-forward)
+                  (search-forward #'re-search-forward)
+                  (t #'re-search-forward)))
     (when (string= isl-pattern "")
       (let* ((style (isl-matching-style))
              (mode-line-format (format " Switching to %s searching" style)))
@@ -363,11 +354,13 @@ When arg STR contains spaces, it is converted in patterns with
 subsequent patterns are used to check if all patterns match this
 symbol.  The return value is a cons cell (beg . end) denoting
 symbol position."
+  ;; Prevent infloop crashing Emacs with incorrect configuration.
+  (cl-assert (not (eq isl-search-function 'isl-multi-search-fwd)))
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
          (rest    (cdr pattern)))
-    (cl-loop while (re-search-forward (cdr initial) nil t)
+    (cl-loop while (funcall isl-search-function (cdr initial) nil t)
              for bounds = (if rest
                               (bounds-of-thing-at-point 'symbol)
                             (cons (match-beginning 0) (match-end 0)))
@@ -376,8 +369,8 @@ symbol position."
                              always (funcall pred
                                              (progn
                                                (goto-char (car bounds))
-                                               (re-search-forward
-                                                re (cdr bounds) t)))))
+                                               (funcall isl-search-function
+                                                        re (cdr bounds) t)))))
              do (goto-char (cdr bounds)) and return bounds
              else do (goto-char (cdr bounds))
              finally return nil)))
@@ -403,9 +396,7 @@ symbol position."
           (save-excursion
             (goto-char (point-min))
             (condition-case-unless-debug nil
-                (while (setq bounds (funcall isl-search-function isl-pattern nil t))
-                  (when (integerp bounds)
-                    (setq bounds (cons (match-beginning 0) (match-end 0))))
+                (while (setq bounds (isl-multi-search-fwd isl-pattern nil t))
                   (setq ov (make-overlay (car bounds) (cdr bounds)))
                   (push ov isl--item-overlays)
                   (overlay-put ov 'isl t)
