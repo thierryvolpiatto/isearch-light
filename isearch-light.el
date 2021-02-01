@@ -31,20 +31,26 @@
 
 (require 'cl-lib)
 
+(defvar iedit-aborting)
+(defvar iedit-read-only-occurrences-overlays)
+(defvar iedit-read-only-occurrences-overlays)
+(defvar iedit-case-sensitive)
+(defvar iedit-occurrences-overlays)
+(defvar iedit-mode)
+(defvar helm-occur-always-search-in-current)
+(defvar hs-minor-mode)
+(defvar hs-show-hook)
+(declare-function iedit-make-read-only-occurrence-overlay "ext:iedit-lib.el")
+(declare-function iedit-make-occurrence-overlay "ext:iedit-lib.el")
+(declare-function iedit-update-index "ext:iedit-lib.el")
+(declare-function iedit-lib-cleanup "ext:iedit-lib.el")
+(declare-function iedit-start "ext:iedit.el")
+(declare-function iedit-done "ext:iedit.el")
 (declare-function outline-show-entry "outline.el")
 (declare-function org-reveal "org.el")
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
 (declare-function hs-show-block "hideshow.el")
 (declare-function markdown-show-entry "markdown-mode.el")
-(declare-function iedit-lib-cleanup "ext:iedit-lib.el")
-(declare-function iedit-start "ext:iedit.el")
-(declare-function iedit-done "ext:iedit.el")
-(defvar helm-occur-always-search-in-current)
-(defvar hs-minor-mode)
-(defvar hs-show-hook)
-(defvar iedit-case-sensitive)
-(defvar iedit-occurrences-overlays)
-(defvar iedit-mode)
 
 ;; Internals
 (defvar isl-pattern "")
@@ -279,6 +285,42 @@ the initial position i.e. the position before launching isl."
                      (helm-multi-occur-1 bufs input))))
     (abort-recursive-edit)))
 
+;; Iedit
+;;
+(defun isl--advice-iedit-start (old--fn &rest args)
+  (cl-letf (((symbol-function 'iedit-make-occurrences-overlays)
+             #'isl--iedit-make-occurrences-overlays))
+    (apply old--fn args)))
+
+(defun isl--iedit-make-occurrences-overlays (occurrence-regexp beg end)
+  "Create occurrence overlays for `occurrence-regexp' in a region.
+Return the number of occurrences."
+  (setq iedit-aborting nil)
+  (setq iedit-occurrences-overlays nil)
+  (setq iedit-read-only-occurrences-overlays nil)
+  ;; Find and record each occurrence's markers and add the overlay to the occurrences
+  (let ((counter 0)
+        (case-fold-search (not iedit-case-sensitive))
+	(length 0)
+        bounds)
+    (save-excursion
+      (save-selected-window
+        (goto-char beg)
+        (while (setq bounds (isl-multi-search-fwd occurrence-regexp end t))
+          (let ((beginning (car bounds))
+                (ending (cdr bounds)))
+	    (if (and (> length 0) (/= (- ending beginning) length))
+		(throw 'not-same-length 'not-same-length)
+	      (setq length (- ending beginning)))
+            (if (text-property-not-all beginning ending 'read-only nil)
+                (push (iedit-make-read-only-occurrence-overlay beginning ending)
+                      iedit-read-only-occurrences-overlays)
+              (push (iedit-make-occurrence-overlay beginning ending)
+                    iedit-occurrences-overlays))
+            (setq counter (1+ counter))))))
+    (iedit-update-index)
+    counter))
+
 (defun isl-jump-to-iedit-mode ()
   "Start Iedit mode from `isl' using last search string as the regexp."
   (interactive)
@@ -297,16 +339,20 @@ the initial position i.e. the position before launching isl."
          (run-hooks 'deactivate-mark-hook)
          (when iedit-mode
            (iedit-lib-cleanup))
-         (setq result
-	       (catch 'not-same-length
-	         (iedit-start regexp (point-min) (point-max))))
-         (cond ((not iedit-occurrences-overlays)
-                (message "No matches found for %s" regexp)
-                (iedit-done))
-               ((equal result 'not-same-length)
-                (message "Matches are not the same length.")
-                (iedit-done)))
-         (goto-char pos))))
+         (advice-add 'iedit-start :around #'isl--advice-iedit-start)
+         (unwind-protect
+             (progn
+               (setq result
+	             (catch 'not-same-length
+	               (iedit-start regexp (point-min) (point-max))))
+               (cond ((not iedit-occurrences-overlays)
+                      (message "No matches found for %s" regexp)
+                      (iedit-done))
+                     ((equal result 'not-same-length)
+                      (message "Matches are not the same length.")
+                      (iedit-done)))
+               (goto-char pos))
+           (advice-remove 'iedit-start #'isl--advice-iedit-start)))))
     (abort-recursive-edit)))
 
 (defun isl-iter-circular (seq)
