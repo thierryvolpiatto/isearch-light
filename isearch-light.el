@@ -293,8 +293,7 @@ the initial position i.e. the position before launching isl."
     (apply old--fn args)))
 
 (defun isl--iedit-make-occurrences-overlays (occurrence-regexp beg end)
-  "Create occurrence overlays for `occurrence-regexp' in a region.
-Return the number of occurrences."
+  "Same as `iedit-make-occurrences-overlays' but handle multiple regexps."
   (setq iedit-aborting nil)
   (setq iedit-occurrences-overlays nil)
   (setq iedit-read-only-occurrences-overlays nil)
