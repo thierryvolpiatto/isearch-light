@@ -75,6 +75,9 @@ will not match "foo-bar" but will match "foo-baz".
 
 [[screen_shot1.png]]
 
+Note: You can jump to =helm-occur= for a line based search.
+You can also jump to [[https://github.com/victorhge/iedit][iedit-mode]] with multi match pattern.
+
 ** Use isearch-light for helm-help
 
 Starting from Emacs-27 Isearch works more or less with unexpected
