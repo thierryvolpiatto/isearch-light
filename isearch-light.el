@@ -246,7 +246,7 @@ the initial position i.e. the position before launching isl."
 
 (defun isl-matching-style ()
   "Return current matching style as a string."
-  (cl-case isl-search-function
+  (cl-ecase isl-search-function
     (re-search-forward "Regex")
     (search-forward "Literal")))
 
@@ -255,10 +255,9 @@ the initial position i.e. the position before launching isl."
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-search-function
-                (cl-case isl-search-function
+                (cl-ecase isl-search-function
                   (re-search-forward #'search-forward)
-                  (search-forward #'re-search-forward)
-                  (t #'re-search-forward)))
+                  (search-forward #'re-search-forward)))
     (when (string= isl-pattern "")
       (let* ((style (isl-matching-style))
              (mode-line-format (format " Switching to %s searching" style)))
@@ -355,7 +354,7 @@ subsequent patterns are used to check if all patterns match this
 symbol.  The return value is a cons cell (beg . end) denoting
 symbol position."
   ;; Prevent infloop crashing Emacs with incorrect configuration.
-  (cl-assert (not (eq isl-search-function 'isl-multi-search-fwd)))
+  (cl-assert (memq isl-search-function '(re-search-forward search-forward)))
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
