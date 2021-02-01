@@ -288,23 +288,25 @@ the initial position i.e. the position before launching isl."
                   isl-pattern))
         (pos (with-current-buffer isl-current-buffer
                (overlay-end isl--last-overlay))))
-    (run-at-time 0.1 nil (lambda ()
-                           (let ((iedit-case-sensitive (not (isl-set-case-fold-search regexp)))
-	                         result)
-                             (setq mark-active nil)
-                             (run-hooks 'deactivate-mark-hook)
-                             (when iedit-mode
-                               (iedit-lib-cleanup))
-                             (setq result
-	                           (catch 'not-same-length
-	                             (iedit-start regexp (point-min) (point-max))))
-                             (cond ((not iedit-occurrences-overlays)
-                                    (message "No matches found for %s" regexp)
-                                    (iedit-done))
-                                   ((equal result 'not-same-length)
-                                    (message "Matches are not the same length.")
-                                    (iedit-done)))
-                             (goto-char pos))))
+    (run-at-time
+     0.1 nil
+     (lambda ()
+       (let ((iedit-case-sensitive (not (isl-set-case-fold-search regexp)))
+	     result)
+         (setq mark-active nil)
+         (run-hooks 'deactivate-mark-hook)
+         (when iedit-mode
+           (iedit-lib-cleanup))
+         (setq result
+	       (catch 'not-same-length
+	         (iedit-start regexp (point-min) (point-max))))
+         (cond ((not iedit-occurrences-overlays)
+                (message "No matches found for %s" regexp)
+                (iedit-done))
+               ((equal result 'not-same-length)
+                (message "Matches are not the same length.")
+                (iedit-done)))
+         (goto-char pos))))
     (abort-recursive-edit)))
 
 (defun isl-iter-circular (seq)
