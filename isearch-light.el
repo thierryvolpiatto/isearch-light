@@ -348,7 +348,7 @@ Optional argument PATTERN default to `isl-pattern'."
                        (cons 'not (substring s 1))
                      (cons 'identity s))))
 
-(defun isl-multi-search-fwd (str &optional _bound _noerror)
+(defun isl-multi-search-fwd (str &optional _bound _noerror _count)
   "Returns position of symbol matched by STR.
 When arg STR contains spaces, it is converted in patterns with
 `isl-patterns' , when first pattern of list match a symbol
