@@ -50,7 +50,7 @@
 (declare-function org-reveal "org.el")
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
 (declare-function hs-show-block "hideshow.el")
-(declare-function markdown-show-entry "markdown-mode.el")
+(declare-function markdown-show-entry "ext:markdown-mode.el")
 
 ;; Internals
 (defvar isl-pattern "")
