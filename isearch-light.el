@@ -142,6 +142,8 @@ in pattern."
     (set-keymap-parent map minibuffer-local-map)
     (define-key map (kbd "C-s")    'isl-goto-next)
     (define-key map (kbd "C-r")    'isl-goto-prev)
+    (define-key map (kbd "C-n")    'isl-goto-next)
+    (define-key map (kbd "C-p")    'isl-goto-prev)
     (define-key map (kbd "<down>") 'isl-goto-next)
     (define-key map (kbd "<up>")   'isl-goto-prev)
     (define-key map (kbd "RET")    'isl-exit-at-point)
