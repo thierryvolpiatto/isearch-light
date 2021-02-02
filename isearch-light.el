@@ -254,10 +254,11 @@ the initial position i.e. the position before launching isl."
         (setq str (buffer-substring-no-properties (or isl--yank-point (point))
                                                   (save-excursion
                                                     (forward-word)
-                                                    (point))))))
-    (when str
-      (with-selected-window (minibuffer-window)
-        (insert str)))))
+                                                    (point))))
+        (when (string-match "\\` " str)
+          (setq str (replace-match "\\\\ " nil nil str)))
+        (with-selected-window (minibuffer-window)
+          (insert str))))))
 
 (defun isl-matching-style ()
   "Return current matching style as a string."
