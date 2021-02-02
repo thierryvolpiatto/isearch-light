@@ -25,7 +25,7 @@
 ;;; Commentary:
 
 ;; Isearch-light is a small package to search regexp incrementaly in
-;; current-buffer.  It is simple to use, just call M-x `isl'.
+;; current-buffer.  It is simple to use, just call M-x `isl-search'.
 
 ;;; Code:
 
@@ -72,7 +72,7 @@
 (defvar isl-timer-delay 0.01)
 
 (defgroup isearch-light nil
-  "Open isl."
+  "Open `isl-search'."
   :prefix "isl"
   :group 'matching)
 
@@ -80,7 +80,7 @@
   "The search function that will be used by default when starting `isl'.
 Possible values are `re-search-forward' and `search-forward', the
 first use regexp matching while the second is using literal matching.
-Its value can be changed during `isl' session with `\\<isl-map>\\[isl-change-matching-style]'."
+Its value can be changed during `isl-search' session with `\\<isl-map>\\[isl-change-matching-style]'."
   :type '(choice
            (function :tag "Regexp matching" re-search-forward)
            (function :tag "Literal matching" search-forward)))
@@ -209,7 +209,7 @@ It put overlay on current position, move to next overlay using
    (isl-closest-overlay isl-initial-pos isl--item-overlays)))
 
 (defun isl-goto-next ()
-  "Go to next match in isl."
+  "Go to next match."
   (interactive)
   (when (eq isl--direction 'backward)
     (setq isl--direction 'forward)
@@ -217,7 +217,7 @@ It put overlay on current position, move to next overlay using
   (isl-goto-next-1))
 
 (defun isl-goto-prev ()
-  "Go to previous match in isl."
+  "Go to previous match"
   (interactive)
   (when (eq isl--direction 'forward)
     (setq isl--direction 'backward)
@@ -225,7 +225,7 @@ It put overlay on current position, move to next overlay using
   (isl-goto-next-1))
 
 (defun isl-exit-at-point ()
-  "The exit command for isl."
+  "Exit minibuffer and jump at current position."
   (interactive)
   (with-selected-window (minibuffer-selected-window)
     ;; Ensure user haven't scrolled to another place.
@@ -244,7 +244,7 @@ It put overlay on current position, move to next overlay using
 (defun isl-yank-word-at-point ()
   "Yank word at point in minibuffer.
 The word at point is relative to the current position in buffer, not
-the initial position i.e. the position before launching isl."
+the initial position i.e. the position before launching `isl-search'."
   (interactive)
   (let (str)
     (with-current-buffer isl-current-buffer
@@ -267,7 +267,7 @@ the initial position i.e. the position before launching isl."
     (search-forward "Literal")))
 
 (defun isl-change-matching-style ()
-  "Toggle style matching in `isl' i.e. regexp/literal."
+  "Toggle style matching in `isl-search' i.e. regexp/literal."
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-search-function
@@ -282,7 +282,7 @@ the initial position i.e. the position before launching isl."
     (isl-update)))
 
 (defun isl-jump-to-helm-occur ()
-  "Invoke `helm-occur' from isl."
+  "Invoke `helm-occur' from `isl-search'."
   (interactive)
   (cl-assert (require 'helm-occur nil t))
   (let ((input isl-pattern)
@@ -473,7 +473,7 @@ symbol position."
       (isl-setup-mode-line))))
 
 (defun isl-setup-mode-line ()
-  "Setup `mode-line-format' for isl."
+  "Setup `mode-line-format' for `isl-search'."
   (let ((style (isl-matching-style))
         (position (with-current-buffer isl-current-buffer
                      (if (> (point) isl-initial-pos)
@@ -559,7 +559,7 @@ appended at end."
       (cancel-timer timer))))
 
 (defun isl-cleanup ()
-  "Cleanup various things when `isl' exit."
+  "Cleanup various things when `isl-search' exit."
   (let* ((pos (and isl--last-overlay ; nil when quitting with no results.
                    (overlay-end isl--last-overlay)))
          (hs-show-hook (list (lambda () (and pos (goto-char pos))))))
@@ -588,7 +588,7 @@ appended at end."
         (error nil)))))
 
 ;;;###autoload
-(defun isl ()
+(defun isl-search ()
   "Start incremental searching in current buffer."
   (interactive)
   (setq isl-initial-pos (point)
@@ -612,7 +612,7 @@ appended at end."
   (interactive)
   (save-restriction
     (narrow-to-defun)
-    (isl)))
+    (isl-search)))
 
 (provide 'isearch-light)
 

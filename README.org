@@ -28,7 +28,7 @@ With =use-package= and binding =C-s=
 
 #+begin_src elisp
     (use-package isearch-light
-      :bind (("C-s" . isl)))
+      :bind (("C-s" . isl-search)))
 #+end_src
 
 *** With [[https://github.com/raxod502/straight.el][Straight]]
@@ -36,12 +36,12 @@ With =use-package= and binding =C-s=
 #+begin_src elisp
     (use-package isearch-light
       :straight (isearch-light :host github :repo "thierryvolpiatto/isearch-light")
-      :bind (("C-s" . isl)))
+      :bind (("C-s" . isl-search)))
 #+end_src
 
 ** Usage
 
-=M-x src=
+=M-x isl-search=
 
 The mode-line give you several infos, arrows up/down tell you the
 direction where you are actually moving, the =>= and =<= mean you are
@@ -63,7 +63,7 @@ Here the commands available:
 
 ** About multi matching
 
-By default =isl= use multi matching like Helm, with limitation to
+By default =isl-search= use multi matching like Helm, with limitation to
 symbol, not line like in Helm, that's mean "foo bar" match "foo-bar"
 or "bar-foo" but not a line with "foo" and "bar" inside e.g. "foo some
 text bar", when you want to match something like this you have to use
@@ -81,7 +81,7 @@ You can also jump to [[https://github.com/victorhge/iedit][iedit-mode]] with mul
 ** Use isearch-light for helm-help
 
 Starting from Emacs-27 Isearch works more or less with unexpected
-effects, you have better time using =isl= as the search command for
+effects, you have better time using =isl-search= as the search command for
 helm-help, here how to replace default setting by `isl` in helm-help:
 
 #+begin_src elisp
@@ -91,7 +91,7 @@ helm-help, here how to replace default setting by `isl` in helm-help:
         :straight (isearch-light :host github :repo "thierryvolpiatto/isearch-light"))
       (helm-help-define-key "C-s" nil)
       (helm-help-define-key "C-r" nil)
-      (helm-help-define-key "C-s" 'isl))
+      (helm-help-define-key "C-s" 'isl-search))
 #+end_src
 
 An alternative is to customize `helm-help-hkmap` from the customize interface.
