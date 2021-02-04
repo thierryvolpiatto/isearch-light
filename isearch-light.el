@@ -396,15 +396,18 @@ Optional argument PATTERN default to `isl-pattern'."
     (t isl-case-fold-search)))
 
 (defun isl-select-case-fold-search ()
+  "Set `case-fold-search' from `isl-search' session."
   (interactive)
   (with-current-buffer isl-current-buffer
     (if (eq last-command 'isl-select-case-fold-search)
-        (setq isl-case-fold-search (isl-iter-next isl--case-fold-choices-iterator))
+        (setq isl-case-fold-search
+              (isl-iter-next isl--case-fold-choices-iterator))
       (setq isl--case-fold-choices-iterator
             (isl-iter-circular
              (append (remove isl-case-fold-search isl--case-fold-choices)
                      (list isl-case-fold-search))))
-      (setq isl-case-fold-search (isl-iter-next isl--case-fold-choices-iterator)))
+      (setq isl-case-fold-search
+            (isl-iter-next isl--case-fold-choices-iterator)))
     (isl-update)))
 
 (defun isl-split-string (str)
