@@ -67,6 +67,9 @@
 (defvar-local isl--buffer-invisibility-spec nil)
 (defconst isl-space-regexp "\\s\\\\s-"
   "Match a quoted space in a string.")
+(defconst isl--case-fold-choices '(smart nil t))
+(defvar isl--case-fold-choices-iterator nil)
+
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
@@ -149,6 +152,7 @@ in pattern."
     (define-key map (kbd "RET")    'isl-exit-at-point)
     (define-key map (kbd "C-w")    'isl-yank-word-at-point)
     (define-key map (kbd "M-r")    'isl-change-matching-style)
+    (define-key map (kbd "C-c f")  'isl-select-case-fold-search)
     (define-key map (kbd "M-<")    'isl-goto-first)
     (define-key map (kbd "M->")    'isl-goto-last)
     (define-key map (kbd "M-=")    'isl-goto-closest-from-start)
@@ -391,6 +395,18 @@ Optional argument PATTERN default to `isl-pattern'."
              (if (string-match "[[:upper:]]" pattern) nil t)))
     (t isl-case-fold-search)))
 
+(defun isl-select-case-fold-search ()
+  (interactive)
+  (with-current-buffer isl-current-buffer
+    (if (eq last-command 'isl-select-case-fold-search)
+        (setq isl-case-fold-search (isl-iter-next isl--case-fold-choices-iterator))
+      (setq isl--case-fold-choices-iterator
+            (isl-iter-circular
+             (append (remove isl-case-fold-search isl--case-fold-choices)
+                     (list isl-case-fold-search))))
+      (setq isl-case-fold-search (isl-iter-next isl--case-fold-choices-iterator)))
+    (isl-update)))
+
 (defun isl-split-string (str)
   (split-string
    (replace-regexp-in-string
@@ -496,19 +512,25 @@ symbol position."
                                    direction))
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
-                     (:eval ,(format "[%s/%s] result(s) found for `%s' [%s %s %s]"
-                                     (propertize
-                                      (number-to-string
-                                       (overlay-get isl--last-overlay 'pos))
-                                      'face 'isl-number)
-                                     (propertize (number-to-string
-                                                  isl--number-results)
-                                                 'face 'isl-number)
-                                     (propertize isl-pattern
-                                                 'face 'isl-string)
-                                     style
-                                     direction
-                                     position))
+                     (:eval ,(format
+                              "[%s/%s] result(s) found for `%s' [%s %s %s %s]"
+                              (propertize
+                               (number-to-string
+                                (overlay-get isl--last-overlay 'pos))
+                               'face 'isl-number)
+                              (propertize (number-to-string
+                                           isl--number-results)
+                                          'face 'isl-number)
+                              (propertize isl-pattern
+                                          'face 'isl-string)
+                              style
+                              direction
+                              position
+                              (propertize (pcase isl-case-fold-search
+                                            (`smart "*")
+                                            (`t     "1")
+                                            (`nil   "0"))
+                                          'face 'isl-number)))
                      " " mode-line-position))))))
 
 (defun isl-closest-overlay (pos overlays)
@@ -570,6 +592,7 @@ appended at end."
           isl--item-overlays nil
           isl--last-overlay nil
           isl--number-results nil
+          isl-case-fold-search (default-value 'isl-case-fold-search)
           isl-search-function (default-value 'isl-search-function)
           buffer-invisibility-spec isl--buffer-invisibility-spec)
     (if isl--quit
