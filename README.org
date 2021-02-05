@@ -46,20 +46,26 @@ With =use-package= and binding =C-s=
 The mode-line give you several infos, arrows up/down tell you the
 direction where you are actually moving, the =>= and =<= mean you are
 either below or above initial position in buffer. Regex, Multi or Literal
-tell you the style of search you are using.
+tell you the style of search you are using. Case sensitivity in use is
+notified by *, 0 or 1 which mean smart, nil or t for =case-fold-search=.
 
 Here the commands available:
 
-| C-s    | isl-goto-next             |
-| C-r    | isl-goto-prev             |
-| <down> | isl-goto-next             |
-| <up>   | isl-goto-prev             |
-| RET    | isl-exit-at-point         |
-| C-w    | isl-yank-word-at-point    |
-| M-r    | isl-change-matching-style |
-| M-<    | isl-goto-first            |
-| M->    | isl-goto-last             |
-| M-s    | isl-jump-to-helm-occur    |
+| C-s    | isl-goto-next               |
+| C-r    | isl-goto-prev               |
+| <down> | isl-goto-next               |
+| <up>   | isl-goto-prev               |
+| C-n    | isl-goto-next               |
+| C-p    | isl-goto-prev               |
+| RET    | isl-exit-at-point           |
+| C-w    | isl-yank-word-at-point      |
+| M-r    | isl-change-matching-style   |
+| C-c f  | isl-select-case-fold-search |
+| M-<    | isl-goto-first              |
+| M->    | isl-goto-last               |
+| M-=    | isl-goto-closest-from-start |
+| M-s    | isl-jump-to-helm-occur      |
+| C-;    | isl-jump-to-iedit-mode      |
 
 ** About multi matching
 
