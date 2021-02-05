@@ -346,7 +346,7 @@ the initial position i.e. the position before launching `isl-search'."
     (run-at-time
      0.1 nil
      (lambda ()
-       (let ((iedit-case-sensitive (not (isl-set-case-fold-search regexp)))
+       (let ((case-fold-search (isl-set-case-fold-search regexp))
 	     result)
          (setq mark-active nil)
          (run-hooks 'deactivate-mark-hook)
