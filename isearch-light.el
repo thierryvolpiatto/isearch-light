@@ -139,6 +139,10 @@ in pattern."
 (defface isl-string
   '((t :foreground "Lightgoldenrod1" :bold t))
   "Face used to highlight pattern in mode-line.")
+
+(defface isl-case-fold
+  '((t :inherit isl-string))
+  "Face used to highlight case sensitivity string in mode-line.")
 
 (defvar isl-map
   (let ((map (make-sparse-keymap)))
@@ -533,7 +537,7 @@ symbol position."
                                             (`smart "*")
                                             (`t     "1")
                                             (`nil   "0"))
-                                          'face 'isl-number)))
+                                          'face 'isl-case-fold)))
                      " " mode-line-position))))))
 
 (defun isl-closest-overlay (pos overlays)
