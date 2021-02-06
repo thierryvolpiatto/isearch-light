@@ -88,7 +88,7 @@
 \\[isl-goto-closest-from-start]\t\tGoto closest occurence from start
 \\[isl-jump-to-helm-occur]\t\tJump to helm-occur
 \\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode
-\\[isl-show-or-hidde-context-lines]\t\tHide or show non matching lines")
+\\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines")
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
@@ -186,7 +186,7 @@ in pattern."
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
-    (define-key map (kbd "C-'")  'isl-show-or-hidde-context-lines)
+    (define-key map (kbd "C-'")  'isl-show-or-hide-context-lines)
     map))
 
 ;;; Actions
@@ -418,7 +418,7 @@ the initial position i.e. the position before launching `isl-search'."
       (setq buffer-read-only t)
       (local-set-key (kbd "q") 'quit-window))))
 
-(defun isl-show-or-hidde-context-lines ()
+(defun isl-show-or-hide-context-lines ()
   (interactive)
   (with-selected-window (minibuffer-selected-window)
     (if (setq isl--hidding (not isl--hidding))
