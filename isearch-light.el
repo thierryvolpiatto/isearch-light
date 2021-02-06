@@ -69,7 +69,24 @@
   "Match a quoted space in a string.")
 (defconst isl--case-fold-choices '(smart nil t))
 (defvar isl--case-fold-choices-iterator nil)
-
+(defvar isl-help-buffer-name "*isl help*")
+(defvar isl-help-string
+  "* Isearch-light help\n
+** Commands
+\\<isl-map>
+\\[isl-display-or-quit-help]\t\tDisplay or quit this help buffer
+\\[isl-goto-next]\t\tGoto next occurence
+\\[isl-goto-prev]\t\tGoto previous occurence
+\\[isl-exit-at-point]\t\tExit at current position
+\\[abort-recursive-edit]\t\tQuit and restore position
+\\[isl-yank-word-at-point]\t\tYank word at point
+\\[isl-change-matching-style]\t\tChange matching style
+\\[isl-select-case-fold-search]\t\tChange case fold search
+\\[isl-goto-first]\t\tGoto first occurence
+\\[isl-goto-last]\t\tGoto last occurence
+\\[isl-goto-closest-from-start]\t\tGoto closest occurence from start
+\\[isl-jump-to-helm-occur]\t\tJump to helm-occur
+\\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode ")
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
@@ -162,6 +179,7 @@ in pattern."
     (define-key map (kbd "M-=")    'isl-goto-closest-from-start)
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
+    (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
     map))
 
 ;;; Actions
@@ -371,6 +389,27 @@ the initial position i.e. the position before launching `isl-search'."
                (goto-char pos))
            (advice-remove 'iedit-start #'isl--advice-iedit-start)))))
     (abort-recursive-edit)))
+
+(defun isl-display-or-quit-help ()
+  "Display or quit isl help buffer."
+  (interactive)
+  (if (get-buffer-window isl-help-buffer-name 'visible)
+      (progn
+        (switch-to-buffer isl-help-buffer-name)
+        (quit-window t))
+    (with-current-buffer-window
+        (get-buffer-create isl-help-buffer-name)
+        (cons 'display-buffer-below-selected
+	      '((window-height . fit-window-to-buffer)
+	        (preserve-size . (nil . t))))
+        nil
+      (with-current-buffer standard-output
+        (insert
+         (substitute-command-keys
+          isl-help-string)))
+      (outline-mode)
+      (setq buffer-read-only t)
+      (local-set-key (kbd "q") 'quit-window))))
 
 (defun isl-iter-circular (seq)
   "Infinite iteration on SEQ."
@@ -592,6 +631,8 @@ appended at end."
   (let* ((pos (and isl--last-overlay ; nil when quitting with no results.
                    (overlay-end isl--last-overlay)))
          (hs-show-hook (list (lambda () (and pos (goto-char pos))))))
+    (when (buffer-live-p (get-buffer isl-help-buffer-name))
+      (kill-buffer isl-help-buffer-name))
     (isl-delete-overlays)
     (setq mode-line-format (default-value 'mode-line-format)
           isl--yank-point nil
