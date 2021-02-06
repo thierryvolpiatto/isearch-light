@@ -532,6 +532,10 @@ symbol position."
   "Update `current-buffer' when `isl-pattern' changes."
   (with-selected-window (minibuffer-selected-window)
     (while-no-input
+      (when isl--hidding
+        (remove-overlays nil nil 'isl-invisible t)
+        (remove-from-invisibility-spec '(isl-invisible . t))
+        (setq isl--hidding nil))
       (isl-delete-overlays)
       ;; We don't use the isearch-invisible mechanism which is heavy
       ;; and don't behave as we want, instead remove invisibility in
