@@ -70,6 +70,7 @@
 (defconst isl--case-fold-choices '(smart nil t))
 (defvar isl--case-fold-choices-iterator nil)
 (defvar isl-help-buffer-name "*isl help*")
+(defvar isl--hidding nil)
 (defvar isl-help-string
   "* Isearch-light help\n
 ** Commands
@@ -86,7 +87,8 @@
 \\[isl-goto-last]\t\tGoto last occurence
 \\[isl-goto-closest-from-start]\t\tGoto closest occurence from start
 \\[isl-jump-to-helm-occur]\t\tJump to helm-occur
-\\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode ")
+\\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode
+\\[isl-show-or-hidde-context-lines]\t\tHide or show non matching lines")
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
@@ -135,6 +137,10 @@ in pattern."
 (defcustom isl-requires-pattern 1
   "Start updating after this number of chars."
   :type 'integer)
+
+(defcustom isl-visible-context-lines 1
+  "Number of lines to show around line when hiding non matching lines."
+  :type 'integer)
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -180,6 +186,7 @@ in pattern."
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
+    (define-key map (kbd "C-'")  'isl-show-or-hidde-context-lines)
     map))
 
 ;;; Actions
@@ -410,6 +417,34 @@ the initial position i.e. the position before launching `isl-search'."
       (outline-mode)
       (setq buffer-read-only t)
       (local-set-key (kbd "q") 'quit-window))))
+
+(defun isl-show-or-hidde-context-lines ()
+  (interactive)
+  (with-selected-window (minibuffer-selected-window)
+    (if (setq isl--hidding (not isl--hidding))
+        (let ((hiddens nil)
+              start)
+          (save-excursion
+            (goto-char (point-min))
+            (setq start (point))
+            (while (not (eobp))
+              (goto-char (next-single-char-property-change start 'isl))
+              (push (cons start (save-excursion
+                                  (forward-line (- isl-visible-context-lines))
+                                  (1- (point-at-bol))))
+                          hiddens)
+              (forward-line isl-visible-context-lines)
+              (goto-char (setq start (point-at-eol)))))
+          (when hiddens
+            (set (make-local-variable 'line-move-ignore-invisible) t)
+            (add-to-invisibility-spec '(isl-invisible . t))
+            (cl-loop for (beg . end) in hiddens
+                     do (let ((ol (make-overlay beg end)))
+                          (overlay-put ol 'isl-invisible t)
+                          (overlay-put ol 'invisible 'isl-invisible)))))
+      (progn
+        (remove-overlays nil nil 'isl-invisible t)
+        (remove-from-invisibility-spec '(isl-invisible . t))))))
 
 (defun isl-iter-circular (seq)
   "Infinite iteration on SEQ."
@@ -642,7 +677,9 @@ appended at end."
           isl--number-results nil
           isl-case-fold-search (default-value 'isl-case-fold-search)
           isl-search-function (default-value 'isl-search-function)
-          buffer-invisibility-spec isl--buffer-invisibility-spec)
+          buffer-invisibility-spec isl--buffer-invisibility-spec
+          isl--hidding nil)
+    (remove-overlays nil nil 'isl-invisible t)
     (if isl--quit
         (setq isl--quit nil)
       (condition-case-unless-debug _err
