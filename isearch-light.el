@@ -433,7 +433,7 @@ the initial position i.e. the position before launching `isl-search'."
               (push (cons start (save-excursion
                                   (forward-line (- isl-visible-context-lines))
                                   (1- (point-at-bol))))
-                          hiddens)
+                    hiddens)
               (forward-line isl-visible-context-lines)
               (goto-char (setq start (point-at-eol)))))
           (when hiddens
@@ -443,9 +443,8 @@ the initial position i.e. the position before launching `isl-search'."
                      do (let ((ol (make-overlay beg end)))
                           (overlay-put ol 'isl-invisible t)
                           (overlay-put ol 'invisible 'isl-invisible)))))
-      (progn
-        (remove-overlays nil nil 'isl-invisible t)
-        (remove-from-invisibility-spec '(isl-invisible . t))))))
+      (remove-overlays nil nil 'isl-invisible t)
+      (remove-from-invisibility-spec '(isl-invisible . t)))))
 
 (defun isl-iter-circular (seq)
   "Infinite iteration on SEQ."
