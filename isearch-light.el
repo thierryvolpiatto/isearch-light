@@ -419,6 +419,7 @@ the initial position i.e. the position before launching `isl-search'."
       (local-set-key (kbd "q") 'quit-window))))
 
 (defun isl-show-or-hide-context-lines ()
+  "Hide or show non matching lines."
   (interactive)
   (with-selected-window (minibuffer-selected-window)
     (if (setq isl--hidding (not isl--hidding))
