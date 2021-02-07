@@ -424,25 +424,36 @@ the initial position i.e. the position before launching `isl-search'."
   (with-selected-window (minibuffer-selected-window)
     (if (setq isl--hidding (not isl--hidding))
         (let ((hiddens nil)
-              start)
+              (start 1) ; start at point-min.
+              end
+              bol) 
           (save-excursion
-            (goto-char (point-min))
-            (setq start (point))
+            (goto-char (overlay-start (car isl--item-overlays)))
             (while (not (eobp))
-              (goto-char (next-single-char-property-change start 'isl))
-              (push (cons start (save-excursion
-                                  (forward-line (- isl-visible-context-lines))
-                                  (1- (point-at-bol))))
-                    hiddens)
+              (setq end (point))
+              (forward-line (- isl-visible-context-lines))
+              ;; Store position from last overlay to n lines before
+              ;; this overlay and move to next overlay.
+              (when (> (setq bol (point-at-bol)) start)
+                (push (cons start (1- bol)) hiddens))
+              (goto-char (next-single-char-property-change end 'isl))
+              ;; Go to n lines after last overlay found and jump to
+              ;; next overlay from there.
+              (setq end (point))
               (forward-line isl-visible-context-lines)
-              (goto-char (setq start (point-at-eol)))))
-          (when hiddens
-            (set (make-local-variable 'line-move-ignore-invisible) t)
-            (add-to-invisibility-spec '(isl-invisible . t))
-            (cl-loop for (beg . end) in hiddens
-                     do (let ((ol (make-overlay beg end)))
-                          (overlay-put ol 'isl-invisible t)
-                          (overlay-put ol 'invisible 'isl-invisible)))))
+              (setq start (1+ (point-at-eol)))
+              (goto-char (next-single-char-property-change end 'isl)))
+            ;; Store maybe remaining lines up to eob.
+            (when (< start (point-max))
+              (push (cons start (point-max)) hiddens))
+            ;; Now make non matching lines stored in hiddens invisible.
+            (when hiddens
+              (set (make-local-variable 'line-move-ignore-invisible) t)
+              (add-to-invisibility-spec '(isl-invisible . t))
+              (cl-loop for (beg . end) in hiddens
+                       do (let ((ol (make-overlay beg end)))
+                            (overlay-put ol 'isl-invisible t)
+                            (overlay-put ol 'invisible 'isl-invisible))))))
       (remove-overlays nil nil 'isl-invisible t)
       (remove-from-invisibility-spec '(isl-invisible . t)))))
 
