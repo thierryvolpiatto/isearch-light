@@ -8,6 +8,11 @@ errors and comprehensive mode-line indicators.
 It aims to keep simple with only the needed features, no extra
 features you will never use.
 
+** Dependencies
+
+No mandatory dependencies, but for a better experience install [[https://github.com/emacs-helm/helm][Helm]] to
+have =helm-occur= and [[https://github.com/victorhge/iedit][Iedit]].
+
 ** install
 
 No installation from Melpa and package.el is provided and will be provided.
@@ -51,21 +56,24 @@ notified by *, 0 or 1 which mean smart, nil or t for =case-fold-search=.
 
 Here the commands available:
 
-| C-s    | isl-goto-next               |
-| C-r    | isl-goto-prev               |
-| <down> | isl-goto-next               |
-| <up>   | isl-goto-prev               |
-| C-n    | isl-goto-next               |
-| C-p    | isl-goto-prev               |
-| RET    | isl-exit-at-point           |
-| C-w    | isl-yank-word-at-point      |
-| M-r    | isl-change-matching-style   |
-| C-c f  | isl-select-case-fold-search |
-| M-<    | isl-goto-first              |
-| M->    | isl-goto-last               |
-| M-=    | isl-goto-closest-from-start |
-| M-s    | isl-jump-to-helm-occur      |
-| C-;    | isl-jump-to-iedit-mode      |
+| C-s    | isl-goto-next                  |
+| C-r    | isl-goto-prev                  |
+| <down> | isl-goto-next                  |
+| <up>   | isl-goto-prev                  |
+| C-n    | isl-goto-next                  |
+| C-p    | isl-goto-prev                  |
+| RET    | isl-exit-at-point              |
+| C-w    | isl-yank-word-at-point         |
+| M-r    | isl-change-matching-style      |
+| C-c f  | isl-select-case-fold-search    |
+| M-<    | isl-goto-first                 |
+| M->    | isl-goto-last                  |
+| M-=    | isl-goto-closest-from-start    |
+| M-s    | isl-jump-to-helm-occur         |
+| C-;    | isl-jump-to-iedit-mode         |
+| C-h m  | isl-display-or-quit-help       |
+| C-'    | isl-show-or-hide-context-lines |
+| C-l    | isl-recenter                   |
 
 ** About multi matching
 
