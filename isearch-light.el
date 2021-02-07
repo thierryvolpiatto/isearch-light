@@ -81,6 +81,7 @@
 \\[isl-exit-at-point]\t\tExit at current position
 \\[abort-recursive-edit]\t\tQuit and restore position
 \\[isl-yank-word-at-point]\t\tYank word at point
+\\[isl-recenter]\t\tRecenter current buffer
 \\[isl-change-matching-style]\t\tChange matching style
 \\[isl-select-case-fold-search]\t\tChange case fold search
 \\[isl-goto-first]\t\tGoto first occurence
@@ -186,7 +187,8 @@ in pattern."
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
-    (define-key map (kbd "C-'")  'isl-show-or-hide-context-lines)
+    (define-key map (kbd "C-'")    'isl-show-or-hide-context-lines)
+    (define-key map (kbd "C-l")    'isl-recenter)
     map))
 
 ;;; Actions
@@ -293,6 +295,12 @@ the initial position i.e. the position before launching `isl-search'."
         (with-selected-window (minibuffer-window)
           (insert str))))))
 
+(defun isl-recenter ()
+  "Recenter from isl."
+  (interactive)
+  (with-selected-window (minibuffer-selected-window)
+    (recenter)))
+  
 (defun isl-matching-style ()
   "Return current matching style as a string."
   (cl-ecase isl-search-function
@@ -331,6 +339,7 @@ the initial position i.e. the position before launching `isl-search'."
 ;; Iedit
 ;;
 (defun isl--advice-iedit-start (old--fn &rest args)
+  "Allow iedit matching multi pattern."
   (cl-letf (((symbol-function 'iedit-make-occurrences-overlays)
              #'isl--iedit-make-occurrences-overlays))
     (apply old--fn args)))
@@ -499,6 +508,7 @@ Optional argument PATTERN default to `isl-pattern'."
     (isl-update)))
 
 (defun isl-split-string (str)
+  "Split string STR at non quoted spaces."
   (split-string
    (replace-regexp-in-string
     isl-space-regexp "\\s-" str nil t)))
