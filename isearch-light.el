@@ -425,24 +425,23 @@ the initial position i.e. the position before launching `isl-search'."
     (if (setq isl--hidding (not isl--hidding))
         (let ((hiddens nil)
               (start 1) ; start at point-min.
-              end
-              bol) 
+              ov-end bol) 
           (save-excursion
-            (goto-char (overlay-start (car isl--item-overlays)))
+            (goto-char (overlay-end (car isl--item-overlays)))
             (while (not (eobp))
-              (setq end (point))
+              (setq ov-end (point))
               (forward-line (- isl-visible-context-lines))
-              ;; Store position from last overlay to n lines before
-              ;; this overlay and move to next overlay.
+              ;; Store position from n lines before
+              ;; this overlay and bol and move to next overlay.
               (when (> (setq bol (point-at-bol)) start)
                 (push (cons start (1- bol)) hiddens))
-              (goto-char (next-single-char-property-change end 'isl))
+              (goto-char ov-end)
               ;; Go to n lines after last overlay found and jump to
               ;; next overlay from there.
-              (setq end (point))
               (forward-line isl-visible-context-lines)
               (setq start (1+ (point-at-eol)))
-              (goto-char (next-single-char-property-change end 'isl)))
+              (goto-char (next-single-char-property-change ov-end 'isl))
+              (setq ov-end (point)))
             ;; Store maybe remaining lines up to eob.
             (when (< start (point-max))
               (push (cons start (point-max)) hiddens))
