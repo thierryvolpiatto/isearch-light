@@ -325,7 +325,7 @@ the initial position i.e. the position before launching `isl-search'."
 (defun isl-jump-to-helm-occur ()
   "Invoke `helm-occur' from `isl-search'."
   (interactive)
-  (cl-assert (require 'helm-occur nil t))
+  (cl-assert (require 'helm-occur nil t) nil "Please install Helm package")
   (let ((input isl-pattern)
         (bufs (list isl-current-buffer)))
     (run-at-time 0.1 nil
