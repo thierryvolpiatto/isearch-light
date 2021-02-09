@@ -77,8 +77,8 @@ Here the commands available:
 
 ** About multi matching
 
-By default =isl-search= use multi matching like Helm, with limitation to
-symbol, not line like in Helm, that's mean "foo bar" match "foo-bar"
+By default =isl-search= uses multi matching like Helm, with limitation to
+symbol, not line like in Helm, that means "foo bar" matches "foo-bar"
 or "bar-foo" but not a line with "foo" and "bar" inside e.g. "foo some
 text bar", when you want to match something like this you have to use
 regexp e.g. "foo.*bar".
