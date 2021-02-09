@@ -437,8 +437,8 @@ the initial position i.e. the position before launching `isl-search'."
               ov-end bol) 
           (save-excursion
             (goto-char (overlay-end (car isl--item-overlays)))
+            (setq ov-end (point))
             (while (not (eobp))
-              (setq ov-end (point))
               (forward-line (- isl-visible-context-lines))
               ;; Store position from n lines before
               ;; this overlay and bol and move to next overlay.
