@@ -430,40 +430,40 @@ the initial position i.e. the position before launching `isl-search'."
 (defun isl-show-or-hide-context-lines ()
   "Hide or show non matching lines."
   (interactive)
-  (with-selected-window (minibuffer-selected-window)
-    (if (setq isl--hidding (not isl--hidding))
-        (let ((hiddens nil)
-              (start 1) ; start at point-min.
-              ov-end bol) 
-          (save-excursion
-            (goto-char (overlay-end (car isl--item-overlays)))
-            (setq ov-end (point))
-            (while (not (eobp))
-              (forward-line (- isl-visible-context-lines))
-              ;; Store position from n lines before
-              ;; this overlay and bol and move to next overlay.
-              (when (> (setq bol (point-at-bol)) start)
-                (push (cons start (1- bol)) hiddens))
-              (goto-char ov-end)
-              ;; Go to n lines after last overlay found and jump to
-              ;; next overlay from there.
-              (forward-line isl-visible-context-lines)
-              (setq start (1+ (point-at-eol)))
-              (goto-char (next-single-char-property-change ov-end 'isl))
-              (setq ov-end (point)))
-            ;; Store maybe remaining lines up to eob.
-            (when (< start (point-max))
-              (push (cons start (point-max)) hiddens))
-            ;; Now make non matching lines stored in hiddens invisible.
-            (when hiddens
+  (when isl--item-overlays
+    (with-selected-window (minibuffer-selected-window)
+      (if (setq isl--hidding (not isl--hidding))
+          (let ((start 1) ; start at point-min.
+                ov-end bol)
+            (save-excursion
+              (goto-char (overlay-end (car isl--item-overlays)))
+              (setq ov-end (point))
               (set (make-local-variable 'line-move-ignore-invisible) t)
               (add-to-invisibility-spec '(isl-invisible . t))
-              (cl-loop for (beg . end) in hiddens
-                       do (let ((ol (make-overlay beg end)))
-                            (overlay-put ol 'isl-invisible t)
-                            (overlay-put ol 'invisible 'isl-invisible))))))
-      (remove-overlays nil nil 'isl-invisible t)
-      (remove-from-invisibility-spec '(isl-invisible . t)))))
+              (while (not (eobp))
+                (forward-line (- isl-visible-context-lines))
+                ;; Store position from n lines before
+                ;; this overlay and bol and move to next overlay.
+                (when (> (setq bol (point-at-bol)) start)
+                  (isl--put-invisible-overlay start (1- bol)))
+                (goto-char ov-end)
+                ;; Go to n lines after last overlay found and jump to
+                ;; next overlay from there.
+                (forward-line isl-visible-context-lines)
+                (setq start (1+ (point-at-eol)))
+                (goto-char (next-single-char-property-change ov-end 'isl))
+                (setq ov-end (point)))
+              ;; Store maybe remaining lines up to eob.
+              (when (< start (point-max))
+                (isl--put-invisible-overlay start (point-max)))))
+        (remove-overlays nil nil 'isl-invisible t)
+        (remove-from-invisibility-spec '(isl-invisible . t))))))
+
+(defun isl--put-invisible-overlay (beg end)
+  "Make an invisible overlay from BEG to END."
+  (let ((ol (make-overlay beg end)))
+    (overlay-put ol 'isl-invisible t)
+    (overlay-put ol 'invisible 'isl-invisible)))
 
 (defun isl-iter-circular (seq)
   "Infinite iteration on SEQ."
