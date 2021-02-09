@@ -106,7 +106,7 @@ continuous text with no newlines e.g. some logs or debug logs
 etc... you have better time using isearch-light.
 
 A good compromise is to start searching with isearch-light and if it
-turns out what you need to match whole lines instead of words or
+turns out what you need to match is whole lines instead of words or
 symbols, switch to helm-occur with =isl-jump-to-helm-occur= bound by
 default to =M-s=.
 
