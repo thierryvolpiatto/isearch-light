@@ -2,7 +2,7 @@
 
 An Isearch replacement for Emacs.
 
-Provide multi matching, a real minibuffer, no unexpected quit or
+Provide [[About multi matching][multi matching]], a real minibuffer, no unexpected quit or
 errors and comprehensive mode-line indicators.
 
 It aims to keep simple with only the needed features, no extra
@@ -75,6 +75,9 @@ Here the commands available:
 | C-'    | isl-show-or-hide-context-lines |
 | C-l    | isl-recenter                   |
 
+Don't forget =C-h m= which will show you all these commands while
+running isearch-light.
+
 ** About multi matching
 
 By default =isl-search= uses multi matching like Helm, with limitation to
@@ -91,6 +94,21 @@ will not match "foo-bar" but will match "foo-baz".
 
 Note: You can jump to =helm-occur= for a line based search.
 You can also jump to [[https://github.com/victorhge/iedit][iedit-mode]] with multi match pattern.
+
+** Isearch-light vs helm-occur
+
+Isearch-light is a good tool for searching words or symbols in a
+buffer and even if it can search several words separated by spaces,
+helm-occur is more efficient for this as it is based on line searching.
+
+Helm-occur is not efficient when you have to search in a buffer with
+continuous text with no newlines e.g. some logs or debug logs
+etc... you have better time using isearch-light.
+
+A good compromise is to start searching with isearch-light and if it
+turns out what you need to match whole lines instead of words or
+symbols, switch to helm-occur with =isl-jump-to-helm-occur= bound by
+default to =M-s=.
 
 ** Use isearch-light for helm-help
 
