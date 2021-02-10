@@ -702,7 +702,9 @@ appended at end."
           isl-case-fold-search (default-value 'isl-case-fold-search)
           isl-search-function (default-value 'isl-search-function)
           buffer-invisibility-spec isl--buffer-invisibility-spec
-          isl--hidding nil)
+          isl--hidding nil
+          cursor-in-non-selected-windows
+          (default-value 'cursor-in-non-selected-windows))
     (remove-overlays nil nil 'isl-invisible t)
     (if isl--quit
         (setq isl--quit nil)
@@ -727,7 +729,8 @@ appended at end."
         isl-pattern ""
         isl--direction 'forward
         isl-current-buffer (current-buffer)
-        isl--buffer-invisibility-spec buffer-invisibility-spec)
+        isl--buffer-invisibility-spec buffer-invisibility-spec
+        cursor-in-non-selected-windows nil)
   (unwind-protect
       (condition-case-unless-debug nil
           (isl-read-from-minibuffer "Search: ")
