@@ -231,17 +231,20 @@ It put overlay on current position, move to next overlay using
   "Goto first match."
   (interactive)
   (isl--find-and-goto-overlay (car isl--item-overlays)))
+(put 'isl-goto-first 'helm-only t)
 
 (defun isl-goto-last ()
   "Goto last match."
   (interactive)
   (isl--find-and-goto-overlay (car (last isl--item-overlays))))
+(put 'isl-goto-last 'helm-only t)
 
 (defun isl-goto-closest-from-start ()
   "Goto closest match from start."
   (interactive)
   (isl--find-and-goto-overlay
    (isl-closest-overlay isl-initial-pos isl--item-overlays)))
+(put 'isl-goto-closest-from-start 'helm-only t)
 
 (defun isl-goto-next ()
   "Go to next match."
@@ -250,6 +253,7 @@ It put overlay on current position, move to next overlay using
     (setq isl--direction 'forward)
     (isl-set-iterator t))
   (isl-goto-next-1))
+(put 'isl-goto-next 'helm-only t)
 
 (defun isl-goto-prev ()
   "Go to previous match"
@@ -258,6 +262,7 @@ It put overlay on current position, move to next overlay using
     (setq isl--direction 'backward)
     (isl-set-iterator t))
   (isl-goto-next-1))
+(put 'isl-goto-prev 'helm-only t)
 
 (defun isl-exit-at-point ()
   "Exit minibuffer and jump at current position."
@@ -275,6 +280,7 @@ It put overlay on current position, move to next overlay using
   ;; Call `exit-minibuffer' out of the `with-selected-window' block to
   ;; avoid error with the emacs-28 version.
   (exit-minibuffer))
+(put 'isl-exit-at-point 'helm-only t)
 
 (defun isl-yank-word-at-point ()
   "Yank word at point in minibuffer.
@@ -294,13 +300,15 @@ the initial position i.e. the position before launching `isl-search'."
           (setq str (replace-match "\\\\ " nil nil str)))
         (with-selected-window (minibuffer-window)
           (insert str))))))
+(put 'isl-yank-word-at-point 'helm-only t)
 
 (defun isl-recenter ()
   "Recenter from isl."
   (interactive)
   (with-selected-window (minibuffer-selected-window)
     (recenter)))
-  
+(put 'isl-recenter 'helm-only t)
+
 (defun isl-matching-style ()
   "Return current matching style as a string."
   (cl-ecase isl-search-function
@@ -321,6 +329,7 @@ the initial position i.e. the position before launching `isl-search'."
         (force-mode-line-update)
         (sit-for 1)))
     (isl-update)))
+(put 'isl-change-matching-style 'helm-only t)
 
 (defun isl-jump-to-helm-occur ()
   "Invoke `helm-occur' from `isl-search'."
@@ -335,6 +344,7 @@ the initial position i.e. the position before launching `isl-search'."
                    (let ((helm-occur-always-search-in-current t))
                      (helm-multi-occur-1 bufs input))))
     (abort-recursive-edit)))
+(put 'isl-jump-to-helm-occur 'helm-only t)
 
 ;; Iedit
 ;;
@@ -405,6 +415,7 @@ the initial position i.e. the position before launching `isl-search'."
                (goto-char pos))
            (advice-remove 'iedit-start #'isl--advice-iedit-start)))))
     (abort-recursive-edit)))
+(put 'isl-jump-to-iedit-mode 'helm-only t)
 
 (defun isl-display-or-quit-help ()
   "Display or quit isl help buffer."
@@ -426,6 +437,7 @@ the initial position i.e. the position before launching `isl-search'."
       (outline-mode)
       (setq buffer-read-only t)
       (local-set-key (kbd "q") 'quit-window))))
+(put 'isl-display-or-quit-help 'helm-only t)
 
 (defun isl-show-or-hide-context-lines ()
   "Hide or show non matching lines."
@@ -458,6 +470,7 @@ the initial position i.e. the position before launching `isl-search'."
                 (isl--put-invisible-overlay start (point-max)))))
         (remove-overlays nil nil 'isl-invisible t)
         (remove-from-invisibility-spec '(isl-invisible . t))))))
+(put 'isl-show-or-hide-context-lines 'helm-only t)
 
 (defun isl--put-invisible-overlay (beg end)
   "Make an invisible overlay from BEG to END."
