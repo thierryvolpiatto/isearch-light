@@ -519,6 +519,7 @@ Optional argument PATTERN default to `isl-pattern'."
       (setq-local isl-case-fold-search
                   (isl-iter-next isl--case-fold-choices-iterator)))
     (isl-update)))
+(put 'isl-select-case-fold-search 'helm-only t)
 
 (defun isl-split-string (str)
   "Split string STR at non quoted spaces."
