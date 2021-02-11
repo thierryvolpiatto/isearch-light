@@ -273,7 +273,7 @@ It put overlay on current position, move to next overlay using
     (when isl-save-pos-to-mark-ring
       (set-marker (mark-marker) isl-initial-pos)
       (push-mark isl-initial-pos 'nomsg))
-    (let ((ov (make-overlay (point-at-bol) (point-at-eol))))
+    (let ((ov (make-overlay (point-at-bol) (1+ (point-at-eol)))))
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.2)
       (delete-overlay ov)))
