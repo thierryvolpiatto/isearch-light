@@ -230,20 +230,29 @@ It put overlay on current position, move to next overlay using
 (defun isl-goto-first ()
   "Goto first match."
   (interactive)
-  (isl--find-and-goto-overlay (car isl--item-overlays)))
+  (let ((ov (car isl--item-overlays)))
+    (if (eql ov isl--last-overlay)
+        (user-error "Already at first occurence")
+      (isl--find-and-goto-overlay ov))))
 (put 'isl-goto-first 'no-helm-mx t)
 
 (defun isl-goto-last ()
   "Goto last match."
   (interactive)
-  (isl--find-and-goto-overlay (car (last isl--item-overlays))))
+  (let ((ov (car (last isl--item-overlays))))
+    (if (eql ov isl--last-overlay)
+        (user-error "Already at last occurence")
+      (isl--find-and-goto-overlay ov))))
 (put 'isl-goto-last 'no-helm-mx t)
 
 (defun isl-goto-closest-from-start ()
   "Goto closest match from start."
   (interactive)
-  (isl--find-and-goto-overlay
-   (isl-closest-overlay isl-initial-pos isl--item-overlays)))
+  (let ((ov (isl-closest-overlay
+             isl-initial-pos isl--item-overlays)))
+    (if (eql ov isl--last-overlay)
+        (user-error "Already at closest occurence from start")
+      (isl--find-and-goto-overlay ov))))
 (put 'isl-goto-closest-from-start 'no-helm-mx t)
 
 (defun isl-goto-next ()
