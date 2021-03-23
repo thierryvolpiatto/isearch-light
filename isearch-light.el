@@ -207,13 +207,14 @@ in pattern."
   (when (overlayp isl--last-overlay)
     (overlay-put isl--last-overlay 'face face)))
 
-(defun isl-goto-next-1 ()
+(defun isl-goto-next-1 (arg)
   "Main function that allow moving from one to another overlay.
 It put overlay on current position, move to next overlay using
 `isl--iterator', set `isl--yank-point' and then setup mode-line."
   (with-selected-window (minibuffer-selected-window)
     (isl--highlight-last-overlay 'isl-match)
     (when isl--iterator
+      (cl-loop repeat (1- arg) do (isl-iter-next isl--iterator))
       (isl--goto-overlay (isl-iter-next isl--iterator)))
     (isl-setup-mode-line)))
 
@@ -255,22 +256,22 @@ It put overlay on current position, move to next overlay using
       (isl--find-and-goto-overlay ov))))
 (put 'isl-goto-closest-from-start 'no-helm-mx t)
 
-(defun isl-goto-next ()
+(defun isl-goto-next (&optional arg)
   "Go to next match."
-  (interactive)
+  (interactive "p")
   (when (eq isl--direction 'backward)
     (setq isl--direction 'forward)
     (isl-set-iterator t))
-  (isl-goto-next-1))
+  (isl-goto-next-1 arg))
 (put 'isl-goto-next 'no-helm-mx t)
 
-(defun isl-goto-prev ()
+(defun isl-goto-prev (&optional arg)
   "Go to previous match"
-  (interactive)
+  (interactive "p")
   (when (eq isl--direction 'forward)
     (setq isl--direction 'backward)
     (isl-set-iterator t))
-  (isl-goto-next-1))
+  (isl-goto-next-1 arg))
 (put 'isl-goto-prev 'no-helm-mx t)
 
 (defun isl-exit-at-point ()
