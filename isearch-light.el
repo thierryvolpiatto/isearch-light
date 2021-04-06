@@ -189,6 +189,8 @@ in pattern."
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
     (define-key map (kbd "C-'")    'isl-show-or-hide-context-lines)
     (define-key map (kbd "C-l")    'isl-recenter)
+    (define-key map (kbd "C-v")    'isl-scroll-up)
+    (define-key map (kbd "M-v")    'isl-scroll-down)
     map))
 
 ;;; Actions
@@ -219,6 +221,33 @@ It put overlay on current position, move to next overlay using
       (isl--goto-overlay (isl-iter-next isl--iterator)))
     (isl-setup-mode-line)))
 
+(defun isl-scroll-1 (arg)
+  "Scroll up if ARG is positive, down if it is negative."
+  (let (ov)
+    (with-selected-window (minibuffer-selected-window)
+      (if (> arg 0)
+          (scroll-up)
+        (scroll-down))
+      (when isl--iterator
+        (setq ov (isl-closest-overlay
+                  (window-start) isl--item-overlays))))
+    (when ov
+      (isl--find-and-goto-overlay ov)
+      (with-selected-window (minibuffer-selected-window)
+        (set-window-start
+         (minibuffer-selected-window) (overlay-start ov))
+        (recenter)))))
+
+(defun isl-scroll-up ()
+  "Scroll up and move closest overlay on middle of window."
+  (interactive)
+  (isl-scroll-1 1))
+
+(defun isl-scroll-down ()
+  "Scroll down and move closest overlay on middle of window."
+  (interactive)
+  (isl-scroll-1 -1))
+  
 (defun isl--find-and-goto-overlay (overlay)
   "Consume iterators up to OVERLAY and jump to it."
   (with-selected-window (minibuffer-selected-window)
