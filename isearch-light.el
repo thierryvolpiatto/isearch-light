@@ -189,6 +189,8 @@ in pattern."
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
     (define-key map (kbd "C-'")    'isl-show-or-hide-context-lines)
     (define-key map (kbd "C-l")    'isl-recenter)
+    (define-key map (kbd "C-v")    'isl-scroll-up)
+    (define-key map (kbd "M-v")    'isl-scroll-down)
     map))
 
 ;;; Actions
@@ -218,6 +220,39 @@ It put overlay on current position, move to next overlay using
       (cl-loop repeat (1- arg) do (isl-iter-next isl--iterator))
       (isl--goto-overlay (isl-iter-next isl--iterator)))
     (isl-setup-mode-line)))
+
+(defun isl-scroll-1 (arg)
+  "Scroll up if ARG is positive, down if it is negative."
+  (let (ov)
+    (with-selected-window (minibuffer-selected-window)
+      (when isl--iterator
+        (setq ov (if (> arg 0)
+                     (isl--first-ov-after-pos (window-end))
+                   (isl--first-ov-before-pos (window-start))))))
+    (when ov
+      (isl--find-and-goto-overlay ov)
+      (with-selected-window (minibuffer-selected-window)
+        (recenter)))))
+
+(defun isl--first-ov-after-pos (pos)
+  (cl-loop for ov in isl--item-overlays
+           when (> (overlay-start ov) pos)
+           return ov))
+
+(defun isl--first-ov-before-pos (pos)
+  (cl-loop for ov in (reverse isl--item-overlays)
+           when (< (overlay-start ov) pos)
+           return ov))
+
+(defun isl-scroll-up ()
+  "Scroll up to closest overlay in next screen."
+  (interactive)
+  (isl-scroll-1 1))
+
+(defun isl-scroll-down ()
+  "Scroll down to closest overlay in previous screen."
+  (interactive)
+  (isl-scroll-1 -1))
 
 (defun isl--find-and-goto-overlay (overlay)
   "Consume iterators up to OVERLAY and jump to it."
