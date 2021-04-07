@@ -2,8 +2,27 @@
 
 An Isearch replacement for Emacs.
 
-Provide [[About multi matching][multi matching]], a real minibuffer, no unexpected quit or
-errors and comprehensive mode-line indicators.
+** Features
+
+- Provide [[About multi matching][multi matching]], a real minibuffer, no unexpected quit or
+  errors and comprehensive mode-line indicators.
+
+- Old position is always saved in mark-ring when exiting to a new place.
+
+- Only one command =isl-search= for all which cycle in all matches
+  without stopping.
+
+- Select nearest match from your position, not necessarily after or
+  before, this initial match can be reached back at any moment.
+
+- Allow jumping to =Iedit= at any time during the search.
+
+- Allow jumping to helm-occur at any time.
+
+- Allow showing only the matching lines with their context.
+
+- Help available at any time during search without having to quit
+  session.
 
 It aims to keep simple with only the needed features, no extra
 features you will never use.
@@ -72,6 +91,9 @@ Here the commands available:
 | M-s    | isl-jump-to-helm-occur         |
 | C-;    | isl-jump-to-iedit-mode         |
 | C-h m  | isl-display-or-quit-help       |
+| C-q    | isl-help-quit                  |
+| C-v    | isl-scroll-up                  |
+| M-v    | isl-scroll-down                |
 | C-'    | isl-show-or-hide-context-lines |
 | C-l    | isl-recenter                   |
 
