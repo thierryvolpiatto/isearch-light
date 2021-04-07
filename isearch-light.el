@@ -76,6 +76,8 @@
 ** Commands
 \\<isl-map>
 \\[isl-display-or-quit-help]\t\tDisplay or quit this help buffer
+\\[isl-help-quit]\t\tQuit this help buffer
+\\[abort-recursive-edit]\t\tQuit isl and restore initial position
 \\[isl-goto-next]\t\tGoto next occurence
 \\[isl-goto-prev]\t\tGoto previous occurence
 \\[isl-scroll-down]\t\tScroll down
@@ -189,6 +191,7 @@ in pattern."
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
+    (define-key map (kbd "C-q")    'isl-help-quit)
     (define-key map (kbd "C-'")    'isl-show-or-hide-context-lines)
     (define-key map (kbd "C-l")    'isl-recenter)
     (define-key map (kbd "C-v")    'isl-scroll-up)
@@ -488,6 +491,15 @@ the initial position i.e. the position before launching `isl-search'."
       (setq buffer-read-only t)
       (local-set-key (kbd "q") 'quit-window))))
 (put 'isl-display-or-quit-help 'no-helm-mx t)
+
+(defun isl-help-quit ()
+  (interactive)
+  (let ((win (get-buffer-window isl-help-buffer-name 'visible)))
+    (if win
+        (with-selected-window win 
+          (quit-window))
+      (user-error "No help buffer found"))))
+(put 'isl-help-quit 'no-helm-mx t)
 
 (defun isl-show-or-hide-context-lines ()
   "Hide or show non matching lines."
