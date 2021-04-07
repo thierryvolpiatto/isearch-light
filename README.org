@@ -17,7 +17,7 @@ An Isearch replacement for Emacs.
 
 - Allow jumping to =Iedit= at any time during the search.
 
-- Allow jumping to helm-occur at any time.
+- Allow jumping to =helm-occur= at any time.
 
 - Allow showing only the matching lines with their context.
 
@@ -30,7 +30,7 @@ features you will never use.
 ** Dependencies
 
 No mandatory dependencies, but for a better experience install [[https://github.com/emacs-helm/helm][Helm]] to
-have =helm-occur= and [[https://github.com/victorhge/iedit][Iedit]].
+have =helm-occur= and [[https://github.com/victorhge/iedit][Iedit]] to allow jumping to iedit session.
 
 ** install
 
