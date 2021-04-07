@@ -78,6 +78,8 @@
 \\[isl-display-or-quit-help]\t\tDisplay or quit this help buffer
 \\[isl-goto-next]\t\tGoto next occurence
 \\[isl-goto-prev]\t\tGoto previous occurence
+\\[isl-scroll-down]\t\tScroll down
+\\[isl-scroll-up]\t\tScroll up
 \\[isl-exit-at-point]\t\tExit at current position
 \\[abort-recursive-edit]\t\tQuit and restore position
 \\[isl-yank-word-at-point]\t\tYank word at point
@@ -248,11 +250,13 @@ It put overlay on current position, move to next overlay using
   "Scroll up to closest overlay in next screen."
   (interactive)
   (isl-scroll-1 1))
+(put 'isl-scroll-up 'no-helm-mx t)
 
 (defun isl-scroll-down ()
   "Scroll down to closest overlay in previous screen."
   (interactive)
   (isl-scroll-1 -1))
+(put 'isl-scroll-down 'no-helm-mx t)
 
 (defun isl--find-and-goto-overlay (overlay)
   "Consume iterators up to OVERLAY and jump to it."
