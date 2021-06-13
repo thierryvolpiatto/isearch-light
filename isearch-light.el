@@ -64,6 +64,7 @@
 (defvar isl-history nil)
 (defvar isl--yank-point nil)
 (defvar isl--quit nil)
+(defvar isl--invalid nil)
 (defvar-local isl--buffer-invisibility-spec nil)
 (defconst isl-space-regexp "\\s\\\\s-"
   "Match a quoted space in a string.")
@@ -87,7 +88,7 @@
 \\[isl-yank-word-at-point]\t\tYank word at point
 \\[isl-recenter]\t\tRecenter current buffer
 \\[isl-change-matching-style]\t\tChange matching style
-\\[isl-select-case-fold-search]\t\tChange case fold search
+\\[isl-select-case-fold-search]\t\tChange case fold search (cycle: *=smart, 1=t, 0=nil)
 \\[isl-goto-first]\t\tGoto first occurence
 \\[isl-goto-last]\t\tGoto last occurence
 \\[isl-goto-closest-from-start]\t\tGoto closest occurence from start
@@ -133,6 +134,10 @@ in pattern."
 
 (defcustom isl-direction-up-string "↑"
   "The string used in mode-line to notify search direction."
+  :type 'string)
+
+(defcustom isl-warning-char "⚠"
+  "Used to signal invalid regexp in mode-line."
   :type 'string)
 
 (defcustom isl-save-pos-to-mark-ring t
@@ -633,6 +638,7 @@ symbol position."
         (remove-from-invisibility-spec '(isl-invisible . t))
         (setq isl--hidding nil))
       (isl-delete-overlays)
+      (setq isl--invalid nil)
       ;; We don't use the isearch-invisible mechanism which is heavy
       ;; and don't behave as we want, instead remove invisibility in
       ;; all buffer and on exit restore it and unhide only the place
@@ -656,7 +662,7 @@ symbol position."
                   (overlay-put ov 'pos count)
                   (overlay-put ov 'face 'isl-match)
                   (cl-incf count))
-              (invalid-regexp nil))
+              (invalid-regexp (setq isl--invalid t) nil))
             (setq isl--item-overlays (reverse isl--item-overlays)))
           (if (null isl--item-overlays)
               (progn (setq isl--number-results 0) (goto-char isl-initial-pos))
@@ -686,7 +692,12 @@ symbol position."
                  (default-value 'mode-line-format))
                 ((zerop isl--number-results)
                  `(" " mode-line-buffer-identification " "
-                   (:eval ,(format "No results found for `%s' [%s %s]"
+                   (:eval ,(format "%s `%s' [%s %s]"
+                                   (if isl--invalid
+                                       (propertize
+                                        (format "%s Invalid regexp:" isl-warning-char)
+                                        'face 'font-lock-warning-face)
+                                     "No results found for pattern")
                                    (propertize isl-pattern
                                                'face 'isl-string)
                                    style
@@ -694,7 +705,7 @@ symbol position."
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
                      (:eval ,(format
-                              "[%s/%s] result(s) found for `%s' [%s %s %s %s]"
+                              "[%s/%s] result(s) found [%s %s %s %s]"
                               (propertize
                                (number-to-string
                                 (overlay-get isl--last-overlay 'pos))
@@ -702,8 +713,6 @@ symbol position."
                               (propertize (number-to-string
                                            isl--number-results)
                                           'face 'isl-number)
-                              (propertize isl-pattern
-                                          'face 'isl-string)
                               style
                               direction
                               position
