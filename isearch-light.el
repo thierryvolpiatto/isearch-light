@@ -94,6 +94,7 @@
 \\[isl-goto-closest-from-start]\t\tGoto closest occurence from start
 \\[isl-jump-to-helm-occur]\t\tJump to helm-occur
 \\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode
+\\[isl-query-replace]\t\tJump to query replace
 \\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines")
 
 ;; User vars
@@ -195,6 +196,7 @@ in pattern."
     (define-key map (kbd "M-=")    'isl-goto-closest-from-start)
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
+    (define-key map (kbd "M-%")    'isl-query-replace)
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
     (define-key map (kbd "C-q")    'isl-help-quit)
     (define-key map (kbd "C-'")    'isl-show-or-hide-context-lines)
@@ -403,6 +405,36 @@ the initial position i.e. the position before launching `isl-search'."
                      (helm-multi-occur-1 bufs input))))
     (abort-recursive-edit)))
 (put 'isl-jump-to-helm-occur 'no-helm-mx t)
+
+(defun isl-query-replace (&optional arg)
+  (interactive "P")
+  (let ((style (isl-matching-style))
+        (regexp isl-pattern)
+        (start (overlay-start isl--last-overlay)))
+    (run-at-time
+     0.1 nil
+     (lambda ()            
+       (let* ((regexp-flag (string= style "Regex"))
+              (prompt (if regexp-flag
+                          "Query replace %s regexp"
+                        "Query replace %s"))
+              (args (list
+                     regexp
+                     (query-replace-read-to
+                      regexp
+                      (format prompt (if arg "word" ""))
+                      regexp-flag)
+                     arg)))
+         (with-current-buffer isl-current-buffer
+           (save-excursion
+             (let ((case-fold-search t))
+               (goto-char start)
+               (apply #'perform-replace
+                      (list (nth 0 args) (nth 1 args)
+                            t regexp-flag (nth 2 args) nil
+                            multi-query-replace-map))))))))
+    (abort-recursive-edit)))
+(put 'isl-query-replace 'no-helm-mx t)
 
 ;; Iedit
 ;;
