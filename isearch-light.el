@@ -72,6 +72,8 @@
 (defvar isl--case-fold-choices-iterator nil)
 (defvar isl-help-buffer-name "*isl help*")
 (defvar isl--hidding nil)
+(defvar isl--point-min nil)
+(defvar isl--point-max nil)
 (defvar isl-help-string
   "* Isearch-light help\n
 ** Commands
@@ -484,26 +486,29 @@ the initial position i.e. the position before launching `isl-search'."
     (run-at-time
      0.1 nil
      (lambda ()
-       (let ((case-fold-search (isl-set-case-fold-search regexp))
-	     result)
-         (setq mark-active nil)
-         (run-hooks 'deactivate-mark-hook)
-         (when iedit-mode
-           (iedit-lib-cleanup))
-         (advice-add 'iedit-start :around #'isl--advice-iedit-start)
-         (unwind-protect
-             (progn
-               (setq result
-	             (catch 'not-same-length
-	               (iedit-start regexp (point-min) (point-max))))
-               (cond ((not iedit-occurrences-overlays)
-                      (message "No matches found for %s" regexp)
-                      (iedit-done))
-                     ((equal result 'not-same-length)
-                      (message "Matches are not the same length.")
-                      (iedit-done)))
-               (goto-char pos))
-           (advice-remove 'iedit-start #'isl--advice-iedit-start)))))
+       (save-restriction
+         (when (and isl--point-min isl--point-max)
+           (narrow-to-region isl--point-min isl--point-max))
+         (let ((case-fold-search (isl-set-case-fold-search regexp))
+	       result)
+           (setq mark-active nil)
+           (run-hooks 'deactivate-mark-hook)
+           (when iedit-mode
+             (iedit-lib-cleanup))
+           (advice-add 'iedit-start :around #'isl--advice-iedit-start)
+           (unwind-protect
+                (progn
+                  (setq result
+	                (catch 'not-same-length
+	                  (iedit-start regexp (point-min) (point-max))))
+                  (cond ((not iedit-occurrences-overlays)
+                         (message "No matches found for %s" regexp)
+                         (iedit-done))
+                        ((equal result 'not-same-length)
+                         (message "Matches are not the same length.")
+                         (iedit-done)))
+                  (goto-char pos))
+             (advice-remove 'iedit-start #'isl--advice-iedit-start))))))
     (abort-recursive-edit)))
 (put 'isl-jump-to-iedit-mode 'no-helm-mx t)
 
@@ -838,10 +843,8 @@ appended at end."
                (markdown-show-entry)))
         (error nil)))))
 
-;;;###autoload
-(defun isl-search ()
+(defun isl-search-1 ()
   "Start incremental searching in current buffer."
-  (interactive)
   (setq isl-initial-pos (point)
         isl-pattern ""
         isl--direction 'forward
@@ -859,12 +862,24 @@ appended at end."
          (recenter))))
 
 ;;;###autoload
+(defun isl-search ()
+  "Start incremental searching in current buffer."
+  (interactive)
+  (setq isl--point-min nil
+        isl--point-max nil)
+  (isl-search-1))
+
+;;;###autoload
 (defun isl-narrow-to-defun ()
   "Start incremental searching in current defun."
   (interactive)
+  (setq isl--point-min nil
+        isl--point-max nil)
   (save-restriction
     (narrow-to-defun)
-    (isl-search)))
+    (setq isl--point-min (point-min)
+          isl--point-max (point-max))
+    (isl-search-1)))
 
 (provide 'isearch-light)
 
