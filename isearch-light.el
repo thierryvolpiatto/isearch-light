@@ -849,7 +849,7 @@ appended at end."
         (error nil)))))
 
 (defun isl-search-1 ()
-  "Start incremental searching in current buffer."
+  "Launch isl in current-buffer."
   (setq isl-initial-pos (point)
         isl-pattern ""
         isl--direction 'forward
