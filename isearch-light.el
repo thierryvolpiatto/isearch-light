@@ -804,7 +804,12 @@ appended at end."
               (setq timer (run-with-idle-timer
                            isl-timer-delay 'repeat #'isl-check-input)))
           (read-from-minibuffer
-           prompt nil isl-map nil 'isl-history (thing-at-point 'symbol t)))
+           prompt nil isl-map nil 'isl-history
+           (if (region-active-p)
+               (buffer-substring-no-properties
+                (region-beginning)
+                (region-end))
+             (thing-at-point 'symbol t))))
       (cancel-timer timer))))
 
 (defun isl-cleanup ()
