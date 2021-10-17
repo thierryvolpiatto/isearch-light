@@ -205,6 +205,7 @@ in pattern."
     (define-key map (kbd "C-l")    'isl-recenter)
     (define-key map (kbd "C-v")    'isl-scroll-up)
     (define-key map (kbd "M-v")    'isl-scroll-down)
+    (define-key map (kbd "C-k")    'isl-delete-minibuffer-contents)
     map))
 
 ;;; Actions
@@ -269,6 +270,15 @@ It put overlay on current position, move to next overlay using
   (interactive)
   (isl-scroll-1 -1))
 (put 'isl-scroll-down 'no-helm-mx t)
+
+(defun isl-delete-minibuffer-contents ()
+  "No docstring."
+  (interactive)
+  (with-selected-window (minibuffer-window)
+    (if (eolp)
+        (delete-region (minibuffer-prompt-end) (point))
+      (delete-region (point) (point-max)))))
+(put 'isl-delete-minibuffer-contents 'no-helm-mx t)
 
 (defun isl--find-and-goto-overlay (overlay)
   "Consume iterators up to OVERLAY and jump to it."
