@@ -104,7 +104,7 @@
 
 (defgroup isearch-light nil
   "Open `isl-search'."
-  :prefix "isl"
+  :prefix "isl-"
   :group 'matching)
 
 (defcustom isl-search-function #'re-search-forward
