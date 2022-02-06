@@ -663,7 +663,9 @@ symbol position."
          (rest    (cdr pattern)))
     (cl-loop while (funcall isl-search-function (cdr initial) nil t)
              for bounds = (if rest
-                              (bounds-of-thing-at-point 'symbol)
+                              (bounds-of-thing-at-point
+                               (if (derived-mode-p 'prog-mode)
+                                   'symbol 'filename))
                             (cons (match-beginning 0) (match-end 0)))
              if (or (not rest)
                     (cl-loop for (pred . re) in rest
