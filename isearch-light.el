@@ -875,6 +875,9 @@ appended at end."
          (setq isl--quit t)
          (goto-char isl-initial-pos)))
     (isl-cleanup)
+    (unless (eq (window-buffer (selected-window))
+                isl-current-buffer)
+      (switch-to-buffer isl-current-buffer))
     (and (not (string= isl-pattern ""))
          (recenter))))
 
