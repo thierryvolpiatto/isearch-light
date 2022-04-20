@@ -108,7 +108,7 @@
   :group 'matching)
 
 (defcustom isl-search-function #'re-search-forward
-  "The search function that will be used by default when starting `isl'.
+  "The search function that will be used by default when starting `isl-search'.
 Possible values are `re-search-forward' and `search-forward', the
 first use regexp matching while the second is using literal matching.
 Its value can be changed during `isl-search' session with `\\<isl-map>\\[isl-change-matching-style]'."
