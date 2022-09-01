@@ -885,10 +885,10 @@ appended at end."
           isl--direction 'forward
           isl-current-buffer (current-buffer)
           isl--buffer-invisibility-spec buffer-invisibility-spec
-          cursor-in-non-selected-windows nil)
-    (setq isl-visited-buffers
-          (cons isl-current-buffer
-                (delete isl-current-buffer isl-visited-buffers))))
+          cursor-in-non-selected-windows nil))
+  (setq isl-visited-buffers
+        (cons isl-current-buffer
+              (delete isl-current-buffer isl-visited-buffers)))
   (unwind-protect
       (condition-case-unless-debug nil
           (isl-read-from-minibuffer
