@@ -54,8 +54,9 @@
 
 ;; Internals
 (defvar isl-pattern "")
-(defvar isl-last-query nil)
-(defvar isl-last-object nil)
+(defvar-local isl-last-query nil)
+(defvar-local isl-last-object nil)
+(defvar isl-visited-buffers nil)
 (defvar isl-current-buffer nil)
 (defvar isl--item-overlays nil)
 (defvar isl--iterator nil)
@@ -828,52 +829,52 @@ appended at end."
 
 (defun isl-cleanup ()
   "Cleanup various things when `isl-search' exit."
-  (let* ((pos (and isl--last-overlay ; nil when quitting with no results.
-                   (overlay-end isl--last-overlay)))
-         (hs-show-hook (list (lambda () (and pos (goto-char pos))))))
-    (when (buffer-live-p (get-buffer isl-help-buffer-name))
-      (kill-buffer isl-help-buffer-name))
-    (setq isl-last-object
-          (lambda ()
-            (setq mode-line-format mode-line-format
-                  isl-last-query isl-pattern
-                  isl-initial-pos pos
-                  isl--yank-point isl--yank-point 
-                  isl--iterator isl--iterator 
-                  isl--number-results isl--number-results
-                  isl-case-fold-search isl-case-fold-search
-                  isl-search-function isl-search-function
-                  buffer-invisibility-spec buffer-invisibility-spec
-                  isl--hidding isl--hidding
-                  cursor-in-non-selected-windows cursor-in-non-selected-windows)))
-    (isl-delete-overlays)
-    (setq mode-line-format (default-value 'mode-line-format)
-          isl--yank-point nil
-          isl--iterator nil
-          isl--item-overlays nil
-          isl--last-overlay nil
-          isl--number-results nil
-          isl-case-fold-search (default-value 'isl-case-fold-search)
-          isl-search-function (default-value 'isl-search-function)
-          buffer-invisibility-spec isl--buffer-invisibility-spec
-          isl--hidding nil
-          cursor-in-non-selected-windows
-          (default-value 'cursor-in-non-selected-windows))
-    (remove-overlays nil nil 'isl-invisible t)
-    (if isl--quit
-        (setq isl--quit nil)
-      (condition-case-unless-debug _err
-        (cond ((eq major-mode 'org-mode)
-               (org-reveal))
-              ((eq major-mode 'outline-mode)
-               (outline-show-entry))
-              ((and (boundp 'hs-minor-mode)
-                    hs-minor-mode)
-               (hs-show-block))
-              ((and (boundp 'markdown-mode-map)
-                    (derived-mode-p 'markdown-mode))
-               (markdown-show-entry)))
-        (error nil)))))
+  (with-current-buffer isl-current-buffer
+    (let* ((pos (and isl--last-overlay ; nil when quitting with no results.
+                     (overlay-end isl--last-overlay)))
+           (hs-show-hook (list (lambda () (and pos (goto-char pos))))))
+      (when (buffer-live-p (get-buffer isl-help-buffer-name))
+        (kill-buffer isl-help-buffer-name))
+      (setq isl-last-object
+            `(lambda ()
+               (setq-local mode-line-format ',mode-line-format
+                           isl-last-query ,isl-pattern
+                           isl-initial-pos ,pos
+                           isl--yank-point ,isl--yank-point 
+                           isl--number-results ,isl--number-results
+                           isl-case-fold-search ',isl-case-fold-search
+                           isl-search-function ',isl-search-function
+                           buffer-invisibility-spec ,buffer-invisibility-spec
+                           isl--hidding ,isl--hidding
+                           cursor-in-non-selected-windows ,cursor-in-non-selected-windows)))
+      (isl-delete-overlays)
+      (setq mode-line-format (default-value 'mode-line-format)
+            isl--yank-point nil
+            isl--iterator nil
+            isl--item-overlays nil
+            isl--last-overlay nil
+            isl--number-results nil
+            isl-case-fold-search (default-value 'isl-case-fold-search)
+            isl-search-function (default-value 'isl-search-function)
+            buffer-invisibility-spec isl--buffer-invisibility-spec
+            isl--hidding nil
+            cursor-in-non-selected-windows
+            (default-value 'cursor-in-non-selected-windows))
+      (remove-overlays nil nil 'isl-invisible t)
+      (if isl--quit
+          (setq isl--quit nil)
+        (condition-case-unless-debug _err
+            (cond ((eq major-mode 'org-mode)
+                   (org-reveal))
+                  ((eq major-mode 'outline-mode)
+                   (outline-show-entry))
+                  ((and (boundp 'hs-minor-mode)
+                        hs-minor-mode)
+                   (hs-show-block))
+                  ((and (boundp 'markdown-mode-map)
+                        (derived-mode-p 'markdown-mode))
+                   (markdown-show-entry)))
+          (error nil))))))
 
 
 (defun isl-search-1 (&optional resume)
@@ -884,11 +885,16 @@ appended at end."
           isl--direction 'forward
           isl-current-buffer (current-buffer)
           isl--buffer-invisibility-spec buffer-invisibility-spec
-          cursor-in-non-selected-windows nil))
+          cursor-in-non-selected-windows nil)
+    (setq isl-visited-buffers
+          (cons isl-current-buffer
+                (delete isl-current-buffer isl-visited-buffers))))
   (unwind-protect
       (condition-case-unless-debug nil
           (isl-read-from-minibuffer
-           "Search: " (when resume isl-last-query))
+           "Search: " (when resume
+                        (buffer-local-value
+                         'isl-last-query isl-current-buffer)))
         (quit
          (setq isl--quit t)
          (goto-char isl-initial-pos)))
@@ -906,9 +912,18 @@ appended at end."
         isl--point-max nil)
   (isl-search-1))
 
-(defun isl-resume ()
+(defun isl-resume (arg)
   "Resume previous isl session."
-  (interactive)
+  (interactive "P")
+  (when (and arg isl-current-buffer)
+    (setq isl-current-buffer
+          (get-buffer
+           (completing-read
+            "Resume from buffer: "
+            (mapcar 'buffer-name isl-visited-buffers)
+            nil t))))
+  (cl-assert isl-current-buffer
+             nil "No buffer handling an isl session found")
   (switch-to-buffer isl-current-buffer)
   (with-current-buffer isl-current-buffer
     (funcall isl-last-object)
