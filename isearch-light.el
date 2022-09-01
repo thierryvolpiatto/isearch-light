@@ -54,6 +54,8 @@
 
 ;; Internals
 (defvar isl-pattern "")
+(defvar isl-last-query nil)
+(defvar isl-last-object nil)
 (defvar isl-current-buffer nil)
 (defvar isl--item-overlays nil)
 (defvar isl--iterator nil)
@@ -807,7 +809,7 @@ appended at end."
             (isl-setup-mode-line)
             (goto-char isl-initial-pos)))))))
 
-(defun isl-read-from-minibuffer (prompt)
+(defun isl-read-from-minibuffer (prompt &optional initial-input)
   "Read input from minibuffer with prompt PROMPT."
   (let (timer)
     (unwind-protect
@@ -816,7 +818,7 @@ appended at end."
               (setq timer (run-with-idle-timer
                            isl-timer-delay 'repeat #'isl-check-input)))
           (read-from-minibuffer
-           prompt nil isl-map nil 'isl-history
+           prompt initial-input isl-map nil 'isl-history
            (if (region-active-p)
                (buffer-substring-no-properties
                 (region-beginning)
@@ -831,6 +833,19 @@ appended at end."
          (hs-show-hook (list (lambda () (and pos (goto-char pos))))))
     (when (buffer-live-p (get-buffer isl-help-buffer-name))
       (kill-buffer isl-help-buffer-name))
+    (setq isl-last-object
+          (lambda ()
+            (setq mode-line-format mode-line-format
+                  isl-last-query isl-pattern
+                  isl-initial-pos pos
+                  isl--yank-point isl--yank-point 
+                  isl--iterator isl--iterator 
+                  isl--number-results isl--number-results
+                  isl-case-fold-search isl-case-fold-search
+                  isl-search-function isl-search-function
+                  buffer-invisibility-spec buffer-invisibility-spec
+                  isl--hidding isl--hidding
+                  cursor-in-non-selected-windows cursor-in-non-selected-windows)))
     (isl-delete-overlays)
     (setq mode-line-format (default-value 'mode-line-format)
           isl--yank-point nil
@@ -859,18 +874,21 @@ appended at end."
                     (derived-mode-p 'markdown-mode))
                (markdown-show-entry)))
         (error nil)))))
+
 
-(defun isl-search-1 ()
+(defun isl-search-1 (&optional resume)
   "Launch isl in current-buffer."
-  (setq isl-initial-pos (point)
-        isl-pattern ""
-        isl--direction 'forward
-        isl-current-buffer (current-buffer)
-        isl--buffer-invisibility-spec buffer-invisibility-spec
-        cursor-in-non-selected-windows nil)
+  (unless resume
+    (setq isl-initial-pos (point)
+          isl-pattern ""
+          isl--direction 'forward
+          isl-current-buffer (current-buffer)
+          isl--buffer-invisibility-spec buffer-invisibility-spec
+          cursor-in-non-selected-windows nil))
   (unwind-protect
       (condition-case-unless-debug nil
-          (isl-read-from-minibuffer "Search: ")
+          (isl-read-from-minibuffer
+           "Search: " (when resume isl-last-query))
         (quit
          (setq isl--quit t)
          (goto-char isl-initial-pos)))
@@ -887,6 +905,15 @@ appended at end."
   (setq isl--point-min nil
         isl--point-max nil)
   (isl-search-1))
+
+(defun isl-resume ()
+  "Resume previous isl session."
+  (interactive)
+  (switch-to-buffer isl-current-buffer)
+  (with-current-buffer isl-current-buffer
+    (funcall isl-last-object)
+    (setq isl-pattern ""))
+  (isl-search-1 'resume))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
