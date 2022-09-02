@@ -886,9 +886,10 @@ appended at end."
           isl-current-buffer (current-buffer)
           isl--buffer-invisibility-spec buffer-invisibility-spec
           cursor-in-non-selected-windows nil))
-  (setq isl-visited-buffers
-        (cons isl-current-buffer
-              (delete isl-current-buffer isl-visited-buffers)))
+  (when isl-current-buffer
+    (setq isl-visited-buffers
+          (cons isl-current-buffer
+                (delete isl-current-buffer isl-visited-buffers))))
   (unwind-protect
       (condition-case-unless-debug nil
           (isl-read-from-minibuffer
