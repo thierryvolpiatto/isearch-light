@@ -913,15 +913,20 @@ appended at end."
   (isl-search-1))
 
 (defun isl-resume (arg)
-  "Resume previous isl session."
+  "Resume isl session in current buffer.
+With a prefix arg choose one of the last buffers isl visited."
   (interactive "P")
-  (when (and arg isl-current-buffer)
-    (setq isl-current-buffer
-          (get-buffer
-           (completing-read
-            "Resume from buffer: "
-            (mapcar 'buffer-name isl-visited-buffers)
-            nil t))))
+  (setq isl-current-buffer
+        (cond ((and arg isl-visited-buffers)
+               (get-buffer
+                (completing-read
+                 "Resume from buffer: "
+                 (mapcar 'buffer-name isl-visited-buffers)
+                 nil t)))
+              (isl-visited-buffers
+               (car (memql (current-buffer)
+                           isl-visited-buffers)))
+              (t isl-current-buffer)))
   (cl-assert isl-current-buffer
              nil "No buffer handling an isl session found")
   (switch-to-buffer isl-current-buffer)
