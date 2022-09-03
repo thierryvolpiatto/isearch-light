@@ -840,6 +840,8 @@ appended at end."
                (setq-local mode-line-format ',mode-line-format
                            isl-last-query ,isl-pattern
                            isl-initial-pos ,pos
+                           isl--point-min ,isl--point-min
+                           isl--point-max ,isl--point-max
                            isl--yank-point ,isl--yank-point 
                            isl--number-results ,isl--number-results
                            isl-case-fold-search ',isl-case-fold-search
@@ -931,10 +933,16 @@ With a prefix arg choose one of the last buffers isl had visited."
   (cl-assert isl-current-buffer
              nil "No buffer handling an isl session found")
   (switch-to-buffer isl-current-buffer)
-  (with-current-buffer isl-current-buffer
-    (funcall isl-last-object)
-    (setq isl-pattern ""))
-  (isl-search-1 'resume))
+  (let (beg end)
+    (with-current-buffer isl-current-buffer
+      (funcall isl-last-object)
+      (setq isl-pattern "")
+      ;; Last session was isl-narrow-to-defun.
+      (setq beg isl--point-min end isl--point-max))
+    (save-restriction
+      (when (and beg end)
+        (narrow-to-region beg end))
+      (isl-search-1 'resume))))
 
 ;;;###autoload
 (defun isl-narrow-to-defun ()
