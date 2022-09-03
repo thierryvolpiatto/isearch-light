@@ -1,4 +1,4 @@
-;;; isearch-light.el --- Simple incremental search in current-buffer -*- lexical-binding: t -*-
+;;; isl.el --- Simple incremental search in current-buffer -*- lexical-binding: t -*-
 
 ;; Author:      Thierry Volpiatto <thievol@posteo.net>
 ;; Copyright (C) 2021 Thierry Volpiatto <thievol@posteo.net>
@@ -105,8 +105,8 @@
 ;; User vars
 (defvar isl-timer-delay 0.01)
 
-(defgroup isearch-light nil
-  "Open `isl-search'."
+(defgroup isl nil
+  "Search buffers with `isl-search'."
   :prefix "isl-"
   :group 'matching)
 
@@ -948,6 +948,6 @@ With a prefix arg choose one of the last buffers isl had visited."
           isl--point-max (point-max))
     (isl-search-1)))
 
-(provide 'isearch-light)
+(provide 'isl)
 
-;;; isearch-light.el ends here
+;;; isl.el ends here
