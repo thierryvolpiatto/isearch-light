@@ -157,6 +157,10 @@ in pattern."
 (defcustom isl-visible-context-lines 1
   "Number of lines to show around line when hiding non matching lines."
   :type 'integer)
+
+(defcustom isl-noresume-buffers '("*Helm Help*")
+  "Prevent resuming in these buffers."
+  :type '(repeat string))
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -888,7 +892,9 @@ appended at end."
           isl-current-buffer (current-buffer)
           isl--buffer-invisibility-spec buffer-invisibility-spec
           cursor-in-non-selected-windows nil))
-  (when isl-current-buffer
+  (when (and isl-current-buffer
+             (not (member (buffer-name isl-current-buffer)
+                          isl-noresume-buffers)))
     (setq isl-visited-buffers
           (cons isl-current-buffer
                 (delete isl-current-buffer isl-visited-buffers))))
@@ -928,8 +934,7 @@ With a prefix arg choose one of the last buffers isl had visited."
                  nil t)))
               (isl-visited-buffers
                (car (memql (current-buffer)
-                           isl-visited-buffers)))
-              (t isl-current-buffer)))
+                           isl-visited-buffers)))))
   (cl-assert isl-current-buffer
              nil "No buffer handling an isl session found")
   (switch-to-buffer isl-current-buffer)
