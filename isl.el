@@ -24,8 +24,8 @@
 
 ;;; Commentary:
 
-;; Isearch-light is a small package to search regexp incrementaly in
-;; current-buffer.  It is simple to use, just call M-x `isl-search'.
+;; ISL Like I-Search-Light.
+;; Search regexp incrementaly in current-buffer.
 
 ;;; Code:
 
