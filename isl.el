@@ -936,7 +936,7 @@ With a prefix arg choose one of the last buffers isl had visited."
                (car (memql (current-buffer)
                            isl-visited-buffers)))))
   (cl-assert isl-current-buffer
-             nil "No buffer handling an isl session found")
+             nil "No previous Isl session yet recorded here")
   (switch-to-buffer isl-current-buffer)
   (let (beg end)
     (with-current-buffer isl-current-buffer
