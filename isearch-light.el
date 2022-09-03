@@ -915,7 +915,7 @@ appended at end."
 
 (defun isl-resume (arg)
   "Resume isl session in current buffer.
-With a prefix arg choose one of the last buffers isl visited."
+With a prefix arg choose one of the last buffers isl had visited."
   (interactive "P")
   (setq isl-current-buffer
         (cond ((and arg isl-visited-buffers)
