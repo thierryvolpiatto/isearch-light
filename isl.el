@@ -892,7 +892,7 @@ appended at end."
           isl-current-buffer (current-buffer)
           isl--buffer-invisibility-spec buffer-invisibility-spec
           cursor-in-non-selected-windows nil))
-  (when (and isl-current-buffer
+  (when (and (buffer-live-p isl-current-buffer)
              (not (member (buffer-name isl-current-buffer)
                           isl-noresume-buffers)))
     (setq isl-visited-buffers
@@ -930,7 +930,7 @@ With a prefix arg choose one of the last buffers isl had visited."
                (get-buffer
                 (completing-read
                  "Resume from buffer: "
-                 (mapcar 'buffer-name isl-visited-buffers)
+                 (delq nil (mapcar 'buffer-name isl-visited-buffers))
                  nil t)))
               (isl-visited-buffers
                (car (memql (current-buffer)
