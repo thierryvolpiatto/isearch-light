@@ -24,6 +24,8 @@ An Isearch replacement for Emacs.
 - Help available at any time during search without having to quit
   session.
 
+- Allow resuming previous session in each buffer isl had visited.
+
 It aims to keep simple with only the needed features, no extra
 features you will never use.
 
