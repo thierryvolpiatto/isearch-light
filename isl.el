@@ -78,7 +78,10 @@
 (defvar isl--point-min nil)
 (defvar isl--point-max nil)
 (defvar isl-help-string
-  "* Isearch-light help\n
+  "* ISL help\n
+
+Incremental search in current buffer.
+
 ** Commands
 \\<isl-map>
 \\[isl-display-or-quit-help]\t\tDisplay or quit this help buffer
