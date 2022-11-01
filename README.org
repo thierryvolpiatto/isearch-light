@@ -36,32 +36,31 @@ have =helm-occur= and [[https://github.com/victorhge/iedit][Iedit]] to allow jum
 
 ** install
 
-No installation from Melpa and package.el is provided and will be provided.
+No installation from (M)Elpa and package.el is provided for now.
+
+** Namespace
+
+The name of the package is Isearch-light but the lisp file is named
+isl.el and all symbols are prefixed with "isl-". For now it is ok like
+this especially because it is not packaged in (M)Elpa. If any
+conflicts would happen in the future I may rename package, file and symbols.
 
 *** From source
 
-Add isearch-light.el to =load-path=.
+Add isl.el to =load-path=.
 
-Then add =(require 'isearch-light)= in your init file.
+Then add =(require 'isl)= in your init file.
 
 Even better, you can autoload it:
 
 #+begin_src elisp
-    (autoload 'isl "isearch-light" nil t)
+    (autoload 'isl "isl" nil t)
 #+end_src
 
 With =use-package= and binding =C-s=
 
 #+begin_src elisp
-    (use-package isearch-light
-      :bind (("C-s" . isl-search)))
-#+end_src
-
-*** With [[https://github.com/raxod502/straight.el][Straight]]
-
-#+begin_src elisp
-    (use-package isearch-light
-      :straight (isearch-light :host github :repo "thierryvolpiatto/isearch-light")
+    (use-package isl
       :bind (("C-s" . isl-search)))
 #+end_src
 
@@ -143,8 +142,7 @@ helm-help, here how to replace default setting by `isl` in helm-help:
 #+begin_src elisp
     (use-package helm-lib
       :config
-      (use-package isearch-light
-        :straight (isearch-light :host github :repo "thierryvolpiatto/isearch-light"))
+      (use-package isl)
       (helm-help-define-key "C-s" nil)
       (helm-help-define-key "C-r" nil)
       (helm-help-define-key "C-s" 'isl-search))
