@@ -853,7 +853,7 @@ appended at end."
                            isl--number-results ,isl--number-results
                            isl-case-fold-search ',isl-case-fold-search
                            isl-search-function ',isl-search-function
-                           buffer-invisibility-spec ,buffer-invisibility-spec
+                           buffer-invisibility-spec ',buffer-invisibility-spec
                            isl--hidding ,isl--hidding
                            cursor-in-non-selected-windows ,cursor-in-non-selected-windows)))
       (isl-delete-overlays)
