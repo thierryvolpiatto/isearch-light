@@ -909,7 +909,8 @@ appended at end."
                          'isl-last-query isl-current-buffer)))
         (quit
          (setq isl--quit t)
-         (goto-char isl-initial-pos)))
+         (when isl-initial-pos
+           (goto-char isl-initial-pos))))
     (isl-cleanup)
     ;; Avoid loosing focus in helm help buffer.
     (unless (eq (window-buffer (selected-window))
