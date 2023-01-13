@@ -925,6 +925,7 @@ appended at end."
         isl--point-max nil)
   (isl-search-1))
 
+;;;###autoload
 (defun isl-resume (arg)
   "Resume isl session in current buffer.
 With a prefix arg choose one of the last buffers isl had visited."
