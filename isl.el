@@ -671,19 +671,24 @@ symbol position."
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
          (rest    (cdr pattern)))
-    (cl-loop while (funcall isl-search-function (cdr initial) nil t)
+    (cl-loop while (condition-case _err
+                       (funcall isl-search-function (cdr initial) nil t)
+                     (invalid-regexp nil))
              for bounds = (if rest
                               (bounds-of-thing-at-point
                                (if (derived-mode-p 'prog-mode)
                                    'symbol 'filename))
                             (cons (match-beginning 0) (match-end 0)))
+             unless bounds return nil
              if (or (not rest)
                     (cl-loop for (pred . re) in rest
                              always (funcall pred
                                              (progn
                                                (goto-char (car bounds))
-                                               (funcall isl-search-function
-                                                        re (cdr bounds) t)))))
+                                               (condition-case _err
+                                                   (funcall isl-search-function
+                                                            re (cdr bounds) t)
+                                                 (invalid-regexp nil))))))
              do (goto-char (cdr bounds)) and return bounds
              else do (goto-char (cdr bounds))
              finally return nil)))
