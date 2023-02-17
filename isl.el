@@ -710,7 +710,7 @@ symbol position."
 When enable multi search in full line, otherwise multi search only in
 symbols."
   (interactive)
-  (setq isl-multi-search-in-line (not isl-multi-search-in-line))
+  (setq-local isl-multi-search-in-line (not isl-multi-search-in-line))
   (isl-update))
 
 (defun isl-update ()
@@ -883,6 +883,7 @@ appended at end."
                            isl-search-function ',isl-search-function
                            buffer-invisibility-spec ',buffer-invisibility-spec
                            isl--hidding ,isl--hidding
+                           isl-multi-search-in-line ,isl-multi-search-in-line
                            cursor-in-non-selected-windows ,cursor-in-non-selected-windows)))
       (isl-delete-overlays)
       (setq mode-line-format (default-value 'mode-line-format)
@@ -895,6 +896,7 @@ appended at end."
             isl-search-function (default-value 'isl-search-function)
             buffer-invisibility-spec isl--buffer-invisibility-spec
             isl--hidding nil
+            isl-multi-search-in-line (default-value 'isl-multi-search-in-line)
             cursor-in-non-selected-windows
             (default-value 'cursor-in-non-selected-windows))
       (remove-overlays nil nil 'isl-invisible t)
