@@ -164,6 +164,15 @@ in pattern."
 (defcustom isl-noresume-buffers '("*Helm Help*")
   "Prevent resuming in these buffers."
   :type '(repeat string))
+
+(defcustom isl-multi-search-in-line nil
+  "Multi search in line when non nil.
+Otherwise multi search only in symbols.
+In buffers containing huge lines or sometimes only one huge line, you
+should multi search only in symbols and not in whole line which is
+really costly and may take ages or crash Emacs.
+You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-line]."
+  :type 'boolean)
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -216,6 +225,7 @@ in pattern."
     (define-key map (kbd "C-v")    'isl-scroll-up)
     (define-key map (kbd "M-v")    'isl-scroll-down)
     (define-key map (kbd "C-k")    'isl-delete-minibuffer-contents)
+    (define-key map (kbd "C-j")    'isl-toggle-multi-search-in-line)
     map))
 
 ;;; Actions
@@ -674,11 +684,13 @@ symbol position."
     (cl-loop while (condition-case _err
                        (funcall isl-search-function (cdr initial) nil t)
                      (invalid-regexp nil))
-             for bounds = (if rest
-                              (bounds-of-thing-at-point
-                               (if (derived-mode-p 'prog-mode)
-                                   'symbol 'filename))
-                            (cons (match-beginning 0) (match-end 0)))
+             for bounds = (cond ((and rest isl-multi-search-in-line)
+                                 (cons (point-at-bol) (point-at-eol)))
+                                (rest
+                                 (bounds-of-thing-at-point
+                                  (if (derived-mode-p 'prog-mode)
+                                      'symbol 'filename)))
+                                (t (cons (match-beginning 0) (match-end 0))))
              unless bounds return nil
              if (or (not rest)
                     (cl-loop for (pred . re) in rest
@@ -692,6 +704,14 @@ symbol position."
              do (goto-char (cdr bounds)) and return bounds
              else do (goto-char (cdr bounds))
              finally return nil)))
+
+(defun isl-toggle-multi-search-in-line ()
+  "Toggle multi-search in line.
+When enable multi search in full line, otherwise multi search only in
+symbols."
+  (interactive)
+  (setq isl-multi-search-in-line (not isl-multi-search-in-line))
+  (isl-update))
 
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' changes."
@@ -742,6 +762,7 @@ symbol position."
 (defun isl-setup-mode-line ()
   "Setup `mode-line-format' for `isl-search'."
   (let ((style (isl-matching-style))
+        (search (if isl-multi-search-in-line 'Inline 'Insym))
         (position (with-current-buffer isl-current-buffer
                      (if (> (point) isl-initial-pos)
                          isl-after-position-string
@@ -765,6 +786,7 @@ symbol position."
                                    (propertize isl-pattern
                                                'face 'isl-string)
                                    style
+                                   search
                                    direction))
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
@@ -778,6 +800,7 @@ symbol position."
                                            isl--number-results)
                                           'face 'isl-number)
                               style
+                              search
                               direction
                               position
                               (propertize (pcase isl-case-fold-search
