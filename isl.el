@@ -710,8 +710,9 @@ symbol position."
 When enable multi search in full line, otherwise multi search only in
 symbols."
   (interactive)
-  (setq-local isl-multi-search-in-line (not isl-multi-search-in-line))
-  (isl-update))
+  (with-current-buffer isl-current-buffer
+    (setq-local isl-multi-search-in-line (not isl-multi-search-in-line))
+    (isl-update)))
 
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' changes."
@@ -777,7 +778,7 @@ symbols."
                  (default-value 'mode-line-format))
                 ((zerop isl--number-results)
                  `(" " mode-line-buffer-identification " "
-                   (:eval ,(format "%s `%s' [%s %s]"
+                   (:eval ,(format "%s `%s' [%s %s %s]"
                                    (if isl--invalid
                                        (propertize
                                         (format "%s Invalid regexp:" isl-warning-char)
@@ -791,7 +792,7 @@ symbols."
                    " " mode-line-position))
                 (t `(" " mode-line-buffer-identification " "
                      (:eval ,(format
-                              "[%s/%s] result(s) found [%s %s %s %s]"
+                              "[%s/%s] result(s) found [%s %s %s %s %s]"
                               (propertize
                                (number-to-string
                                 (overlay-get isl--last-overlay 'pos))
