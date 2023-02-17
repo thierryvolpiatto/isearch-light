@@ -103,7 +103,8 @@ Incremental search in current buffer.
 \\[isl-jump-to-helm-occur]\t\tJump to helm-occur
 \\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode
 \\[isl-query-replace]\t\tJump to query replace
-\\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines")
+\\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines
+\\[isl-toggle-multi-search-in-line]\t\tToggle multi search in line/symbol")
 
 ;; User vars
 (defvar isl-timer-delay 0.01)
