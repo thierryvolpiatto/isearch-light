@@ -108,7 +108,7 @@ By default =isl-search= uses multi matching like Helm, with limitation
 to symbol, not line like in Helm, that means "foo bar" matches
 "foo-bar" or "bar-foo" but not a line with "foo" and "bar" inside
 e.g. "foo some text bar", when you want to match something like this
-you have to use regexp e.g. "foo.*bar" or switch to multi line
+you have to use regexp e.g. "foo.*bar" or switch to multi match line
 matching with C-j aka =isl-toggle-multi-search-in-line=.
 
 To use multi matching, separate text with one space, each pattern
@@ -117,7 +117,7 @@ will not match "foo-bar" but will match "foo-baz".
 
 [[screen_shot1.png]]
 
-Note: You can jump to =helm-occur= for a line based search.
+Note: You can jump to =helm-occur= for a line based search at any time.
 You can also jump to [[https://github.com/victorhge/iedit][iedit-mode]] with multi match pattern (you may have
 an error if all the matches do not refer to the same word or symbol).
 
@@ -135,6 +135,9 @@ A good compromise is to start searching with isearch-light and if it
 turns out what you need to match is whole lines instead of words or
 symbols, switch to helm-occur with =isl-jump-to-helm-occur= bound by
 default to =M-s=.
+
+UPDATE: Isearch-light can now switch to a line based search like
+=helm-occur= easily.
 
 ** Use isearch-light for helm-help
 
