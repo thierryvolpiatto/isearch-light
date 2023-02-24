@@ -670,12 +670,12 @@ Optional argument PATTERN default to `isl-pattern'."
                      (cons 'identity s))))
 
 (defun isl-multi-search-fwd (str &optional _bound _noerror _count)
-  "Returns position of symbol matched by STR.
+  "Returns position of symbol or line matched by STR.
 When arg STR contains spaces, it is converted in patterns with
 `isl-patterns' , when first pattern of list match a symbol
 subsequent patterns are used to check if all patterns match this
 symbol.  The return value is a cons cell (beg . end) denoting
-symbol position."
+symbol or line position according to `isl-multi-search-in-line'."
   ;; Prevent infloop crashing Emacs with incorrect configuration.
   (cl-assert (memq isl-search-function '(re-search-forward search-forward)))
   (let* ((pattern (isl-patterns str))
