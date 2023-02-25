@@ -30,7 +30,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'subr-x)
 
 (defvar iedit-aborting)
 (defvar iedit-read-only-occurrences-overlays)
@@ -370,12 +369,13 @@ It put overlay on current position, move to next overlay using
   (with-selected-window (minibuffer-selected-window)
     ;; Ensure user haven't scrolled to another place.
     (goto-char (overlay-end isl--last-overlay))
-    (when-let* ((ovs (and isl-multi-search-in-line
-                          (overlays-in (point-at-bol) (point-at-eol))))
-                (matches (cl-loop for ov in ovs
-                                  when (overlay-get ov 'isl-matches)
-                                  collect ov)))
-      (goto-char (overlay-start (car (reverse matches)))))
+    (when isl-multi-search-in-line
+      (let* ((ovs     (overlays-in (point-at-bol) (point-at-eol)))
+             (matches (cl-loop for ov in ovs
+                               when (overlay-get ov 'isl-matches)
+                               collect ov)))
+        (when matches
+          (goto-char (overlay-start (car (reverse matches)))))))
     (when isl-save-pos-to-mark-ring
       (set-marker (mark-marker) isl-initial-pos)
       (push-mark isl-initial-pos 'nomsg))
