@@ -375,7 +375,7 @@ It put overlay on current position, move to next overlay using
                                when (overlay-get ov 'isl-matches)
                                collect ov)))
         (when matches
-          (goto-char (overlay-start (car (reverse matches)))))))
+          (goto-char (overlay-end (car matches))))))
     (when isl-save-pos-to-mark-ring
       (set-marker (mark-marker) isl-initial-pos)
       (push-mark isl-initial-pos 'nomsg))
