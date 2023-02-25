@@ -77,6 +77,11 @@
 (defvar isl--hidding nil)
 (defvar isl--point-min nil)
 (defvar isl--point-max nil)
+(defvar isl--extra-items-overlays nil)
+
+;; User vars
+(defvar isl-timer-delay 0.01)
+
 (defvar isl-help-string
   "* ISL help\n
 
@@ -105,9 +110,6 @@ Incremental search in current buffer.
 \\[isl-query-replace]\t\tJump to query replace
 \\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines
 \\[isl-toggle-multi-search-in-line]\t\tToggle multi search in line/symbol")
-
-;; User vars
-(defvar isl-timer-delay 0.01)
 
 (defgroup isl nil
   "Search buffers with `isl-search'."
@@ -178,6 +180,10 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
 (defface isl-match
   '((t :background "Brown4"))
   "Face used to highlight the items matched.")
+
+(defface isl-match-items
+  '((t :background "SaddleBrown" :foreground "black"))
+  "Face used to highlight the items matched inside line.")
 
 (defface isl-on
   '((t :background "SandyBrown"
@@ -629,7 +635,8 @@ the initial position i.e. the position before launching `isl-search'."
   "Cleanup ovelays."
   (when isl--item-overlays
     (remove-overlays nil nil 'isl t)
-    (setq isl--item-overlays nil)))
+    (setq isl--item-overlays nil
+          isl--extra-items-overlays nil)))
 
 (cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
   "Return a suitable value for `case-fold-search'.
@@ -746,6 +753,8 @@ symbols."
                   (overlay-put ov 'isl t)
                   (overlay-put ov 'pos count)
                   (overlay-put ov 'face 'isl-match)
+                  (when isl-multi-search-in-line
+                    (isl--highlight-items-in-line (car bounds) (cdr bounds)))
                   (cl-incf count))
               (invalid-regexp (setq isl--invalid t) nil))
             (setq isl--item-overlays (reverse isl--item-overlays)))
@@ -759,6 +768,21 @@ symbols."
             (goto-char (overlay-end (isl-iter-next isl--iterator)))
             (setq isl--yank-point (point)))))
       (isl-setup-mode-line))))
+
+(defun isl--highlight-items-in-line (beg end)
+  "Highlight items inside a matched line.
+Imply `isl-multi-search-in-line' non nil."
+  (save-excursion
+    (goto-char beg)
+    (cl-loop with ov2
+             for p in (isl-split-string isl-pattern)
+             when (save-excursion
+                    (re-search-forward p end t))
+             do (progn
+                  (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
+                  (push ov2 isl--extra-items-overlays)
+                  (overlay-put ov2 'face 'isl-match-items)
+                  (overlay-put ov2 'isl t)))))
 
 (defun isl-setup-mode-line ()
   "Setup `mode-line-format' for `isl-search'."
