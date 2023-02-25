@@ -682,9 +682,7 @@ symbol or line position according to `isl-multi-search-in-line'."
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
          (rest    (cdr pattern)))
-    (cl-loop while (condition-case _err
-                       (funcall isl-search-function (cdr initial) nil t)
-                     (invalid-regexp nil))
+    (cl-loop while (funcall isl-search-function (cdr initial) nil t)
              for bounds = (cond ((and rest isl-multi-search-in-line)
                                  (cons (point-at-bol) (point-at-eol)))
                                 (rest
@@ -701,7 +699,8 @@ symbol or line position according to `isl-multi-search-in-line'."
                                                (condition-case _err
                                                    (funcall isl-search-function
                                                             re (cdr bounds) t)
-                                                 (invalid-regexp nil))))))
+                                                 (invalid-regexp
+                                                  (setq isl--invalid t) nil))))))
              do (goto-char (cdr bounds)) and return bounds
              else do (goto-char (cdr bounds))
              finally return nil)))
