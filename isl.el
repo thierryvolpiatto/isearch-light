@@ -374,7 +374,9 @@ It put overlay on current position, move to next overlay using
   (interactive)
   (with-selected-window (minibuffer-selected-window)
     ;; Ensure user haven't scrolled to another place.
-    (goto-char (overlay-end isl--last-overlay))
+    (let ((end (overlay-end isl--last-overlay)))
+      (goto-char (if isl-multi-search-in-line
+                     (1- end) end)))
     (when isl-multi-search-in-line
       (let* ((ovs     (overlays-in (point-at-bol) (point-at-eol)))
              (matches (cl-loop for ov in ovs
