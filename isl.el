@@ -728,9 +728,7 @@ symbol or line position according to `isl-multi-search-in-line'."
              finally return nil)))
 
 (defun isl-toggle-multi-search-in-line ()
-  "Toggle multi-search in line.
-When enable multi search in full line, otherwise multi search only in
-symbols."
+  "Toggle multi-search in lines/symbols."
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-multi-search-in-line (not isl-multi-search-in-line))
