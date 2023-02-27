@@ -175,7 +175,13 @@ In buffers containing huge lines or sometimes only one huge line, you
 should multi search only in symbols and not in whole line which is
 really costly and may take ages or crash Emacs.
 You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-line]."
-  :type 'boolean)
+  :type 'boolean
+  :initialize 'custom-initialize-changed
+  :set (lambda (var val)
+         (set var val)
+         (if val
+             (set-face-attribute 'isl-on nil :extend t)
+           (set-face-attribute 'isl-on nil :extend nil))))
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -698,7 +704,7 @@ symbol or line position according to `isl-multi-search-in-line'."
          (rest    (cdr pattern)))
     (cl-loop while (funcall isl-search-function (cdr initial) nil t)
              for bounds = (cond ((and rest isl-multi-search-in-line)
-                                 (cons (point-at-bol) (point-at-eol)))
+                                 (cons (point-at-bol) (1+ (point-at-eol))))
                                 (rest
                                  (bounds-of-thing-at-point
                                   (if (derived-mode-p 'prog-mode)
@@ -726,6 +732,9 @@ symbols."
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-multi-search-in-line (not isl-multi-search-in-line))
+    (if isl-multi-search-in-line
+        (set-face-attribute 'isl-on nil :extend t)
+      (set-face-attribute 'isl-on nil :extend nil))
     (isl-update)))
 
 (defun isl-update ()
@@ -790,7 +799,8 @@ Imply `isl-multi-search-in-line' non nil."
                   (push ov2 isl--extra-items-overlays)
                   (overlay-put ov2 'face 'isl-match-items)
                   (overlay-put ov2 'isl t)
-                  (overlay-put ov2 'isl-matches t)))))
+                  (overlay-put ov2 'isl-matches t)
+                  (overlay-put ov2 'priority 1)))))
 
 (defun isl-setup-mode-line ()
   "Setup `mode-line-format' for `isl-search'."
