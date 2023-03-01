@@ -792,15 +792,15 @@ Imply `isl-multi-search-in-line' non nil."
     (goto-char beg)
     (cl-loop with ov2
              for p in (isl-split-string isl-pattern)
-             when (save-excursion
-                    (re-search-forward p end t))
-             do (progn
-                  (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
-                  (push ov2 isl--extra-items-overlays)
-                  (overlay-put ov2 'face 'isl-match-items)
-                  (overlay-put ov2 'isl t)
-                  (overlay-put ov2 'isl-matches t)
-                  (overlay-put ov2 'priority 1)))))
+             unless (string-match "\\`!" p)
+             do (save-excursion
+                  (while (re-search-forward p end t)
+                    (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
+                    (push ov2 isl--extra-items-overlays)
+                    (overlay-put ov2 'face 'isl-match-items)
+                    (overlay-put ov2 'isl t)
+                    (overlay-put ov2 'isl-matches t)
+                    (overlay-put ov2 'priority 1))))))
 
 (defun isl-setup-mode-line ()
   "Setup `mode-line-format' for `isl-search'."
