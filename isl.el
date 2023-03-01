@@ -786,8 +786,8 @@ symbol or line position according to `isl-multi-search-in-line'."
       (isl-setup-mode-line))))
 
 (defun isl--highlight-items-in-line (beg end)
-  "Highlight items inside a matched line.
-Imply `isl-multi-search-in-line' non nil."
+  "Highlight items inside a matched line."
+  ;; When this is called we are at eol.
   (save-excursion
     (goto-char beg)
     (cl-loop with ov2
