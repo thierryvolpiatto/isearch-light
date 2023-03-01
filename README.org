@@ -106,16 +106,21 @@ running isearch-light.
 
 By default =isl-search= uses multi matching like Helm, with limitation
 to symbol, not line like in Helm, that means "foo bar" matches
-"foo-bar" or "bar-foo" but not a line with "foo" and "bar" inside
-e.g. "foo some text bar", when you want to match something like this
+"foo-bar" or "bar-foo" but not a line with "foo" and "bar" inside.
+
+[[screen_shot1.png]]
+
+when you want to match e.g. "foo some text bar",
 you have to use regexp e.g. "foo.*bar" or switch to multi match line
 matching with C-j aka =isl-toggle-multi-search-in-line=.
+
+[[screen_shot2.png]]
 
 To use multi matching, separate text with one space, each pattern
 beginning by "!" will mean match everything but this, e.g. "foo !bar"
 will not match "foo-bar" but will match "foo-baz".
 
-[[screen_shot1.png]]
+[[screen_shot3.png]]
 
 Note: You can jump to =helm-occur= for a line based search at any time.
 You can also jump to [[https://github.com/victorhge/iedit][iedit-mode]] with multi match pattern (you may have
