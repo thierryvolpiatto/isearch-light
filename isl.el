@@ -100,7 +100,7 @@ Incremental search in current buffer.
 \\[abort-recursive-edit]\t\tQuit and restore position
 \\[isl-yank-word-at-point]\t\tYank word at point
 \\[isl-recenter]\t\tRecenter current buffer
-\\[isl-change-matching-style]\t\tChange matching style
+\\[isl-change-matching-style]\t\tToggle matching style (regexp/litteral)
 \\[isl-select-case-fold-search]\t\tChange case fold search (cycle: *=smart, 1=t, 0=nil)
 \\[isl-goto-first]\t\tGoto first occurence
 \\[isl-goto-last]\t\tGoto last occurence
@@ -109,7 +109,7 @@ Incremental search in current buffer.
 \\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode
 \\[isl-query-replace]\t\tJump to query replace
 \\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines
-\\[isl-toggle-multi-search-in-line]\t\tToggle multi search in line/symbol")
+\\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)")
 
 (defgroup isl nil
   "Search buffers with `isl-search'."
