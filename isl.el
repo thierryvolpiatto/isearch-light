@@ -99,6 +99,7 @@ Incremental search in current buffer.
 \\[isl-exit-at-point]\t\tExit at current position
 \\[abort-recursive-edit]\t\tQuit and restore position
 \\[isl-yank-word-at-point]\t\tYank word at point
+\\[isl-yank-symbol-at-point]\t\tYank symbol at point
 \\[isl-recenter]\t\tRecenter current buffer
 \\[isl-change-matching-style]\t\tToggle matching style (regexp/litteral)
 \\[isl-select-case-fold-search]\t\tChange case fold search (cycle: *=smart, 1=t, 0=nil)
@@ -223,6 +224,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "<up>")   'isl-goto-prev)
     (define-key map (kbd "RET")    'isl-exit-at-point)
     (define-key map (kbd "C-w")    'isl-yank-word-at-point)
+    (define-key map (kbd "C-z")    'isl-yank-symbol-at-point)
     (define-key map (kbd "M-r")    'isl-change-matching-style)
     (define-key map (kbd "C-c f")  'isl-select-case-fold-search)
     (define-key map (kbd "M-<")    'isl-goto-first)
@@ -415,6 +417,19 @@ the initial position i.e. the position before launching `isl-search'."
         (with-selected-window (minibuffer-window)
           (insert str))))))
 (put 'isl-yank-word-at-point 'no-helm-mx t)
+
+(defun isl-yank-symbol-at-point ()
+  "Yank symbol at point in minibuffer.
+The symbol at point is relative to the current position in buffer, not
+the initial position i.e. the position before launching `isl-search'."
+  (interactive)
+  (let (str)
+    (with-current-buffer isl-current-buffer
+      (when (setq str (thing-at-point 'symbol t))
+        (with-selected-window (minibuffer-window)
+          (delete-minibuffer-contents)
+          (insert str))))))
+(put 'isl-yank-symbol-at-point 'no-helm-mx t)
 
 (defun isl-recenter ()
   "Recenter from isl."
