@@ -905,7 +905,14 @@ appended at end."
 
 (defun isl-read-from-minibuffer (prompt &optional initial-input)
   "Read input from minibuffer with prompt PROMPT."
-  (let (timer)
+  ;; Bind kbd macro vars to at least avoid errors.
+  ;; FIXME: When executing-kbd-macro we should not be prompted in
+  ;; minibuffer but directly finding next match from point with same
+  ;; regexp or input string used when defining macro (i.e. RET should
+  ;; be automatized).
+  (let ((executing-kbd-macro nil)
+        (defining-kbd-macro nil)
+        timer)
     (unwind-protect
         (minibuffer-with-setup-hook
             (lambda ()
