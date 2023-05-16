@@ -1005,13 +1005,21 @@ appended at end."
                 isl-current-buffer)
       (switch-to-buffer isl-current-buffer))))
 
+(defun isl--search-string ()
+  "Search next match forward from point and stop.
+This function is intended to be used in kmacros."
+  (let ((str (read-string "Search: ")))
+    (isl-multi-search-fwd str nil t)))
+
 ;;;###autoload
 (defun isl-search ()
   "Start incremental searching in current buffer."
   (interactive)
-  (setq isl--point-min nil
-        isl--point-max nil)
-  (isl-search-1))
+  (if executing-kbd-macro
+      (isl--search-string)
+    (setq isl--point-min nil
+          isl--point-max nil)
+    (isl-search-1)))
 
 ;;;###autoload
 (defun isl-resume (arg)
