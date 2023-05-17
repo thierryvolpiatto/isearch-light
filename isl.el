@@ -1005,10 +1005,20 @@ appended at end."
                 isl-current-buffer)
       (switch-to-buffer isl-current-buffer))))
 
+(defvar isl-mini-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map minibuffer-local-map)
+    (define-key map (kbd "M-r")    'isl-change-matching-style)
+    (define-key map (kbd "C-c f")  'isl-select-case-fold-search)
+    (define-key map (kbd "C-j")    'isl-toggle-multi-search-in-line)
+    map)
+  "A minimal map used only in `isl--search-string'.
+Use here only commands able to run inside kmacros.")
+
 (defun isl--search-string ()
   "Search next match forward from point and stop.
 This function is intended to be used in kmacros."
-  (let ((str (read-string "Search: ")))
+  (let ((str (read-from-minibuffer "Search: " nil isl-mini-map)))
     (isl-multi-search-fwd str nil t)))
 
 ;;;###autoload
