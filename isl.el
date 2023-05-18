@@ -738,7 +738,11 @@ symbol or line position according to `isl-multi-search-in-line'."
                                                             re (cdr bounds) t)
                                                  (invalid-regexp
                                                   (setq isl--invalid t) nil))))))
-             do (goto-char (cdr bounds)) and return bounds
+             ;; When executing kbd macros, behave as the interactive
+             ;; isl-search and leave point on last match in line
+             ;; instead of jumping on eol.
+             do (unless executing-kbd-macro (goto-char (cdr bounds)))
+             and return bounds
              else do (goto-char (cdr bounds))
              finally return nil)))
 
@@ -747,10 +751,11 @@ symbol or line position according to `isl-multi-search-in-line'."
   (interactive)
   (with-current-buffer isl-current-buffer
     (setq-local isl-multi-search-in-line (not isl-multi-search-in-line))
-    (if isl-multi-search-in-line
-        (set-face-attribute 'isl-on nil :extend t)
-      (set-face-attribute 'isl-on nil :extend nil))
-    (isl-update)))
+    (unless executing-kbd-macro
+      (if isl-multi-search-in-line
+          (set-face-attribute 'isl-on nil :extend t)
+        (set-face-attribute 'isl-on nil :extend nil))
+      (isl-update))))
 
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' changes."
@@ -1018,12 +1023,20 @@ Use here only commands able to run inside kmacros.")
 (defun isl--search-string ()
   "Search next match forward from point and stop.
 This function is intended to be used in kmacros."
-  (let ((str (read-from-minibuffer "Search: " nil isl-mini-map)))
-    (isl-multi-search-fwd str nil t)))
+  (unwind-protect
+       ;; Needed when toggling inline search.
+       (let* ((isl-current-buffer (current-buffer))
+              (str (read-from-minibuffer "Search: " nil isl-mini-map)))
+         (isl-multi-search-fwd str nil t))
+    ;; When executing-kbd-macro C-j is toggling
+    ;; isl-multi-search-in-line value so be sure to reset it for next iteration.
+    (setq isl-multi-search-in-line (default-value 'isl-multi-search-in-line))))
 
 ;;;###autoload
 (defun isl-search ()
-  "Start incremental searching in current buffer."
+  "Start incremental searching in current buffer.
+When used in kbd macros, search next match forward from point and
+stop, assuming user starts its macro above the text to edit."
   (interactive)
   (if executing-kbd-macro
       (isl--search-string)
