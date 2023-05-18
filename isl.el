@@ -452,12 +452,13 @@ the initial position i.e. the position before launching `isl-search'."
                 (cl-ecase isl-search-function
                   (re-search-forward #'search-forward)
                   (search-forward #'re-search-forward)))
-    (when (string= isl-pattern "")
-      (let* ((style (isl-matching-style))
-             (mode-line-format (format " Switching to %s searching" style)))
-        (force-mode-line-update)
-        (sit-for 1)))
-    (isl-update)))
+    (unless executing-kbd-macro
+      (when (string= isl-pattern "")
+        (let* ((style (isl-matching-style))
+               (mode-line-format (format " Switching to %s searching" style)))
+          (force-mode-line-update)
+          (sit-for 1)))
+      (isl-update))))
 (put 'isl-change-matching-style 'no-helm-mx t)
 
 (defun isl-jump-to-helm-occur ()
@@ -690,7 +691,8 @@ Optional argument PATTERN default to `isl-pattern'."
                      (list isl-case-fold-search))))
       (setq-local isl-case-fold-search
                   (isl-iter-next isl--case-fold-choices-iterator)))
-    (isl-update)))
+    (unless executing-kbd-macro
+      (isl-update))))
 (put 'isl-select-case-fold-search 'no-helm-mx t)
 
 (defun isl-split-string (str)
@@ -718,7 +720,8 @@ symbol or line position according to `isl-multi-search-in-line'."
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
-         (rest    (cdr pattern)))
+         (rest    (cdr pattern))
+         (case-fold-search (isl-set-case-fold-search)))
     (cl-loop while (funcall isl-search-function (cdr initial) nil t)
              for bounds = (cond ((and rest isl-multi-search-in-line)
                                  (cons (point-at-bol) (1+ (point-at-eol))))
@@ -775,8 +778,7 @@ symbol or line position according to `isl-multi-search-in-line'."
       (when (and buffer-invisibility-spec
                  (listp buffer-invisibility-spec))
         (mapc 'remove-from-invisibility-spec buffer-invisibility-spec))
-      (let ((case-fold-search (isl-set-case-fold-search))
-            (count 1)
+      (let ((count 1)
             ov
             bounds)
         (unless (string= isl-pattern "")
@@ -1028,9 +1030,11 @@ This function is intended to be used in kmacros."
        (let* ((isl-current-buffer (current-buffer))
               (str (read-from-minibuffer "Search: " nil isl-mini-map)))
          (isl-multi-search-fwd str nil t))
-    ;; When executing-kbd-macro C-j is toggling
-    ;; isl-multi-search-in-line value so be sure to reset it for next iteration.
-    (setq isl-multi-search-in-line (default-value 'isl-multi-search-in-line))))
+    ;; Reset local var to their default value for next iteration.
+    (setq isl-multi-search-in-line (default-value 'isl-multi-search-in-line))
+    (setq isl-search-function (default-value 'isl-search-function))
+    (setq isl-case-fold-search (default-value 'isl-case-fold-search)
+          isl--case-fold-choices-iterator nil)))
 
 ;;;###autoload
 (defun isl-search ()
