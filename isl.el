@@ -226,7 +226,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "C-w")    'isl-yank-word-at-point)
     (define-key map (kbd "C-z")    'isl-yank-symbol-at-point)
     (define-key map (kbd "M-r")    'isl-change-matching-style)
-    (define-key map (kbd "C-c f")  'isl-select-case-fold-search)
+    (define-key map (kbd "M-c")    'isl-select-case-fold-search)
     (define-key map (kbd "M-<")    'isl-goto-first)
     (define-key map (kbd "M->")    'isl-goto-last)
     (define-key map (kbd "M-=")    'isl-goto-closest-from-start)
@@ -1015,9 +1015,9 @@ appended at end."
 (defvar isl-mini-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map minibuffer-local-map)
-    (define-key map (kbd "M-r")    'isl-change-matching-style)
-    (define-key map (kbd "C-c f")  'isl-select-case-fold-search)
-    (define-key map (kbd "C-j")    'isl-toggle-multi-search-in-line)
+    (define-key map (kbd "M-r") 'isl-change-matching-style)
+    (define-key map (kbd "M-c") 'isl-select-case-fold-search)
+    (define-key map (kbd "C-j") 'isl-toggle-multi-search-in-line)
     map)
   "A minimal map used only in `isl--search-string'.
 Use here only commands able to run inside kmacros.")
