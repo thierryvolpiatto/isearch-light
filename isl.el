@@ -241,7 +241,10 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "M-v")    'isl-scroll-down)
     (define-key map (kbd "C-k")    'isl-delete-minibuffer-contents)
     (define-key map (kbd "C-j")    'isl-toggle-multi-search-in-line)
-    map))
+    map)
+  "The map used when `isl-search' is running.
+Don't forget to modify `isl-mini-map' accordingly to fit with kmacros
+when modifying keybindings here.")
 
 ;;; Actions
 ;;
@@ -1020,7 +1023,9 @@ appended at end."
     (define-key map (kbd "C-j") 'isl-toggle-multi-search-in-line)
     map)
   "A minimal map used only in `isl--search-string'.
-Use here only commands able to run inside kmacros.")
+Use here only commands able to run inside kmacros.
+Don't forget to modify `isl-map' accordingly to fit with kmacros when
+modifying keybindings here.")
 
 (defun isl--search-string ()
   "Search next match forward from point and stop.
