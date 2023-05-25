@@ -55,7 +55,9 @@
 ;; Internals
 (defvar isl-pattern "")
 (defvar-local isl-last-query nil)
+(put 'isl-last-query 'permanent-local t)
 (defvar-local isl-last-object nil)
+(put 'isl-last-object 'permanent-local t)
 (defvar isl-visited-buffers nil)
 (defvar isl-current-buffer nil)
 (defvar isl--item-overlays nil)
