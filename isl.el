@@ -410,6 +410,7 @@ the initial position i.e. the position before launching `isl-search'."
   (interactive)
   (let (str)
     (with-current-buffer isl-current-buffer
+      (when (eolp) (error "End of line"))
       (when (or (memq (char-syntax (or (char-after) 0)) '(?w ?_ ? ))
                 (memq (char-syntax (or (char-after (1+ (point))) 0))
                       '(?w ?_ ? )))
