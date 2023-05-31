@@ -34,16 +34,16 @@ features you will never use.
 No mandatory dependencies, but for a better experience install [[https://github.com/emacs-helm/helm][Helm]] to
 have =helm-occur= and [[https://github.com/victorhge/iedit][Iedit]] to allow jumping to iedit session.
 
-** install
-
-No installation from (M)Elpa and package.el is provided for now.
-
 ** Namespace
 
 The name of the package is Isearch-light but the lisp file is named
 isl.el and all symbols are prefixed with "isl-". For now it is ok like
 this especially because it is not packaged in (M)Elpa. If any
 conflicts would happen in the future I may rename package, file and symbols.
+
+** install
+
+No installation from (M)Elpa and package.el is provided for now.
 
 *** From source
 
