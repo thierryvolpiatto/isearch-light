@@ -54,7 +54,9 @@ Then add =(require 'isl)= in your init file.
 Even better, you can autoload it:
 
 #+begin_src elisp
-    (autoload 'isl "isl" nil t)
+    (autoload 'isl-search "isl" nil t)
+    (autoload 'isl-narrow-to-defun "isl" nil t)
+    (autoload 'isl-resume "isl" nil t)
 #+end_src
 
 With =use-package= and binding =C-s=
@@ -63,6 +65,35 @@ With =use-package= and binding =C-s=
     (use-package isl
       :bind (("C-s" . isl-search)))
 #+end_src
+
+** Configure
+
+You may want to disable all =Isearch= global bindings:
+
+#+begin_src elisp
+    (global-set-key [remap isearch-forward] 'undefined)
+    (global-set-key [remap isearch-backward] 'undefined)
+    (global-set-key [remap isearch-forward-regexp] 'undefined)
+    (global-set-key [remap isearch-backward-regexp] 'undefined)
+    (global-set-key (kbd "C-r") nil)
+    (global-set-key (kbd "C-s") nil)
+    (global-set-key (kbd "C-M-s") nil)
+    (global-set-key (kbd "C-M-r") nil)
+#+end_src
+
+And the rebind the necessary keys to isl-* commands:
+
+#+begin_src elisp
+    (global-set-key (kbd "C-s")   'isl-search)
+    (global-set-key (kbd "C-z")   'isl-narrow-to-defun)
+    (global-set-key (kbd "C-M-s") 'isl-resume)
+#+end_src
+
+You will find severals user variables prefixed with =isl-=, see M-x customize-variable.
+
+NOTE: many of them can be toggled while in =isl-search= session, so
+you may not need to modify them unless you want to change the default
+behavior.
 
 ** Usage
 
