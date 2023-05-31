@@ -47,7 +47,7 @@ No installation from (M)Elpa and package.el is provided for now.
 
 *** From source
 
-Add isl.el to =load-path=.
+Add isl.el to =load-path= and compile it.
 
 Then add =(require 'isl)= in your init file.
 
