@@ -851,45 +851,46 @@ symbol or line position according to `isl-multi-search-in-line'."
         (direction (if (eq isl--direction 'forward)
                        isl-direction-down-string
                      isl-direction-up-string)))
-    (setq mode-line-format
-          (cond ((or (string= isl-pattern "")
-                     (<= (length isl-pattern)
-                         isl-requires-pattern))
-                 (default-value 'mode-line-format))
-                ((zerop isl--number-results)
-                 `(" " mode-line-buffer-identification " "
-                   (:eval ,(format "%s `%s' [%s %s %s]"
-                                   (if isl--invalid
-                                       (propertize
-                                        (format "%s Invalid regexp:" isl-warning-char)
-                                        'face 'font-lock-warning-face)
-                                     "No results found for pattern")
-                                   (propertize isl-pattern
-                                               'face 'isl-string)
-                                   style
-                                   search
-                                   direction))
-                   " " mode-line-position))
-                (t `(" " mode-line-buffer-identification " "
-                     (:eval ,(format
-                              "[%s/%s] result(s) found [%s %s %s %s %s]"
-                              (propertize
-                               (number-to-string
-                                (overlay-get isl--last-overlay 'pos))
-                               'face 'isl-number)
-                              (propertize (number-to-string
-                                           isl--number-results)
-                                          'face 'isl-number)
-                              style
-                              search
-                              direction
-                              position
-                              (propertize (pcase isl-case-fold-search
-                                            (`smart "*")
-                                            (`t     "1")
-                                            (`nil   "0"))
-                                          'face 'isl-case-fold)))
-                     " " mode-line-position))))))
+    (when (numberp isl--number-results)
+      (setq mode-line-format
+            (cond ((or (string= isl-pattern "")
+                       (<= (length isl-pattern)
+                           isl-requires-pattern))
+                   (default-value 'mode-line-format))
+                  ((zerop isl--number-results)
+                   `(" " mode-line-buffer-identification " "
+                         (:eval ,(format "%s `%s' [%s %s %s]"
+                                         (if isl--invalid
+                                             (propertize
+                                              (format "%s Invalid regexp:" isl-warning-char)
+                                              'face 'font-lock-warning-face)
+                                           "No results found for pattern")
+                                         (propertize isl-pattern
+                                                     'face 'isl-string)
+                                         style
+                                         search
+                                         direction))
+                         " " mode-line-position))
+                  (t `(" " mode-line-buffer-identification " "
+                           (:eval ,(format
+                                    "[%s/%s] result(s) found [%s %s %s %s %s]"
+                                    (propertize
+                                     (number-to-string
+                                      (overlay-get isl--last-overlay 'pos))
+                                     'face 'isl-number)
+                                    (propertize (number-to-string
+                                                 isl--number-results)
+                                                'face 'isl-number)
+                                    style
+                                    search
+                                    direction
+                                    position
+                                    (propertize (pcase isl-case-fold-search
+                                                  (`smart "*")
+                                                  (`t     "1")
+                                                  (`nil   "0"))
+                                                'face 'isl-case-fold)))
+                           " " mode-line-position)))))))
 
 (defun isl-closest-overlay (pos overlays)
   "Return closest overlay from POS in OVERLAYS list."
