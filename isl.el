@@ -84,6 +84,11 @@
 ;; User vars
 (defvar isl-timer-delay 0.01)
 
+(defvar isl-update-blacklist-regexps
+  '("^" "^ " "\\'" "$" "!" " " "\\b"
+    "\\<" "\\>" "\\_<" "\\_>" ".*"
+    "??" "?*" "*?" "?"))
+
 (defvar isl-help-string
   "* ISL help\n
 
@@ -766,6 +771,11 @@ symbol or line position according to `isl-multi-search-in-line'."
         (set-face-attribute 'isl-on nil :extend nil))
       (isl-update))))
 
+(defun isl-maybe-update (str)
+  (and (> (length str) isl-requires-pattern)
+       (not (member (replace-regexp-in-string "\\s\\ " " " str)
+                    isl-update-blacklist-regexps))))
+
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' changes."
   (with-selected-window (minibuffer-selected-window)
@@ -909,7 +919,8 @@ appended at end."
     (let ((input (minibuffer-contents)))
       (when (not (string= input isl-pattern))
         (setq isl-pattern input)
-        (if (> (length input) isl-requires-pattern)
+        (if (and (stringp isl-pattern)
+                 (isl-maybe-update isl-pattern))
             (isl-update)
           (with-selected-window (minibuffer-selected-window)
             (isl-delete-overlays)
