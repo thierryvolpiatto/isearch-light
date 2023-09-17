@@ -31,6 +31,11 @@
 
 (require 'cl-lib)
 
+;; Compatibility
+(unless (and (fboundp 'pos-bol) (fboundp 'pos-eol))
+  (defalias 'pos-bol 'line-beginning-position)
+  (defalias 'pos-eol 'line-end-position))
+
 (defvar iedit-aborting)
 (defvar iedit-read-only-occurrences-overlays)
 (defvar iedit-read-only-occurrences-overlays)
@@ -390,7 +395,7 @@ It put overlay on current position, move to next overlay using
       (goto-char (if isl-multi-search-in-line
                      (1- end) end)))
     (when isl-multi-search-in-line
-      (let* ((ovs     (overlays-in (point-at-bol) (point-at-eol)))
+      (let* ((ovs     (overlays-in (pos-bol) (pos-eol)))
              (matches (cl-loop for ov in ovs
                                when (overlay-get ov 'isl-matches)
                                collect ov)))
@@ -399,7 +404,7 @@ It put overlay on current position, move to next overlay using
     (when isl-save-pos-to-mark-ring
       (set-marker (mark-marker) isl-initial-pos)
       (push-mark isl-initial-pos 'nomsg))
-    (let ((ov (make-overlay (point-at-bol) (1+ (point-at-eol)))))
+    (let ((ov (make-overlay (pos-bol) (1+ (pos-eol)))))
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.2)
       (delete-overlay ov)))
@@ -639,13 +644,13 @@ the initial position i.e. the position before launching `isl-search'."
                 (forward-line (- isl-visible-context-lines))
                 ;; Store position from n lines before
                 ;; this overlay and bol and move to next overlay.
-                (when (> (setq bol (point-at-bol)) start)
+                (when (> (setq bol (pos-bol)) start)
                   (isl--put-invisible-overlay start (1- bol)))
                 (goto-char ov-end)
                 ;; Go to n lines after last overlay found and jump to
                 ;; next overlay from there.
                 (forward-line isl-visible-context-lines)
-                (setq start (1+ (point-at-eol)))
+                (setq start (1+ (pos-eol)))
                 (goto-char (next-single-char-property-change ov-end 'isl))
                 (setq ov-end (point)))
               ;; Store maybe remaining lines up to eob.
@@ -738,7 +743,7 @@ symbol or line position according to `isl-multi-search-in-line'."
                      (invalid-regexp
                       (setq isl--invalid t) nil))
              for bounds = (cond ((and rest isl-multi-search-in-line)
-                                 (cons (point-at-bol) (1+ (point-at-eol))))
+                                 (cons (pos-bol) (1+ (pos-eol))))
                                 (rest
                                  (bounds-of-thing-at-point
                                   (if (derived-mode-p 'prog-mode)
