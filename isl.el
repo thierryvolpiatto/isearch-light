@@ -733,7 +733,10 @@ symbol or line position according to `isl-multi-search-in-line'."
                       '(identity . "")))
          (rest    (cdr pattern))
          (case-fold-search (isl-set-case-fold-search)))
-    (cl-loop while (funcall isl-search-function (cdr initial) nil t)
+    (cl-loop while (condition-case _err
+                       (funcall isl-search-function (cdr initial) nil t)
+                     (invalid-regexp
+                      (setq isl--invalid t) nil))
              for bounds = (cond ((and rest isl-multi-search-in-line)
                                  (cons (point-at-bol) (1+ (point-at-eol))))
                                 (rest
