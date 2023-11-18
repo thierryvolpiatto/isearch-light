@@ -1023,6 +1023,9 @@ appended at end."
                       (region-beginning)
                       (region-end))
                    (thing-at-point 'symbol t))))
+    ;; Prevent inserting multiline string in minibuf.
+    (when (and default (string-match "\n" default))
+      (setq default (thing-at-point 'symbol t)))
     (deactivate-mark)
     (unwind-protect
          (condition-case-unless-debug nil
