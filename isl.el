@@ -936,7 +936,7 @@ appended at end."
             (isl-setup-mode-line)
             (goto-char isl-initial-pos)))))))
 
-(defun isl-read-from-minibuffer (prompt &optional initial-input)
+(defun isl-read-from-minibuffer (prompt &optional initial-input default)
   "Read input from minibuffer with prompt PROMPT."
   (let (timer)
     (unwind-protect
@@ -946,11 +946,7 @@ appended at end."
                            isl-timer-delay 'repeat #'isl-check-input)))
           (read-from-minibuffer
            prompt initial-input isl-map nil 'isl-history
-           (if (region-active-p)
-               (buffer-substring-no-properties
-                (region-beginning)
-                (region-end))
-             (thing-at-point 'symbol t))))
+           default))
       (cancel-timer timer))))
 
 (defun isl-cleanup ()
@@ -1022,21 +1018,29 @@ appended at end."
     (setq isl-visited-buffers
           (cons isl-current-buffer
                 (delete isl-current-buffer isl-visited-buffers))))
-  (unwind-protect
-      (condition-case-unless-debug nil
-          (isl-read-from-minibuffer
-           "Search: " (when resume
-                        (buffer-local-value
-                         'isl-last-query isl-current-buffer)))
-        (quit
-         (setq isl--quit t)
-         (when isl-initial-pos
-           (goto-char isl-initial-pos))))
-    (isl-cleanup)
-    ;; Avoid loosing focus in helm help buffer.
-    (unless (eq (window-buffer (selected-window))
-                isl-current-buffer)
-      (switch-to-buffer isl-current-buffer))))
+  (let ((default (if (region-active-p)
+                     (buffer-substring-no-properties
+                      (region-beginning)
+                      (region-end))
+                   (thing-at-point 'symbol t))))
+    (deactivate-mark)
+    (unwind-protect
+         (condition-case-unless-debug nil
+             (isl-read-from-minibuffer
+              "Search: "
+              (when resume
+                (buffer-local-value
+                 'isl-last-query isl-current-buffer))
+              default)
+           (quit
+            (setq isl--quit t)
+            (when isl-initial-pos
+              (goto-char isl-initial-pos))))
+      (isl-cleanup)
+      ;; Avoid loosing focus in helm help buffer.
+      (unless (eq (window-buffer (selected-window))
+                  isl-current-buffer)
+        (switch-to-buffer isl-current-buffer)))))
 
 (defvar isl-mini-map
   (let ((map (make-sparse-keymap)))
