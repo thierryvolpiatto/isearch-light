@@ -59,13 +59,6 @@ Even better, you can autoload it:
     (autoload 'isl-resume "isl" nil t)
 #+end_src
 
-With =use-package= and binding =C-s=
-
-#+begin_src elisp
-    (use-package isl
-      :bind (("C-s" . isl-search)))
-#+end_src
-
 ** Configure
 
 You may want to disable all =Isearch= global bindings:
@@ -188,12 +181,11 @@ effects, you have better time using =isl-search= as the search command for
 helm-help, here how to replace default setting by `isl` in helm-help:
 
 #+begin_src elisp
-    (use-package helm-lib
-      :config
-      (use-package isl)
+    (with-eval-after-load 'helm-lib
+      (autoload 'isl-search "isl" nil t)
       (helm-help-define-key "C-s" nil)
       (helm-help-define-key "C-r" nil)
-      (helm-help-define-key "C-s" 'isl-search))
+      (helm-help-define-key "C-s" 'isl-search))    
 #+end_src
 
 An alternative is to customize `helm-help-hkmap` from the customize interface.
