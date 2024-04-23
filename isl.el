@@ -124,7 +124,8 @@ Incremental search in current buffer.
 \\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode
 \\[isl-query-replace]\t\tJump to query replace
 \\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines
-\\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)")
+\\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)
+\\[isl-toggle-invisible-search]\t\tToggle searching in invisible text")
 
 (defgroup isl nil
   "Search buffers with `isl-search'."
