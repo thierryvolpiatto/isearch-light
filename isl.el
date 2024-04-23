@@ -199,7 +199,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
            (set-face-attribute 'isl-on nil :extend nil))))
 
 (defcustom isl-no-invisible-search-in-modes nil
-  "Do not search invisible text in these modes and derived."
+  "Do not search invisible text in these modes."
   :type '(repeat symbol))
 
 (defface isl-match
