@@ -197,6 +197,10 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
          (if val
              (set-face-attribute 'isl-on nil :extend t)
            (set-face-attribute 'isl-on nil :extend nil))))
+
+(defcustom isl-no-invisible-search-in-modes nil
+  "Do not search invisible text in these modes and derived."
+  :type '(repeat symbol))
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -1040,6 +1044,8 @@ appended at end."
     (setq isl-visited-buffers
           (cons isl-current-buffer
                 (delete isl-current-buffer isl-visited-buffers))))
+  (when (memq major-mode isl-no-invisible-search-in-modes)
+    (setq-local isl-search-invisible nil))
   (let ((default (if (region-active-p)
                      (buffer-substring-no-properties
                       (region-beginning)
