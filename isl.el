@@ -87,6 +87,8 @@
 (defvar isl--extra-items-overlays nil)
 
 ;; User vars
+(defvar isl-search-invisible t)
+
 (defvar isl-timer-delay 0.01)
 
 (defvar isl-update-blacklist-regexps
@@ -243,6 +245,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "M->")    'isl-goto-last)
     (define-key map (kbd "M-=")    'isl-goto-closest-from-start)
     (define-key map (kbd "M-s")    'isl-jump-to-helm-occur)
+    (define-key map (kbd "M-i")    'isl-toggle-invisible-search)
     (define-key map (kbd "C-;")    'isl-jump-to-iedit-mode)
     (define-key map (kbd "M-%")    'isl-query-replace)
     (define-key map (kbd "C-h m")  'isl-display-or-quit-help)
@@ -476,6 +479,17 @@ the initial position i.e. the position before launching `isl-search'."
           (sit-for 1)))
       (isl-update))))
 (put 'isl-change-matching-style 'no-helm-mx t)
+
+(defun isl-toggle-invisible-search ()
+  "Toggle searching in invisible text."
+  (interactive)
+  (with-current-buffer isl-current-buffer
+    (setq-local isl-search-invisible (not isl-search-invisible))
+    (unless isl-search-invisible
+      (setq buffer-invisibility-spec isl--buffer-invisibility-spec))
+    (message "Invisible search turned %s" (if isl-search-invisible "on" "off"))
+    (isl-update)))
+(put 'isl-toggle-invisible-search 'no-helm-mx t)
 
 (defun isl-jump-to-helm-occur ()
   "Invoke `helm-occur' from `isl-search'."
@@ -799,7 +813,8 @@ symbol or line position according to `isl-multi-search-in-line'."
       ;; all buffer and on exit restore it and unhide only the place
       ;; where point is with appropriate functions belonging to
       ;; major-mode e.g. org => org-reveal etc...
-      (when (and buffer-invisibility-spec
+      (when (and isl-search-invisible
+                 buffer-invisibility-spec
                  (listp buffer-invisibility-spec))
         (mapc 'remove-from-invisibility-spec buffer-invisibility-spec))
       (let ((count 1)
@@ -810,14 +825,16 @@ symbol or line position according to `isl-multi-search-in-line'."
             (goto-char (point-min))
             (condition-case-unless-debug nil
                 (while (setq bounds (isl-multi-search-fwd isl-pattern nil t))
-                  (setq ov (make-overlay (car bounds) (cdr bounds)))
-                  (push ov isl--item-overlays)
-                  (overlay-put ov 'isl t)
-                  (overlay-put ov 'pos count)
-                  (overlay-put ov 'face 'isl-match)
-                  (when isl-multi-search-in-line
-                    (isl--highlight-items-in-line (car bounds) (cdr bounds)))
-                  (cl-incf count))
+                  (unless (and (not isl-search-invisible)
+                               (invisible-p (cdr bounds)))
+                    (setq ov (make-overlay (car bounds) (cdr bounds)))
+                    (push ov isl--item-overlays)
+                    (overlay-put ov 'isl t)
+                    (overlay-put ov 'pos count)
+                    (overlay-put ov 'face 'isl-match)
+                    (when isl-multi-search-in-line
+                      (isl--highlight-items-in-line (car bounds) (cdr bounds)))
+                    (cl-incf count)))
               (invalid-regexp (setq isl--invalid t) nil))
             (setq isl--item-overlays (reverse isl--item-overlays)))
           (if (null isl--item-overlays)
@@ -883,7 +900,7 @@ symbol or line position according to `isl-multi-search-in-line'."
                          " " mode-line-position))
                   (t `(" " mode-line-buffer-identification " "
                            (:eval ,(format
-                                    "[%s/%s] result(s) found [%s %s %s %s %s]"
+                                    "[%s/%s] result(s) found [%s %s%s %s %s %s]"
                                     (propertize
                                      (number-to-string
                                       (overlay-get isl--last-overlay 'pos))
@@ -893,6 +910,7 @@ symbol or line position according to `isl-multi-search-in-line'."
                                                 'face 'isl-number)
                                     style
                                     search
+                                    (if isl-search-invisible " Sinv" "")
                                     direction
                                     position
                                     (propertize (pcase isl-case-fold-search
@@ -972,6 +990,7 @@ appended at end."
                            isl-search-function ',isl-search-function
                            buffer-invisibility-spec ',buffer-invisibility-spec
                            isl--hidding ,isl--hidding
+                           isl-search-invisible ,isl-search-invisible
                            isl-multi-search-in-line ,isl-multi-search-in-line
                            cursor-in-non-selected-windows ,cursor-in-non-selected-windows)))
       (isl-delete-overlays)
@@ -985,6 +1004,7 @@ appended at end."
             isl-search-function (default-value 'isl-search-function)
             buffer-invisibility-spec isl--buffer-invisibility-spec
             isl--hidding nil
+            isl-search-invisible (default-value 'isl-search-invisible)
             isl-multi-search-in-line (default-value 'isl-multi-search-in-line)
             cursor-in-non-selected-windows
             (default-value 'cursor-in-non-selected-windows))
