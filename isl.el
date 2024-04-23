@@ -821,10 +821,11 @@ symbol or line position according to `isl-multi-search-in-line'."
               (invalid-regexp (setq isl--invalid t) nil))
             (setq isl--item-overlays (reverse isl--item-overlays)))
           (if (null isl--item-overlays)
-              (progn (setq isl--number-results 0) (goto-char isl-initial-pos))
+              (progn (setq isl--number-results 0)
+                     (and isl-initial-pos (goto-char isl-initial-pos)))
             (setq isl--last-overlay
-                  (isl-closest-overlay isl-initial-pos isl--item-overlays)
-                  isl--number-results (length isl--item-overlays))
+                  (isl-closest-overlay (or isl-initial-pos 0) isl--item-overlays)
+                  isl--number-results (max (length isl--item-overlays) 0))
             (isl--highlight-last-overlay 'isl-on)
             (isl-set-iterator)
             (goto-char (overlay-end (isl-iter-next isl--iterator)))
@@ -853,7 +854,8 @@ symbol or line position according to `isl-multi-search-in-line'."
   (let ((style (isl-matching-style))
         (search (if isl-multi-search-in-line 'Inline 'Insym))
         (position (with-current-buffer isl-current-buffer
-                     (if (> (point) isl-initial-pos)
+                     (if (and isl-initial-pos
+                              (> (point) isl-initial-pos))
                          isl-after-position-string
                        isl-before-position-string)))
         (direction (if (eq isl--direction 'forward)
