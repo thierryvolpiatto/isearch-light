@@ -99,7 +99,10 @@
 (defvar isl-help-string
   "* ISL help\n
 
-Incremental search in current buffer.
+Incremental search in current buffer with multiple matching.  You
+can use \"foo bar\" to match symbol foo-xxxx-bar, use \"!\" to
+negate an element of pattern e.g. \"foo !bar\" will match symbols
+containing foo but not bar.
 
 ** Commands
 \\<isl-map>
@@ -755,7 +758,11 @@ symbol or line position according to `isl-multi-search-in-line'."
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
-         (rest    (cdr pattern))
+         ;; In REST we search for all patterns but INITIAL we already
+         ;; initially searched.  We were previously using (cdr
+         ;; pattern) which is fine as long as first pattern is not a
+         ;; negation.
+         (rest    (remove initial pattern))
          (case-fold-search (isl-set-case-fold-search)))
     (cl-loop while (condition-case _err
                        (funcall isl-search-function (cdr initial) nil t)
