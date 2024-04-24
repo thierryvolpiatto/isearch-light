@@ -91,11 +91,6 @@
 
 (defvar isl-timer-delay 0.01)
 
-(defvar isl-update-blacklist-regexps
-  '("^" "^ " "\\'" "$" "!" " " "\\b"
-    "\\<" "\\>" "\\_<" "\\_>" ".*"
-    "??" "?*" "*?" "?"))
-
 (defvar isl-help-string
   "* ISL help\n
 
@@ -132,13 +127,13 @@ Incremental search in current buffer with multi match (InLine/InSymbol).
   :prefix "isl-"
   :group 'matching)
 
-(defcustom isl-search-function #'re-search-forward
+(defcustom isl-search-function #'isl--re-search-forward
   "The search function that will be used by default when starting `isl-search'.
-Possible values are `re-search-forward' and `search-forward', the
+Possible values are `isl--re-search-forward' and `search-forward', the
 first use regexp matching while the second is using literal matching.
 Its value can be changed during `isl-search' session with `\\<isl-map>\\[isl-change-matching-style]'."
   :type '(choice
-           (function :tag "Regexp matching" re-search-forward)
+           (function :tag "Regexp matching" isl--re-search-forward)
            (function :tag "Literal matching" search-forward)))
 
 (defcustom isl-case-fold-search 'smart
@@ -465,7 +460,7 @@ the initial position i.e. the position before launching `isl-search'."
 (defun isl-matching-style ()
   "Return current matching style as a string."
   (cl-ecase isl-search-function
-    (re-search-forward "Regex")
+    (isl--re-search-forward "Regex")
     (search-forward "Literal")))
 
 (defun isl-change-matching-style ()
@@ -474,8 +469,8 @@ the initial position i.e. the position before launching `isl-search'."
   (with-current-buffer isl-current-buffer
     (setq-local isl-search-function
                 (cl-ecase isl-search-function
-                  (re-search-forward #'search-forward)
-                  (search-forward #'re-search-forward)))
+                  (isl--re-search-forward #'search-forward)
+                  (search-forward #'isl--re-search-forward)))
     (unless executing-kbd-macro
       (when (string= isl-pattern "")
         (let* ((style (isl-matching-style))
@@ -744,6 +739,14 @@ Optional argument PATTERN default to `isl-pattern'."
                        (cons 'not (substring s 1))
                      (cons 'identity s))))
 
+(defsubst isl--re-search-forward (regexp &optional bound noerror count)
+  "Same as `re-search-forward' but return nil when point doesn't move.
+This avoid possible infloop when a wrong regexp is entered in minibuffer."
+  (let ((pos (point)))
+    (pcase (re-search-forward regexp bound noerror count)
+      ((and it (guard (eql it pos))) nil)
+      (it it))))
+
 (defun isl-multi-search-fwd (str &optional _bound _noerror _count)
   "Returns position of symbol or line matched by STR.
 When arg STR contains spaces, it is converted in patterns with
@@ -752,7 +755,7 @@ subsequent patterns are used to check if all patterns match this
 symbol.  The return value is a cons cell (beg . end) denoting
 symbol or line position according to `isl-multi-search-in-line'."
   ;; Prevent infloop crashing Emacs with incorrect configuration.
-  (cl-assert (memq isl-search-function '(re-search-forward search-forward)))
+  (cl-assert (memq isl-search-function '(isl--re-search-forward search-forward)))
   (let* ((pattern (isl-patterns str))
          (initial (or (assq 'identity pattern)
                       '(identity . "")))
@@ -804,9 +807,8 @@ symbol or line position according to `isl-multi-search-in-line'."
       (isl-update))))
 
 (defun isl-maybe-update (str)
-  (and (> (length str) isl-requires-pattern)
-       (not (member (replace-regexp-in-string "\\s\\ " " " str)
-                    isl-update-blacklist-regexps))))
+  "Decide starting to update."
+  (> (length str) isl-requires-pattern))
 
 (defun isl-update ()
   "Update `current-buffer' when `isl-pattern' changes."
@@ -868,7 +870,7 @@ symbol or line position according to `isl-multi-search-in-line'."
              for p in (isl-split-string isl-pattern)
              unless (string-match "\\`!" p)
              do (save-excursion
-                  (while (re-search-forward p end t)
+                  (while (isl--re-search-forward p end t)
                     (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
                     (push ov2 isl--extra-items-overlays)
                     (overlay-put ov2 'face 'isl-match-items)
