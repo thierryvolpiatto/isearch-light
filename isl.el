@@ -761,7 +761,7 @@ symbol or line position according to `isl-multi-search-in-line'."
                       '(identity . "")))
          ;; In REST we search for all patterns but INITIAL we already
          ;; initially searched.  We were previously using (cdr
-         ;; pattern) which is fine as long as first pattern is not a
+         ;; pattern) which was fine as long as first pattern was not a
          ;; negation.
          (rest    (remove initial pattern))
          (case-fold-search (isl-set-case-fold-search)))
