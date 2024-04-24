@@ -633,6 +633,7 @@ the initial position i.e. the position before launching `isl-search'."
          (substitute-command-keys
           isl-help-string)))
       (outline-mode)
+      (setq cursor-type nil)
       (setq buffer-read-only t)
       (local-set-key (kbd "q") 'quit-window))))
 (put 'isl-display-or-quit-help 'no-helm-mx t)
