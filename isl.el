@@ -99,10 +99,7 @@
 (defvar isl-help-string
   "* ISL help\n
 
-Incremental search in current buffer with multiple matching.  You
-can use \"foo bar\" to match symbol foo-xxxx-bar, use \"!\" to
-negate an element of pattern e.g. \"foo !bar\" will match symbols
-containing foo but not bar.
+Incremental search in current buffer with multi match (InLine/InSymbol).
 
 ** Commands
 \\<isl-map>
