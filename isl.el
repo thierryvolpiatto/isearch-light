@@ -100,13 +100,12 @@ Incremental search in current buffer with multi match (InLine/InSymbol).
 \\<isl-map>
 \\[isl-display-or-quit-help]\t\tDisplay or quit this help buffer
 \\[isl-help-quit]\t\tQuit this help buffer
-\\[abort-recursive-edit]\t\tQuit isl and restore initial position
 \\[isl-goto-next]\t\tGoto next occurence
 \\[isl-goto-prev]\t\tGoto previous occurence
 \\[isl-scroll-down]\t\tScroll down
 \\[isl-scroll-up]\t\tScroll up
 \\[isl-exit-at-point]\t\tExit at current position
-\\[abort-recursive-edit]\t\tQuit and restore position
+\\[abort-recursive-edit]\t\tQuit and restore initial position
 \\[isl-yank-word-at-point]\t\tYank word at point
 \\[isl-yank-symbol-at-point]\t\tYank symbol at point
 \\[isl-recenter]\t\tRecenter current buffer
