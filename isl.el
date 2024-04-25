@@ -85,9 +85,9 @@
 (defvar isl--point-min nil)
 (defvar isl--point-max nil)
 (defvar isl--extra-items-overlays nil)
+(defvar isl-search-invisible t)
 
 ;; User vars
-(defvar isl-search-invisible t)
 
 (defvar isl-timer-delay 0.01)
 
