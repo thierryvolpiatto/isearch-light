@@ -1036,8 +1036,17 @@ appended at end."
           (error nil))))))
 
 
-(defun isl-search-1 (&optional resume)
-  "Launch isl in current-buffer."
+(defun isl-search-1 (&optional resume input)
+  "Start an isl session in current-buffer.
+When RESUME is specified, resume the previous session in this buffer
+and ignore INPUT argument if specified.
+When INPUT is specified start a new isl session with input as initial
+input argument in minibuffer.
+Note that INPUT cannot be used with a non nil value for RESUME."
+  (cl-assert (or (and resume (not input))
+                 (and input (not resume))
+                 (and (not input) (not resume)))
+             nil "(isl-search-1): RESUME and INPUT can't be used together")
   (unless resume
     (setq isl-initial-pos (point)
           isl-pattern ""
@@ -1066,9 +1075,10 @@ appended at end."
          (condition-case-unless-debug nil
              (isl-read-from-minibuffer
               "Search: "
-              (when resume
-                (buffer-local-value
-                 'isl-last-query isl-current-buffer))
+              (if resume
+                  (buffer-local-value
+                   'isl-last-query isl-current-buffer)
+                input)
               default)
            (quit
             (setq isl--quit t)
