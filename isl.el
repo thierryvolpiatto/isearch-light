@@ -1069,10 +1069,10 @@ Note that INPUT cannot be used with a non nil value for RESUME."
                        (region-beginning)
                        (region-end))
                     (thing-at-point 'symbol t))))
-    ;; Prevent inserting multiline string in minibuf.
-    
     (when (stringp default)
       (setq default (funcall format-fn
+                             ;; Prevent inserting multiline string in
+                             ;; minibuf.
                              (if (string-match "\n" default)
                                  (thing-at-point 'symbol t)
                                default))))
