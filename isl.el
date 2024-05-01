@@ -1062,14 +1062,17 @@ Note that INPUT cannot be used with a non nil value for RESUME."
                 (delete isl-current-buffer isl-visited-buffers))))
   (when (memq major-mode isl-no-invisible-search-in-modes)
     (setq-local isl-search-invisible nil))
-  (let ((default (if (region-active-p)
-                     (buffer-substring-no-properties
-                      (region-beginning)
-                      (region-end))
-                   (thing-at-point 'symbol t))))
+  (let* ((format-fn (if (eq isl-search-function 'search-forward)
+                        #'identity #'regexp-quote))
+         (default (funcall format-fn
+                           (if (region-active-p)
+                               (buffer-substring-no-properties
+                                (region-beginning)
+                                (region-end))
+                             (thing-at-point 'symbol t)))))
     ;; Prevent inserting multiline string in minibuf.
     (when (and default (string-match "\n" default))
-      (setq default (thing-at-point 'symbol t)))
+      (setq default (funcall format-fn (thing-at-point 'symbol t))))
     (deactivate-mark)
     (unwind-protect
          (condition-case-unless-debug nil
