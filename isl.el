@@ -1064,15 +1064,18 @@ Note that INPUT cannot be used with a non nil value for RESUME."
     (setq-local isl-search-invisible nil))
   (let* ((format-fn (if (eq isl-search-function 'search-forward)
                         #'identity #'regexp-quote))
-         (default (funcall format-fn
-                           (if (region-active-p)
-                               (buffer-substring-no-properties
-                                (region-beginning)
-                                (region-end))
-                             (thing-at-point 'symbol t)))))
+         (default (if (region-active-p)
+                      (buffer-substring-no-properties
+                       (region-beginning)
+                       (region-end))
+                    (thing-at-point 'symbol t))))
     ;; Prevent inserting multiline string in minibuf.
-    (when (and default (string-match "\n" default))
-      (setq default (funcall format-fn (thing-at-point 'symbol t))))
+    
+    (when (stringp default)
+      (setq default (funcall format-fn
+                             (if (string-match "\n" default)
+                                 (thing-at-point 'symbol t)
+                               default))))
     (deactivate-mark)
     (unwind-protect
          (condition-case-unless-debug nil
