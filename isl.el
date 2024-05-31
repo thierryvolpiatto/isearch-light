@@ -880,7 +880,9 @@ symbol or line position according to `isl-multi-search-in-line'."
 (defun isl-setup-mode-line ()
   "Setup `mode-line-format' for `isl-search'."
   (let ((style (isl-matching-style))
-        (search (if isl-multi-search-in-line 'Inline 'Insym))
+        (search (if isl-multi-search-in-line
+                    (propertize "Inline" 'help-echo "Search in line")
+                  (propertize "Insym" 'help-echo "Search in symbol")))
         (position (with-current-buffer isl-current-buffer
                      (if (and isl-initial-pos
                               (> (point) isl-initial-pos))
@@ -897,7 +899,7 @@ symbol or line position according to `isl-multi-search-in-line'."
                    (default-value 'mode-line-format))
                   ((zerop isl--number-results)
                    `(" " mode-line-buffer-identification " "
-                         (:eval ,(format "%s `%s' [%s %s %s]"
+                         (:eval ,(format "%s `%s' [%s %s %s %s]"
                                          (if isl--invalid
                                              (propertize
                                               (format "%s Invalid regexp:" isl-warning-char)
@@ -907,6 +909,10 @@ symbol or line position according to `isl-multi-search-in-line'."
                                                      'face 'isl-string)
                                          style
                                          search
+                                         (if isl-search-invisible
+                                             (propertize
+                                              " Sinv" 'help-echo "Search in invisible text")
+                                           "")
                                          direction))
                          " " mode-line-position))
                   (t `(" " mode-line-buffer-identification " "
@@ -921,14 +927,18 @@ symbol or line position according to `isl-multi-search-in-line'."
                                                 'face 'isl-number)
                                     style
                                     search
-                                    (if isl-search-invisible " Sinv" "")
+                                    (if isl-search-invisible
+                                        (propertize
+                                         " Sinv" 'help-echo "Search in invisible text")
+                                      "")
                                     direction
                                     position
                                     (propertize (pcase isl-case-fold-search
                                                   (`smart "*")
                                                   (`t     "1")
                                                   (`nil   "0"))
-                                                'face 'isl-case-fold)))
+                                                'face 'isl-case-fold
+                                                'help-echo "case-fold-search")))
                            " " mode-line-position)))))))
 
 (defun isl-closest-overlay (pos overlays)
