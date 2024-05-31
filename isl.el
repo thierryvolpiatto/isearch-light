@@ -852,7 +852,8 @@ symbol or line position according to `isl-multi-search-in-line'."
               (progn (setq isl--number-results 0)
                      (and isl-initial-pos (goto-char isl-initial-pos)))
             (setq isl--last-overlay
-                  (isl-closest-overlay (or isl-initial-pos 0) isl--item-overlays)
+                  (isl-closest-overlay
+                   (or isl-initial-pos 0) isl--item-overlays)
                   isl--number-results (max (length isl--item-overlays) 0))
             (isl--highlight-last-overlay 'isl-on)
             (isl-set-iterator)
@@ -902,7 +903,8 @@ symbol or line position according to `isl-multi-search-in-line'."
                          (:eval ,(format "%s `%s' [%s %s %s %s]"
                                          (if isl--invalid
                                              (propertize
-                                              (format "%s Invalid regexp:" isl-warning-char)
+                                              (format "%s Invalid regexp:"
+                                                      isl-warning-char)
                                               'face 'font-lock-warning-face)
                                            "No results found for pattern")
                                          (propertize isl-pattern
@@ -911,7 +913,8 @@ symbol or line position according to `isl-multi-search-in-line'."
                                          search
                                          (if isl-search-invisible
                                              (propertize
-                                              " Sinv" 'help-echo "Search in invisible text")
+                                              " Sinv" 'help-echo
+                                              "Search in invisible text")
                                            "")
                                          direction))
                          " " mode-line-position))
@@ -929,7 +932,8 @@ symbol or line position according to `isl-multi-search-in-line'."
                                     search
                                     (if isl-search-invisible
                                         (propertize
-                                         " Sinv" 'help-echo "Search in invisible text")
+                                         " Sinv" 'help-echo
+                                         "Search in invisible text")
                                       "")
                                     direction
                                     position
