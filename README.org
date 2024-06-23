@@ -4,7 +4,7 @@ An Isearch replacement for Emacs.
 
 ** Features
 
-- Provide [[About multi matching][multi matching]], a real minibuffer, no unexpected quit or
+- Provide [[https://github.com/thierryvolpiatto/isearch-light?tab=readme-ov-file#about-multi-matching][multi matching]], a real minibuffer, no unexpected quit or
   errors and comprehensive mode-line indicators.
 
 - Old position is always saved in mark-ring when exiting to a new place.
