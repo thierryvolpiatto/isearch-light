@@ -6,8 +6,8 @@
 ;; Version: 1.0
 ;; URL: https://github.com/thierryvolpiatto/isearch-light
 
-;; Compatibility: GNU Emacs 24.3+
-;; Package-Requires: ((emacs "24.3"))
+;; Compatibility: GNU Emacs 25.1+
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
