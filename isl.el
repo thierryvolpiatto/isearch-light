@@ -512,7 +512,7 @@ the initial position i.e. the position before launching `isl-search'."
         (start (overlay-start isl--last-overlay)))
     (run-at-time
      0.1 nil
-     (lambda ()            
+     (lambda ()
        (let* ((regexp-flag (string= style "Regex"))
               (prompt (if regexp-flag
                           "Query replace %s regexp"
@@ -636,7 +636,7 @@ the initial position i.e. the position before launching `isl-search'."
   (interactive)
   (let ((win (get-buffer-window isl-help-buffer-name 'visible)))
     (if win
-        (with-selected-window win 
+        (with-selected-window win
           (quit-window))
       (user-error "No help buffer found"))))
 (put 'isl-help-quit 'no-helm-mx t)
@@ -1009,7 +1009,7 @@ appended at end."
                            isl-initial-pos ,pos
                            isl--point-min ,isl--point-min
                            isl--point-max ,isl--point-max
-                           isl--yank-point ,isl--yank-point 
+                           isl--yank-point ,isl--yank-point
                            isl--number-results ,isl--number-results
                            isl-case-fold-search ',isl-case-fold-search
                            isl-search-function ',isl-search-function
