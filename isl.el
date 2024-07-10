@@ -163,7 +163,7 @@ in pattern."
   :type 'string)
 
 (defcustom isl-save-pos-to-mark-ring t
-  "Save initial position to mark-ring on exit when non nil."
+  "Save initial position to `mark-ring' on exit when non nil."
   :type 'boolean)
 
 (defcustom isl-requires-pattern 1
@@ -277,7 +277,7 @@ when modifying keybindings here.")
     (overlay-put isl--last-overlay 'face face)))
 
 (defun isl-goto-next-1 (arg)
-  "Main function that allow moving from one to another overlay.
+  "Main function that allow moving from one to ARG overlay.
 It put overlay on current position, move to next overlay using
 `isl--iterator', set `isl--yank-point' and then setup mode-line."
   (with-selected-window (minibuffer-selected-window)
@@ -302,11 +302,13 @@ It put overlay on current position, move to next overlay using
         (recenter)))))
 
 (defun isl--first-ov-after-pos (pos)
+  "Move to next overlay from POS."
   (cl-loop for ov in isl--item-overlays
            when (> (overlay-start ov) pos)
            return ov))
 
 (defun isl--first-ov-before-pos (pos)
+  "Move to previous overlay from POS."
   (cl-loop for ov in (reverse isl--item-overlays)
            when (< (overlay-start ov) pos)
            return ov))
@@ -371,7 +373,7 @@ It put overlay on current position, move to next overlay using
 (put 'isl-goto-closest-from-start 'no-helm-mx t)
 
 (defun isl-goto-next (&optional arg)
-  "Go to next match."
+  "Go to next ARG match."
   (interactive "p")
   (when (eq isl--direction 'backward)
     (setq isl--direction 'forward)
@@ -380,7 +382,7 @@ It put overlay on current position, move to next overlay using
 (put 'isl-goto-next 'no-helm-mx t)
 
 (defun isl-goto-prev (&optional arg)
-  "Go to previous match"
+  "Go to previous ARG matches."
   (interactive "p")
   (when (eq isl--direction 'forward)
     (setq isl--direction 'backward)
@@ -506,6 +508,8 @@ the initial position i.e. the position before launching `isl-search'."
 (put 'isl-jump-to-helm-occur 'no-helm-mx t)
 
 (defun isl-query-replace (&optional arg)
+  "Launch `query-replace' from isl.
+Argument ARG have same meaning as in `query-replace'."
   (interactive "P")
   (let ((style (isl-matching-style))
         (regexp isl-pattern)
@@ -538,13 +542,18 @@ the initial position i.e. the position before launching `isl-search'."
 ;; Iedit
 ;;
 (defun isl--advice-iedit-start (old--fn &rest args)
-  "Allow iedit matching multi pattern."
+  "Allow iedit matching multi pattern.
+Use `isl--iedit-make-occurrences-overlays' instead of
+`iedit-make-occurrences-overlays' then apply OLD--FN on ARGS.
+This is an around advice."
   (cl-letf (((symbol-function 'iedit-make-occurrences-overlays)
              #'isl--iedit-make-occurrences-overlays))
     (apply old--fn args)))
 
 (defun isl--iedit-make-occurrences-overlays (occurrence-regexp beg end)
-  "Same as `iedit-make-occurrences-overlays' but handle multiple regexps."
+  "Same as `iedit-make-occurrences-overlays' but handle multiple regexps.
+Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
+`iedit-make-occurrences-overlays'."
   (setq iedit-aborting nil)
   (setq iedit-occurrences-overlays nil)
   (setq iedit-read-only-occurrences-overlays nil)
@@ -633,6 +642,7 @@ the initial position i.e. the position before launching `isl-search'."
 (put 'isl-display-or-quit-help 'no-helm-mx t)
 
 (defun isl-help-quit ()
+  "Quit isl help buffer."
   (interactive)
   (let ((win (get-buffer-window isl-help-buffer-name 'visible)))
     (if win
@@ -732,7 +742,7 @@ Optional argument PATTERN default to `isl-pattern'."
     isl-space-regexp "\\s-" str nil t)))
 
 (defun isl-patterns (str)
-  "Returns an alist of (pred . regexp) elements from STR."
+  "Return an alist of (pred . regexp) elements from STR."
   (cl-loop for s in (isl-split-string str)
            collect (if (char-equal ?! (aref s 0))
                        (cons 'not (substring s 1))
@@ -740,14 +750,16 @@ Optional argument PATTERN default to `isl-pattern'."
 
 (defsubst isl--re-search-forward (regexp &optional bound noerror count)
   "Same as `re-search-forward' but return nil when point doesn't move.
-This avoid possible infloop when a wrong regexp is entered in minibuffer."
+This avoid possible infloop when a wrong regexp is entered in
+minibuffer.  Arguments REGEXP, BOUND, NOERROR and COUNT have same
+meaning as in `re-search-forward'."
   (let ((pos (point)))
     (pcase (re-search-forward regexp bound noerror count)
       ((and it (guard (eql it pos))) nil)
       (it it))))
 
 (defun isl-multi-search-fwd (str &optional _bound _noerror _count)
-  "Returns position of symbol or line matched by STR.
+  "Return position of symbol or line matched by STR.
 When arg STR contains spaces, it is converted in patterns with
 `isl-patterns' , when first pattern of list match a symbol
 subsequent patterns are used to check if all patterns match this
@@ -806,11 +818,12 @@ symbol or line position according to `isl-multi-search-in-line'."
       (isl-update))))
 
 (defun isl-maybe-update (str)
-  "Decide starting to update."
+  "Decide starting to update according to STR length.
+See `isl-requires-pattern'."
   (> (length str) isl-requires-pattern))
 
 (defun isl-update ()
-  "Update `current-buffer' when `isl-pattern' changes."
+  "Update `current-buffer' when `isl-pattern' change."
   (with-selected-window (minibuffer-selected-window)
     (while-no-input
       (when isl--hidding
@@ -862,7 +875,7 @@ symbol or line position according to `isl-multi-search-in-line'."
       (isl-setup-mode-line))))
 
 (defun isl--highlight-items-in-line (beg end)
-  "Highlight items inside a matched line."
+  "Highlight items inside a matched line from BEG to END."
   ;; When this is called we are at eol.
   (save-excursion
     (goto-char beg)
@@ -982,7 +995,8 @@ appended at end."
             (goto-char isl-initial-pos)))))))
 
 (defun isl-read-from-minibuffer (prompt &optional initial-input default)
-  "Read input from minibuffer with prompt PROMPT."
+  "Read input from minibuffer with prompt PROMPT.
+Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
   (let (timer)
     (unwind-protect
         (minibuffer-with-setup-hook
@@ -1051,7 +1065,7 @@ appended at end."
 
 
 (defun isl-search-1 (&optional resume input)
-  "Start an isl session in current-buffer.
+  "Start an isl session in `current-buffer'.
 When RESUME is specified, resume the previous session in this buffer
 and ignore INPUT argument if specified.
 When INPUT is specified start a new isl session with input as initial
@@ -1151,7 +1165,7 @@ stop, assuming user starts its macro above the text to edit."
 ;;;###autoload
 (defun isl-resume (arg)
   "Resume isl session in current buffer.
-With a prefix arg choose one of the last buffers isl had visited."
+With a prefix ARG choose one of the last buffers isl had visited."
   (interactive "P")
   (setq isl-current-buffer
         (cond ((and arg isl-visited-buffers)
