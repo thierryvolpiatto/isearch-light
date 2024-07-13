@@ -34,13 +34,6 @@ PKGDIR := .
 # Additional emacs loadpath
 LOADPATH	:= -L $(PKGDIR)
 ELPA_DIR        =  $(HOME)/.emacs.d/elpa
-ASYNC_ELPA_DIR  =  $(shell \
-	test -d $(ELPA_DIR) && \
-	find -L $(ELPA_DIR) -maxdepth 1 -regex '.*/async-[.0-9]*' 2> /dev/null | \
-	sort | tail -n 1)
-ifneq "$(ASYNC_ELPA_DIR)" ""
-	LOADPATH += -L $(ASYNC_ELPA_DIR)
-endif
 
 # Files to compile
 EL			:= isl.el
