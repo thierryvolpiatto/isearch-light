@@ -56,6 +56,7 @@
 (declare-function helm-multi-occur-1 "ext:helm-occur.el")
 (declare-function hs-show-block "hideshow.el")
 (declare-function markdown-show-entry "ext:markdown-mode.el")
+(declare-function bm-toggle "ext:bm.el")
 
 ;; Internals
 (defvar isl-pattern "")
@@ -119,7 +120,8 @@ Incremental search in current buffer with multi match (InLine/InSymbol).
 \\[isl-query-replace]\t\tJump to query replace
 \\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines
 \\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)
-\\[isl-toggle-invisible-search]\t\tToggle searching in invisible text")
+\\[isl-toggle-invisible-search]\t\tToggle searching in invisible text
+\\[isl-bm-this-pos]\t\tAdd bookmark BM to current pos")
 
 (defgroup isl nil
   "Search buffers with `isl-search'."
@@ -255,6 +257,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "M-v")    'isl-scroll-down)
     (define-key map (kbd "C-k")    'isl-delete-minibuffer-contents)
     (define-key map (kbd "C-j")    'isl-toggle-multi-search-in-line)
+    (define-key map (kbd "C-c b")  'isl-bm-this-pos)
     map)
   "The map used when `isl-search' is running.
 Don't forget to modify `isl-mini-map' accordingly to fit with kmacros
@@ -270,6 +273,17 @@ when modifying keybindings here.")
       (overlay-put overlay 'face 'isl-on)
       (goto-char pos)
       (setq isl--yank-point pos))))
+
+(defun isl-bm-this-pos ()
+  "Toggle bookmark on current position with `bm'.
+Need to have the `bm' package installed."
+  (interactive)
+  (cl-assert (require 'bm nil t) nil "Please install `bm' package")
+  (with-selected-window (minibuffer-selected-window)
+    (when isl--last-overlay
+      (save-excursion
+        (goto-char (overlay-end isl--last-overlay))
+        (bm-toggle)))))
 
 (defun isl--highlight-last-overlay (face)
   "Highlight `isl--last-overlay' with FACE."
