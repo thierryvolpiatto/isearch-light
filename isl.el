@@ -257,7 +257,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "M-v")    'isl-scroll-down)
     (define-key map (kbd "C-k")    'isl-delete-minibuffer-contents)
     (define-key map (kbd "C-j")    'isl-toggle-multi-search-in-line)
-    (define-key map (kbd "C-c b")  'isl-bm-this-pos)
+    (define-key map (kbd "C-!")    'isl-bm-this-pos)
     map)
   "The map used when `isl-search' is running.
 Don't forget to modify `isl-mini-map' accordingly to fit with kmacros
