@@ -282,7 +282,8 @@ Need to have the `bm' package installed."
   (with-selected-window (minibuffer-selected-window)
     (when isl--last-overlay
       (save-excursion
-        (goto-char (overlay-end isl--last-overlay))
+        ;; Use overlay-start otherwise with inline we are one line too far.
+        (goto-char (overlay-start isl--last-overlay))
         (bm-toggle)))))
 
 (defun isl--highlight-last-overlay (face)
