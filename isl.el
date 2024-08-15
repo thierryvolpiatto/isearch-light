@@ -29,7 +29,7 @@
 
 ;;; Code:
 
-(require 'cl-lib)
+(eval-when-compile (require 'cl-lib))
 
 ;; Compatibility
 (unless (and (fboundp 'pos-bol) (fboundp 'pos-eol))
