@@ -24,8 +24,13 @@
 
 ;;; Commentary:
 
-;; ISL Like I-Search-Light.
-;; Search regexp incrementaly in current-buffer.
+;; ISL like Incremental-Search-Light.  Search regexp(s) incrementaly
+;; in current-buffer using multimatch like Helm.  By default
+;; multimatch is done on 'symbols', but can be toggled to 'lines' with
+;; `C-j', see README file for more infos on this and other features.
+;; `C-h m' is available at any moment during session for help to see
+;; common commands.  The starting point is M-x isl-search, bind it to
+;; a convenient keybinding of your choice.
 
 ;;; Code:
 
