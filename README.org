@@ -1,6 +1,20 @@
-* isearch-light
+* Isearch-light                                                         :TOC:
+  - [[#introduction][Introduction]]
+  - [[#features][Features]]
+  - [[#dependencies][Dependencies]]
+  - [[#namespace][Namespace]]
+  - [[#install][install]]
+    - [[#from-source][From source]]
+  - [[#configure][Configure]]
+  - [[#usage][Usage]]
+  - [[#about-multi-matching][About multi matching]]
+  - [[#isearch-light-vs-helm-occur][Isearch-light vs helm-occur]]
+  - [[#use-isearch-light-for-helm-help][Use isearch-light for helm-help]]
+
+** Introduction
 
 An Isearch replacement for Emacs.
+Multi search expression(s) in symbols, words and/or lines in ~current-buffer~.
 
 ** Features
 
@@ -32,7 +46,9 @@ features you will never use.
 ** Dependencies
 
 No mandatory dependencies, but for a better experience install [[https://github.com/emacs-helm/helm][Helm]] to
-have =helm-occur= and [[https://github.com/victorhge/iedit][Iedit]] to allow jumping to iedit session.
+have =helm-occur=, [[https://github.com/victorhge/iedit][Iedit]] to allow jumping to iedit session and [[https://github.com/joodland/bm][bm]] to
+mark interesting positions while navigating (if you use this you will
+want as well [[https://github.com/emacs-helm/helm-bm][helm-bm]] to retrieve later these positions).
 
 ** Namespace
 
