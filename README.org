@@ -91,7 +91,7 @@ You may want to disable all =Isearch= global bindings:
     (global-set-key (kbd "C-M-r") nil)
 #+end_src
 
-And the rebind the necessary keys to isl-* commands:
+And then rebind the necessary keys to isl-* commands:
 
 #+begin_src elisp
     (global-set-key (kbd "C-s")   'isl-search)
