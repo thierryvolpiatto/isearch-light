@@ -7,6 +7,7 @@
     - [[#from-source][From source]]
   - [[#configure][Configure]]
   - [[#usage][Usage]]
+    - [[#available-commands][Available commands]]
   - [[#about-multi-matching][About multi matching]]
   - [[#isearch-light-vs-helm-occur][Isearch-light vs helm-occur]]
   - [[#use-isearch-light-for-helm-help][Use isearch-light for helm-help]]
@@ -112,9 +113,15 @@ The mode-line give you several infos, arrows up/down tell you the
 direction where you are actually moving, the =>= and =<= mean you are
 either below or above initial position in buffer. Regex or Literal
 tell you the style of search you are using. Case sensitivity in use is
-notified by *, 0 or 1 which mean smart, nil or t for =case-fold-search=.
+notified by ~*~, ~0~ or ~1~ which mean smart, nil or t for =case-fold-search=.
 
-Here the commands available:
+Don't forget =C-h m= which show you all these commands while
+running isearch-light.
+
+NOTE:  Another map =isl-mini-map= is used when excuting-kbd-macro, you may
+want to modify it accordingly to fit with =isl-map=.
+
+*** Available commands
 
 | C-s    | isl-goto-next                   |
 | C-r    | isl-goto-prev                   |
@@ -141,12 +148,6 @@ Here the commands available:
 | M-v    | isl-scroll-down                 |
 | C-k    | isl-delete-minibuffer-contents  |
 | C-j    | isl-toggle-multi-search-in-line |
-
-Don't forget =C-h m= which will show you all these commands while
-running isearch-light.
-
-NOTE:  Another map =isl-mini-map= is used when excuting-kbd-macro, you may
-want to modify it accordingly to fit with =isl-map=.
 
 ** About multi matching
 
