@@ -317,9 +317,7 @@ It put overlay on current position, move to next overlay using
                      (isl--first-ov-after-pos (window-end))
                    (isl--first-ov-before-pos (window-start))))))
     (when ov
-      (isl--find-and-goto-overlay ov)
-      (with-selected-window (minibuffer-selected-window)
-        (recenter)))))
+      (isl--find-and-goto-overlay ov))))
 
 (defun isl--first-ov-after-pos (pos)
   "Move to next overlay from POS."
