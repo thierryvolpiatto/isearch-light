@@ -1083,7 +1083,7 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
                    (markdown-show-entry)))
           (error nil)))
       (when isl--window-start
-        (set-window-start (selected-window) isl--window-start)))))
+        (set-window-start (selected-window) isl--window-start t)))))
 
 
 (defun isl-search-1 (&optional resume input)
