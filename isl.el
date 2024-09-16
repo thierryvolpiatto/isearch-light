@@ -775,7 +775,7 @@ minibuffer.  Arguments REGEXP, BOUND, NOERROR and COUNT have same
 meaning as in `re-search-forward'."
   (let ((pos (point)))
     (pcase (re-search-forward regexp bound noerror count)
-      ((and it (guard (eql it pos))) nil)
+      ((pred (eql pos)) nil)
       (it it))))
 
 (defun isl-multi-search-fwd (str &optional _bound _noerror _count)
@@ -971,9 +971,9 @@ See `isl-requires-pattern'."
                                     direction
                                     position
                                     (propertize (pcase isl-case-fold-search
-                                                  (`smart "*")
-                                                  (`t     "1")
-                                                  (`nil   "0"))
+                                                  ('smart "*")
+                                                  ('t     "1")
+                                                  ('nil   "0"))
                                                 'face 'isl-case-fold
                                                 'help-echo "case-fold-search")))
                            " " mode-line-position)))))))
