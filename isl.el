@@ -81,6 +81,7 @@
 (defvar isl--yank-point nil)
 (defvar isl--quit nil)
 (defvar isl--invalid nil)
+(defvar isl--window-start nil)
 (defvar-local isl--buffer-invisibility-spec nil)
 (defconst isl-space-regexp "\\s\\\\s-"
   "Match a quoted space in a string.")
@@ -429,7 +430,8 @@ It put overlay on current position, move to next overlay using
     (let ((ov (make-overlay (pos-bol) (1+ (pos-eol)))))
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.2)
-      (delete-overlay ov)))
+      (delete-overlay ov))
+    (setq isl--window-start (window-start)))
   ;; Call `exit-minibuffer' out of the `with-selected-window' block to
   ;; avoid error with the emacs-28 version.
   (exit-minibuffer))
@@ -1079,7 +1081,9 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
                   ((and (boundp 'markdown-mode-map)
                         (derived-mode-p 'markdown-mode))
                    (markdown-show-entry)))
-          (error nil))))))
+          (error nil)))
+      (when isl--window-start
+        (set-window-start (selected-window) isl--window-start)))))
 
 
 (defun isl-search-1 (&optional resume input)
@@ -1100,6 +1104,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
           isl-current-buffer (current-buffer)
           isl--buffer-invisibility-spec buffer-invisibility-spec
           cursor-in-non-selected-windows nil))
+  (setq isl--window-start nil)
   (when (and (buffer-live-p isl-current-buffer)
              (not (member (buffer-name isl-current-buffer)
                           isl-noresume-buffers)))
