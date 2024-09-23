@@ -187,8 +187,9 @@ in pattern."
   :type '(repeat string))
 
 (defcustom isl-multi-search-in-line nil
-  "Multi search in line when non nil.
+  "Startup with multi search in line by default when non nil.
 Otherwise multi search only in symbols.
+
 In buffers containing huge lines or sometimes only one huge line, you
 should multi search only in symbols and not in whole line which is
 really costly and may take ages or crash Emacs.
