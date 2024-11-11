@@ -1126,7 +1126,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
                              ;; Prevent inserting multiline string in
                              ;; minibuf.
                              (if (string-match "\n" default)
-                                 (thing-at-point 'symbol t)
+                                 (or (thing-at-point 'symbol t) "")
                                default))))
     (deactivate-mark)
     (unwind-protect
