@@ -432,6 +432,8 @@ It put overlay on current position, move to next overlay using
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.2)
       (delete-overlay ov))
+    ;; Save `window-start' position before exiting minibuffer and
+    ;; restore it after in `isl-cleanup' to avoid a moving screen.
     (setq isl--window-start (window-start)))
   ;; Call `exit-minibuffer' out of the `with-selected-window' block to
   ;; avoid error with the emacs-28 version.
