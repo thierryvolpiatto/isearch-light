@@ -534,31 +534,36 @@ the initial position i.e. the position before launching `isl-search'."
   "Launch `query-replace' from isl.
 Argument ARG have same meaning as in `query-replace'."
   (interactive "P")
-  (let ((style (isl-matching-style))
-        (regexp isl-pattern)
-        (start (overlay-start isl--last-overlay)))
+  (let* ((style    (isl-matching-style))
+         (regexp   isl-pattern)
+         (start    (overlay-start isl--last-overlay))
+         (end      (overlay-end isl--last-overlay))
+         (pnv      (prefix-numeric-value arg))
+         (backward (or (and arg (< pnv 0))
+                       (= start (overlay-start
+                                 (car (last isl--item-overlays))))))
+         (wr (and arg (> pnv 0))))
     (run-at-time
      0.1 nil
      (lambda ()
        (let* ((regexp-flag (string= style "Regex"))
-              (prompt (if regexp-flag
-                          "Query replace %s regexp"
-                        "Query replace %s"))
+              (prompt1 (if backward "Query replace backward" "Query replace"))
+              (prompt (concat prompt1 (if regexp-flag "%s regexp" "%s")))
               (args (list
                      regexp
                      (query-replace-read-to
                       regexp
-                      (format prompt (if arg "word" ""))
+                      (format prompt (if wr " word" ""))
                       regexp-flag)
-                     arg)))
+                     (and wr arg))))
          (with-current-buffer isl-current-buffer
            (save-excursion
              (let ((case-fold-search t))
-               (goto-char start)
+               (goto-char (if backward end start))
                (apply #'perform-replace
                       (list (nth 0 args) (nth 1 args)
                             t regexp-flag (nth 2 args) nil
-                            multi-query-replace-map))))))))
+                            multi-query-replace-map nil nil backward))))))))
     (abort-recursive-edit)))
 (put 'isl-query-replace 'no-helm-mx t)
 
