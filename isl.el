@@ -532,7 +532,9 @@ the initial position i.e. the position before launching `isl-search'."
 
 (defun isl-query-replace (&optional arg)
   "Launch `query-replace' from isl.
-Argument ARG have same meaning as in `query-replace'."
+Argument ARG have same meaning as in `query-replace'.
+When it is launched from the last occurence, replacement is done
+automatically backward."
   (interactive "P")
   (cl-assert isl--item-overlays nil "Nothing yet to replace")
   (let* ((style    (isl-matching-style))
