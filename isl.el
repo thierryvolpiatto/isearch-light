@@ -534,6 +534,7 @@ the initial position i.e. the position before launching `isl-search'."
   "Launch `query-replace' from isl.
 Argument ARG have same meaning as in `query-replace'."
   (interactive "P")
+  (cl-assert isl--item-overlays nil "Nothing yet to replace")
   (let* ((style    (isl-matching-style))
          (regexp   isl-pattern)
          (start    (overlay-start isl--last-overlay))
@@ -612,6 +613,7 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
   "Start Iedit mode from `isl' using last search string as the regexp."
   (interactive)
   (cl-assert (require 'iedit nil t))
+  (cl-assert isl--item-overlays nil "Nothing yet to replace")
   (let ((regexp (if (eq isl-search-function 'search-forward)
                     (regexp-quote isl-pattern)
                   isl-pattern))
