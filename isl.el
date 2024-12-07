@@ -545,7 +545,7 @@ automatically backward."
          (pnv      (prefix-numeric-value arg))
          (backward (or (and arg (< pnv 0))
                        (and start bottom (= start bottom))))
-         (wr (and arg (> pnv 0))))
+         (wr       (and arg (> pnv 0))))
     (run-at-time
      0.1 nil
      (lambda ()
