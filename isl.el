@@ -538,10 +538,10 @@ Argument ARG have same meaning as in `query-replace'."
          (regexp   isl-pattern)
          (start    (overlay-start isl--last-overlay))
          (end      (overlay-end isl--last-overlay))
+         (bottom   (overlay-start (car (last isl--item-overlays))))
          (pnv      (prefix-numeric-value arg))
          (backward (or (and arg (< pnv 0))
-                       (= start (overlay-start
-                                 (car (last isl--item-overlays))))))
+                       (and start bottom (= start bottom))))
          (wr (and arg (> pnv 0))))
     (run-at-time
      0.1 nil
