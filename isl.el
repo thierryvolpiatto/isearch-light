@@ -816,7 +816,8 @@ symbol or line position according to `isl-multi-search-in-line'."
                                  (cons (pos-bol) (1+ (pos-eol))))
                                 (rest
                                  (bounds-of-thing-at-point
-                                  (if (derived-mode-p 'prog-mode)
+                                  (if (and (derived-mode-p 'prog-mode)
+                                           (not (nth 3 (syntax-ppss))))
                                       'symbol 'filename)))
                                 (t (cons (match-beginning 0) (match-end 0))))
              unless bounds return nil
@@ -1131,13 +1132,13 @@ Note that INPUT cannot be used with a non nil value for RESUME."
                       (buffer-substring-no-properties
                        (region-beginning)
                        (region-end))
-                    (thing-at-point 'symbol t))))
+                    (isl--thing-at-point))))
     (when (stringp default)
       (setq default (funcall format-fn
                              ;; Prevent inserting multiline string in
                              ;; minibuf.
                              (if (string-match "\n" default)
-                                 (or (thing-at-point 'symbol t) "")
+                                 (or (isl--thing-at-point) "")
                                default))))
     (deactivate-mark)
     (unwind-protect
@@ -1158,6 +1159,13 @@ Note that INPUT cannot be used with a non nil value for RESUME."
       (unless (eq (window-buffer (selected-window))
                   isl-current-buffer)
         (switch-to-buffer isl-current-buffer)))))
+
+(defun isl--thing-at-point ()
+  (thing-at-point
+   (if (and (derived-mode-p 'prog-mode)
+            (not (nth 3 (syntax-ppss))))
+       'symbol 'filename)
+   t))
 
 (defvar isl-mini-map
   (let ((map (make-sparse-keymap)))
