@@ -415,8 +415,9 @@ It put overlay on current position, move to next overlay using
   (interactive)
   (with-selected-window (minibuffer-selected-window)
     ;; Ensure user haven't scrolled to another place.
-    (let ((end (overlay-end isl--last-overlay)))
-      (goto-char (if isl-multi-search-in-line
+    (let ((end (overlay-end isl--last-overlay))
+          (lp (overlay-get isl--last-overlay 'line-prefix)))
+      (goto-char (if (or isl-multi-search-in-line lp)
                      (1- end) end)))
     (when isl-multi-search-in-line
       (let* ((ovs     (overlays-in (pos-bol) (pos-eol)))
@@ -876,22 +877,34 @@ See `isl-requires-pattern'."
         (mapc 'remove-from-invisibility-spec buffer-invisibility-spec))
       (let ((count 1)
             ov
-            bounds)
+            bounds
+            go)
         (unless (string= isl-pattern "")
           (save-excursion
             (goto-char (point-min))
             (condition-case-unless-debug nil
-                (while (setq bounds (isl-multi-search-fwd isl-pattern nil t))
+                (while (setq bounds (or go (isl-multi-search-fwd isl-pattern nil t)))
+                  (setq go nil)
                   (unless (and (not isl-search-invisible)
                                (invisible-p (cdr bounds)))
-                    (setq ov (make-overlay (car bounds) (cdr bounds)))
+                    (setq ov (make-overlay (car bounds)
+                                           (if (= (car bounds) (cdr bounds))
+                                               (1+ (cdr bounds))
+                                             (cdr bounds))))
                     (push ov isl--item-overlays)
+                    (when (= (car bounds) (cdr bounds))
+                      (overlay-put ov 'line-prefix
+                                   (propertize "$" 'face 'isl-match)))
                     (overlay-put ov 'isl t)
                     (overlay-put ov 'pos count)
                     (overlay-put ov 'face 'isl-match)
                     (when isl-multi-search-in-line
                       (isl--highlight-items-in-line (car bounds) (cdr bounds)))
-                    (cl-incf count)))
+                    (cl-incf count))
+                  (when (= (car bounds) (cdr bounds))
+                    (forward-line 1)
+                    (when (and (looking-at isl-pattern) (not (eobp)))
+                      (setq go (cons (pos-bol) (pos-eol))))))
               (invalid-regexp (setq isl--invalid t) nil))
             (setq isl--item-overlays (reverse isl--item-overlays)))
           (if (null isl--item-overlays)
