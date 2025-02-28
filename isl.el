@@ -101,7 +101,13 @@
 (defvar isl-help-string
   "* ISL help\n
 
-Incremental search in current buffer with multi match (InLine/InSymbol).
+Incremental search in current buffer with multi match (InSymbol/InLine).
+Default is 'InSymbol' which means that with a pattern like \"foo bar\",
+you would match the symbol 'foo-bar' but not the words \"foo\" and
+\"bar\" that are on the same line, for this you will have to switch to
+'Inline'.  Each pattern is separated by one space and can be a regexp,
+it can start with a negation (!) which means match everything but this
+e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 
 ** Commands
 \\<isl-map>
