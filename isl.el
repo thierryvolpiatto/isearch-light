@@ -909,6 +909,11 @@ See `isl-requires-pattern'."
                     (cl-incf count))
                   (when (= (car bounds) (cdr bounds))
                     (forward-line 1)
+                    ;; If we are here we are matching empty lines and
+                    ;; isl--re-search-forward fails on this new
+                    ;; empty line (re-search-forward instead would be
+                    ;; stuck and infloop) so match it with looking-at
+                    ;; and use GO value in next turn of the loop.
                     (when (and (looking-at isl-pattern) (not (eobp)))
                       (setq go (cons (pos-bol) (pos-eol))))))
               (invalid-regexp (setq isl--invalid t) nil))
