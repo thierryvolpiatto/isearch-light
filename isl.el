@@ -889,7 +889,9 @@ See `isl-requires-pattern'."
           (save-excursion
             (goto-char (point-min))
             (condition-case-unless-debug nil
-                (while (setq bounds (or go (isl-multi-search-fwd isl-pattern nil t)))
+                (while (and (setq bounds (or go (isl-multi-search-fwd
+                                                 isl-pattern nil t)))
+                            (not (eobp)))
                   (setq go nil)
                   (unless (and (not isl-search-invisible)
                                (invisible-p (cdr bounds)))
@@ -914,7 +916,7 @@ See `isl-requires-pattern'."
                     ;; empty line (re-search-forward instead would be
                     ;; stuck and infloop) so match it with looking-at
                     ;; and use GO value in next turn of the loop.
-                    (when (and (looking-at isl-pattern) (not (eobp)))
+                    (when (looking-at isl-pattern)
                       (setq go (cons (pos-bol) (pos-eol))))))
               (invalid-regexp (setq isl--invalid t) nil))
             (setq isl--item-overlays (reverse isl--item-overlays)))
