@@ -935,20 +935,23 @@ See `isl-requires-pattern'."
 
 (defun isl--highlight-items-in-line (beg end)
   "Highlight items inside a matched line from BEG to END."
-  ;; When this is called we are at eol.
-  (save-excursion
-    (goto-char beg)
-    (cl-loop with ov2
-             for p in (isl-split-string isl-pattern)
-             unless (string-match "\\`!" p)
-             do (save-excursion
-                  (while (isl--re-search-forward p end t)
-                    (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
-                    (push ov2 isl--extra-items-overlays)
-                    (overlay-put ov2 'face 'isl-match-items)
-                    (overlay-put ov2 'isl t)
-                    (overlay-put ov2 'isl-matches t)
-                    (overlay-put ov2 'priority 1))))))
+  (let ((split (isl-split-string isl-pattern)))
+    ;; Do nothing until we have a multi pattern.
+    (when (cdr split)
+      ;; When this is called we are at eol.
+      (save-excursion
+        (goto-char beg)
+        (cl-loop with ov2
+                 for p in split
+                 unless (string-match "\\`!" p)
+                 do (save-excursion
+                      (while (isl--re-search-forward p end t)
+                        (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
+                        (push ov2 isl--extra-items-overlays)
+                        (overlay-put ov2 'face 'isl-match-items)
+                        (overlay-put ov2 'isl t)
+                        (overlay-put ov2 'isl-matches t)
+                        (overlay-put ov2 'priority 1))))))))
 
 (defun isl-setup-mode-line ()
   "Setup `mode-line-format' for `isl-search'."
