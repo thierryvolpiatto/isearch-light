@@ -295,7 +295,7 @@ when modifying keybindings here.")
   (with-selected-window (minibuffer-selected-window)
     (when isl--last-overlay
       (let ((str (buffer-substring (overlay-start isl--last-overlay)
-                                  (overlay-end isl--last-overlay))))
+                                   (overlay-end isl--last-overlay))))
         (kill-new str)
         (message "`%s' copied to kill-ring" str)))))
 (put 'isl-kill-selection 'no-helm-mx t)
