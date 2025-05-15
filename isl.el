@@ -1203,6 +1203,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
         (switch-to-buffer isl-current-buffer)))))
 
 (defun isl--thing-at-point ()
+  "Return symbol or filename at point."
   (thing-at-point
    (if (and (derived-mode-p 'prog-mode)
             (not (nth 3 (syntax-ppss))))
