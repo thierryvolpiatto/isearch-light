@@ -135,7 +135,8 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 \\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)
 \\[isl-toggle-invisible-search]\t\tToggle searching in invisible text
 \\[isl-bm-this-pos]\t\tAdd bookmark BM to current pos
-\\[isl-kill-selection]\t\tKill selected occurence")
+\\[isl-kill-selection]\t\tKill selected occurence
+\\[isl-align-regexp]\t\tAlign text matching regexp in region")
 
 (defgroup isl nil
   "Search buffers with `isl-search'."
@@ -274,6 +275,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "C-j")     'isl-toggle-multi-search-in-line)
     (define-key map (kbd "C-!")     'isl-bm-this-pos)
     (define-key map (kbd "C-c C-k") 'isl-kill-selection)
+    (define-key map (kbd "C-}")     'isl-align-regexp)
     map)
   "The map used when `isl-search' is running.
 Don't forget to modify `isl-mini-map' accordingly to fit with kmacros
@@ -742,6 +744,20 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
   (let ((ol (make-overlay beg end)))
     (overlay-put ol 'isl-invisible t)
     (overlay-put ol 'invisible 'isl-invisible)))
+
+(defun isl-align-regexp ()
+  "Align text matching regexp in current-buffer."
+  (interactive)
+  (cl-assert isl--narrow-to-region nil "No region found")
+  (with-current-buffer isl-current-buffer
+    (align-regexp isl--point-min isl--point-max
+                  (concat "\\(\\s-+\\)"
+                          (if (equal (isl-matching-style) "Regex")
+                              isl-pattern
+                            (regexp-quote isl-pattern)))
+                  1)
+    (isl-update)))
+(put 'isl-align-regexp 'no-helm-mx t)
 
 (defun isl-iter-circular (seq)
   "Infinite iteration on SEQ."
