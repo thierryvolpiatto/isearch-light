@@ -91,6 +91,7 @@
 (defvar isl--hidding nil)
 (defvar isl--point-min nil)
 (defvar isl--point-max nil)
+(defvar isl--narrow-to-region nil)
 (defvar isl--extra-items-overlays nil)
 (defvar isl-search-invisible t)
 
@@ -1098,6 +1099,7 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
                            isl-initial-pos ,pos
                            isl--point-min ,isl--point-min
                            isl--point-max ,isl--point-max
+                           isl--narrow-to-region ,isl--narrow-to-region
                            isl--yank-point ,isl--yank-point
                            isl--number-results ,isl--number-results
                            isl-case-fold-search ',isl-case-fold-search
@@ -1246,7 +1248,8 @@ stop, assuming user starts its macro above the text to edit."
   (if executing-kbd-macro
       (isl--search-string)
     (setq isl--point-min nil
-          isl--point-max nil)
+          isl--point-max nil
+          isl--narrow-to-region nil)
     (isl-search-1)))
 
 ;;;###autoload
@@ -1283,10 +1286,13 @@ With a prefix ARG choose one of the last buffers isl had visited."
   "Start incremental searching in region or current defun."
   (interactive "r")
   (setq isl--point-min nil
-        isl--point-max nil)
+        isl--point-max nil
+        isl--narrow-to-region nil)
   (save-restriction
     (if (and beg end (region-active-p))
-        (narrow-to-region beg end)
+        (progn
+          (setq isl--narrow-to-region t)
+          (narrow-to-region beg end))
       (narrow-to-defun))
     (setq isl--point-min (point-min)
           isl--point-max (point-max))
