@@ -1279,16 +1279,24 @@ With a prefix ARG choose one of the last buffers isl had visited."
       (isl-search-1 'resume))))
 
 ;;;###autoload
-(defun isl-narrow-to-defun ()
-  "Start incremental searching in current defun."
-  (interactive)
+(defun isl-narrow-to-region-or-defun (beg end)
+  "Start incremental searching in region or current defun."
+  (interactive "r")
   (setq isl--point-min nil
         isl--point-max nil)
   (save-restriction
-    (narrow-to-defun)
+    (if (and beg end (region-active-p))
+        (narrow-to-region beg end)
+      (narrow-to-defun))
     (setq isl--point-min (point-min)
           isl--point-max (point-max))
     (isl-search-1)))
+
+;;;###autoload
+(defalias 'isl-narrow-to-defun 'isl-narrow-to-region-or-defun)
+;;;###autoload
+(defalias 'isl-narrow-to-region 'isl-narrow-to-region-or-defun)
+
 
 (provide 'isl)
 
