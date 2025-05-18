@@ -1174,7 +1174,8 @@ Note that INPUT cannot be used with a non nil value for RESUME."
                       (buffer-substring-no-properties
                        (region-beginning)
                        (region-end))
-                    (isl--thing-at-point))))
+                    (isl--thing-at-point)))
+         blink-matching-paren)
     (when (stringp default)
       (setq default (funcall format-fn
                              ;; Prevent inserting multiline string in
