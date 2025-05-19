@@ -750,6 +750,8 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
 Numeric prefix ARG is applied to the SPACING arg of `align-regexp'."
   (interactive "p")
   (cl-assert isl--narrow-to-region nil "No region found")
+  (cl-assert (not (cdr (isl-split-string isl-pattern))) nil
+             "Can't align with a multi match expression")
   (with-current-buffer isl-current-buffer
     (align-regexp isl--point-min isl--point-max
                   (concat "\\(\\s-+\\)"
