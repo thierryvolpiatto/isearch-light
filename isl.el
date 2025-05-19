@@ -745,9 +745,10 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
     (overlay-put ol 'isl-invisible t)
     (overlay-put ol 'invisible 'isl-invisible)))
 
-(defun isl-align-regexp ()
-  "Align text matching regexp in current-buffer."
-  (interactive)
+(defun isl-align-regexp (arg)
+  "Align text matching regexp in current-buffer.
+Numeric prefix ARG is applied to the SPACING arg of `align-regexp'."
+  (interactive "p")
   (cl-assert isl--narrow-to-region nil "No region found")
   (with-current-buffer isl-current-buffer
     (align-regexp isl--point-min isl--point-max
@@ -755,7 +756,7 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
                           (if (equal (isl-matching-style) "Regex")
                               isl-pattern
                             (regexp-quote isl-pattern)))
-                  1)
+                  1 arg)
     ;; Align-regexp has probably added or removed spaces so update
     ;; isl--point-min/max.
     (setq isl--point-min (point-min)
