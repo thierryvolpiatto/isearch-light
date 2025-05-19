@@ -756,6 +756,10 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
                               isl-pattern
                             (regexp-quote isl-pattern)))
                   1)
+    ;; Align-regexp has probably added or removed spaces so update
+    ;; isl--point-min/max.
+    (setq isl--point-min (point-min)
+          isl--point-max (point-max))
     (isl-update)))
 (put 'isl-align-regexp 'no-helm-mx t)
 
