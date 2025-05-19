@@ -94,6 +94,7 @@
 (defvar isl--narrow-to-region nil)
 (defvar isl--extra-items-overlays nil)
 (defvar isl-search-invisible t)
+(defvar isl--buffer-tick nil)
 
 ;; User vars
 
@@ -749,6 +750,18 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
     (overlay-put ol 'isl-invisible t)
     (overlay-put ol 'invisible 'isl-invisible)))
 
+(defun isl--maybe-revert-to-original ()
+  "Maybe restore original buffer contents on quit.
+Buffer may have been modified by `isl-align-regexp'."
+  (let ((contents isl--narrow-to-region))
+    (when (and (stringp contents)
+               (> (buffer-modified-tick) isl--buffer-tick))
+      (save-excursion
+        ;; When isl--narrow-to-region is non nil isl--point-min and
+        ;; max are set as well.
+        (delete-region isl--point-min isl--point-max)
+        (insert contents)))))
+
 (defun isl-align-regexp (arg)
   "Align text matching regexp in current-buffer.
 Numeric prefix ARG is applied to the SPACING arg of `align-regexp'."
@@ -1188,6 +1201,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
           isl-pattern ""
           isl--direction 'forward
           isl-current-buffer (current-buffer)
+          isl--buffer-tick (buffer-modified-tick)
           isl--buffer-invisibility-spec buffer-invisibility-spec
           cursor-in-non-selected-windows nil))
   (setq isl--window-start nil)
@@ -1227,7 +1241,8 @@ Note that INPUT cannot be used with a non nil value for RESUME."
            (quit
             (setq isl--quit t)
             (when isl-initial-pos
-              (goto-char isl-initial-pos))))
+              (goto-char isl-initial-pos))
+            (isl--maybe-revert-to-original)))
       (isl-cleanup)
       ;; Avoid loosing focus in helm help buffer.
       (unless (eq (window-buffer (selected-window))
@@ -1320,7 +1335,8 @@ With a prefix ARG choose one of the last buffers isl had visited."
   (save-restriction
     (if (and beg end (region-active-p))
         (progn
-          (setq isl--narrow-to-region t)
+          (setq isl--narrow-to-region
+                (buffer-substring beg end))
           (narrow-to-region beg end))
       (narrow-to-defun))
     (setq isl--point-min (point-min)
