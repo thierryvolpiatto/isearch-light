@@ -214,6 +214,10 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
 (defcustom isl-no-invisible-search-in-modes nil
   "Do not search invisible text in these modes."
   :type '(repeat symbol))
+
+(defcustom isl-align-regexp-group-pattern t
+  "Always surround isl-pattern with parens when non nil."
+  :type 'boolean)
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -756,7 +760,9 @@ Numeric prefix ARG is applied to the SPACING arg of `align-regexp'."
     (align-regexp isl--point-min isl--point-max
                   (concat "\\(\\s-+\\)"
                           (if (equal (isl-matching-style) "Regex")
-                              isl-pattern
+                              (if isl-align-regexp-group-pattern
+                                  (format "\\(%s\\)" isl-pattern)
+                                isl-pattern)
                             (regexp-quote isl-pattern)))
                   1 arg)
     ;; Align-regexp has probably added or removed spaces so update
