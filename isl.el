@@ -791,7 +791,7 @@ all align operations you have to exit with RET."
   (let ((lis seq))
      (lambda ()
        (let ((elm (car lis)))
-         (setq lis (pcase lis (`(,_ . ,ll) (or ll seq))))
+         (setq lis (or (cdr lis) seq))
          elm))))
 
 (defun isl-iter-next (iterator)
