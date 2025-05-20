@@ -763,7 +763,9 @@ Buffer may have been modified by `isl-align-regexp'."
 
 (defun isl-align-regexp (arg)
   "Align text matching regexp in current-buffer.
-Numeric prefix ARG is applied to the SPACING arg of `align-regexp'."
+Numeric prefix ARG is applied to the SPACING arg of `align-regexp'.
+Quitting undo all the align actions done in current session, to valid
+all align operations you have to exit with RET."
   (interactive "p")
   (cl-assert isl--narrow-to-region nil "No region found")
   (cl-assert (not (cdr (isl-split-string isl-pattern))) nil
