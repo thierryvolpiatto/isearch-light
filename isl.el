@@ -756,11 +756,10 @@ Buffer may have been modified by `isl-align-regexp'."
   (let ((contents isl--narrow-to-region))
     (when (and (stringp contents)
                (> (buffer-modified-tick) isl--buffer-tick))
-      (save-excursion
-        ;; When isl--narrow-to-region is non nil isl--point-min and
-        ;; max are set as well.
-        (delete-region isl--point-min isl--point-max)
-        (insert contents)))))
+      ;; When isl--narrow-to-region is non nil isl--point-min and
+      ;; max are set as well.
+      (delete-region isl--point-min isl--point-max)
+      (insert contents))))
 
 (defun isl-align-regexp (arg)
   "Align text matching regexp in current-buffer.
@@ -1240,9 +1239,9 @@ Note that INPUT cannot be used with a non nil value for RESUME."
               default)
            (quit
             (setq isl--quit t)
+            (isl--maybe-revert-to-original)
             (when isl-initial-pos
-              (goto-char isl-initial-pos))
-            (isl--maybe-revert-to-original)))
+              (goto-char isl-initial-pos))))
       (isl-cleanup)
       ;; Avoid loosing focus in helm help buffer.
       (unless (eq (window-buffer (selected-window))
