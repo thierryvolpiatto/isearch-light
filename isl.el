@@ -1334,9 +1334,9 @@ With a prefix ARG choose one of the last buffers isl had visited."
   (save-restriction
     (if (and beg end (region-active-p))
         (progn
+          (narrow-to-region beg end)
           (setq isl--narrow-to-region
-                (buffer-substring beg end))
-          (narrow-to-region beg end))
+                (buffer-substring (point-min) (point-max))))
       (narrow-to-defun))
     (setq isl--point-min (point-min)
           isl--point-max (point-max))
