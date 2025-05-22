@@ -1088,7 +1088,7 @@ See `isl-requires-pattern'."
 
 (defun isl-set-iterator (&optional skip-first)
   "Build `isl--iterator' against `isl--item-overlays' according to context.
-When SKIP-FIRST is specified build overlay with the current overlay
+When SKIP-FIRST is specified build iterator with the current overlay
 appended at end."
   (let* ((revlst (if (eq isl--direction 'forward)
                      isl--item-overlays
