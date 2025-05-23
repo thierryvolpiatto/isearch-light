@@ -793,7 +793,7 @@ all align operations you have to exit with RET."
   (direction :type 'symbol :mutable t))
 
 (defun isl-iter-circular (seq)
-  "Infinite iteration on SEQ."
+  "Build a new iterator with infinite iteration on SEQ."
   (let ((ori seq)
         (lis seq))
     (oclosure-lambda (isl-iterator
