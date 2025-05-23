@@ -6,8 +6,8 @@
 ;; Version: 1.1
 ;; URL: https://github.com/thierryvolpiatto/isearch-light
 
-;; Compatibility: GNU Emacs 25.1+
-;; Package-Requires: ((emacs "25.1"))
+;; Compatibility: GNU Emacs 29.1+
+;; Package-Requires: ((emacs "29.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 ;;; Code:
 
 (eval-when-compile (require 'cl-lib))
+(require 'oclosure)
 
 ;; Compatibility
 (unless (and (fboundp 'pos-bol) (fboundp 'pos-eol))
@@ -422,18 +423,18 @@ It put overlay on current position, move to next overlay using
 (defun isl-goto-next (&optional arg)
   "Go to next ARG match."
   (interactive "p")
-  (when (eq isl--direction 'backward)
+  (when (eq (isl-iterator--direction isl--iterator) 'left)
     (setq isl--direction 'forward)
-    (isl-set-iterator t))
+    (isl-iterator-reverse isl--iterator))
   (isl-goto-next-1 arg))
 (put 'isl-goto-next 'no-helm-mx t)
 
 (defun isl-goto-prev (&optional arg)
   "Go to previous ARG matches."
   (interactive "p")
-  (when (eq isl--direction 'forward)
+  (when (eq (isl-iterator--direction isl--iterator) 'right)
     (setq isl--direction 'backward)
-    (isl-set-iterator t))
+    (isl-iterator-reverse isl--iterator))
   (isl-goto-next-1 arg))
 (put 'isl-goto-prev 'no-helm-mx t)
 
@@ -786,13 +787,41 @@ all align operations you have to exit with RET."
     (isl-update)))
 (put 'isl-align-regexp 'no-helm-mx t)
 
+(oclosure-define isl-iterator
+  "Return an iterator from SEQ."
+  (seq :type 'list :mutable t)
+  (element :mutable t)
+  (direction :type 'symbol :mutable t))
+
 (defun isl-iter-circular (seq)
   "Infinite iteration on SEQ."
-  (let ((lis seq))
-     (lambda ()
-       (let ((elm (car lis)))
-         (setq lis (or (cdr lis) seq))
-         elm))))
+  (let ((ori seq)
+        (lis seq))
+    (oclosure-lambda (isl-iterator
+                      (seq seq)
+                      (element nil)
+                      (direction 'right))
+        ()
+      (let ((elm (car lis)))
+        (if (not (equal seq ori))
+            (setq lis (cddr seq)
+                  ori seq
+                  elm (cadr seq))
+          (setq lis (or (cdr lis) seq)))
+        (setq element elm)))))
+
+(defun isl-iterator-reverse (iterator)
+  (let* ((lst     (isl-iterator--seq iterator))
+         (rev     (reverse lst))
+         (elm     (isl-iterator--element iterator))
+         (queue   (member elm rev))
+         (old-dir (isl-iterator--direction iterator))
+         (new-dir (pcase old-dir
+                    ('left 'right)
+                    ('right 'left))))
+    (setf (isl-iterator--direction iterator) new-dir)
+    (setf (isl-iterator--seq iterator)
+          (nconc queue (nbutlast rev (length queue))))))
 
 (defun isl-iter-next (iterator)
   "Return next elm of ITERATOR."
