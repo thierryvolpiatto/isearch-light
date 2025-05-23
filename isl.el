@@ -34,8 +34,9 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl-lib))
-(require 'oclosure)
+(eval-when-compile
+  (require 'cl-lib)
+  (require 'oclosure))
 
 ;; Compatibility
 (unless (and (fboundp 'pos-bol) (fboundp 'pos-eol))
@@ -75,7 +76,6 @@
 (defvar isl--item-overlays nil)
 (defvar isl--iterator nil)
 (defvar isl--last-overlay nil)
-(defvar isl--direction nil)
 (defvar isl-initial-pos nil)
 (defvar isl--number-results 0)
 (defvar isl-history nil)
@@ -424,7 +424,6 @@ It put overlay on current position, move to next overlay using
   "Go to next ARG match."
   (interactive "p")
   (when (eq (isl-iterator--direction isl--iterator) 'left)
-    (setq isl--direction 'forward)
     (isl-iterator-reverse isl--iterator))
   (isl-goto-next-1 arg))
 (put 'isl-goto-next 'no-helm-mx t)
@@ -433,7 +432,6 @@ It put overlay on current position, move to next overlay using
   "Go to previous ARG matches."
   (interactive "p")
   (when (eq (isl-iterator--direction isl--iterator) 'right)
-    (setq isl--direction 'backward)
     (isl-iterator-reverse isl--iterator))
   (isl-goto-next-1 arg))
 (put 'isl-goto-prev 'no-helm-mx t)
@@ -787,6 +785,7 @@ all align operations you have to exit with RET."
     (isl-update)))
 (put 'isl-align-regexp 'no-helm-mx t)
 
+;;; Iterators
 (oclosure-define isl-iterator
   "Return an iterator from SEQ."
   (seq :type 'list :mutable t)
@@ -1050,7 +1049,7 @@ See `isl-requires-pattern'."
                               (> (point) isl-initial-pos))
                          isl-after-position-string
                        isl-before-position-string)))
-        (direction (if (eq isl--direction 'forward)
+        (direction (if (eq (isl-iterator--direction isl--iterator) 'forward)
                        isl-direction-down-string
                      isl-direction-up-string)))
     (when (numberp isl--number-results)
@@ -1115,18 +1114,13 @@ See `isl-requires-pattern'."
            minimize diff into min
            finally return (cdr (assq min res))))
 
-(defun isl-set-iterator (&optional skip-first)
+(defun isl-set-iterator ()
   "Build `isl--iterator' against `isl--item-overlays' according to context.
 When SKIP-FIRST is specified build iterator with the current overlay
 appended at end."
-  (let* ((revlst (if (eq isl--direction 'forward)
-                     isl--item-overlays
-                   (reverse isl--item-overlays)))
-         (fwdlst (memql isl--last-overlay revlst))
-         (ovlst (append (if skip-first (cdr fwdlst) fwdlst)
-                        (butlast revlst (length fwdlst))
-                        (and skip-first (list (car fwdlst))))))
-      (setq isl--iterator (isl-iter-circular ovlst))))
+  (let* ((lst (memql isl--last-overlay isl--item-overlays))
+         (ovs (nconc lst (nbutlast isl--item-overlays (length lst)))))
+      (setq isl--iterator (isl-iter-circular ovs))))
 
 (defun isl-check-input ()
   "Check minibuffer input."
@@ -1229,7 +1223,6 @@ Note that INPUT cannot be used with a non nil value for RESUME."
   (unless resume
     (setq isl-initial-pos (point)
           isl-pattern ""
-          isl--direction 'forward
           isl-current-buffer (current-buffer)
           isl--buffer-tick (buffer-modified-tick)
           isl--buffer-invisibility-spec buffer-invisibility-spec
