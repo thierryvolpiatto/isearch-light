@@ -826,6 +826,14 @@ all align operations you have to exit with RET."
   "Return next elm of ITERATOR."
   (and iterator (funcall iterator)))
 
+(defun isl-set-iterator ()
+  "Build `isl--iterator' against `isl--item-overlays' according to context.
+When SKIP-FIRST is specified build iterator with the current overlay
+appended at end."
+  (let* ((lst (memql isl--last-overlay isl--item-overlays))
+         (ovs (nconc lst (nbutlast isl--item-overlays (length lst)))))
+      (setq isl--iterator (isl-iter-circular ovs))))
+
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
   (when isl--item-overlays
@@ -1113,14 +1121,6 @@ See `isl-requires-pattern'."
            collect (cons diff ov) into res
            minimize diff into min
            finally return (cdr (assq min res))))
-
-(defun isl-set-iterator ()
-  "Build `isl--iterator' against `isl--item-overlays' according to context.
-When SKIP-FIRST is specified build iterator with the current overlay
-appended at end."
-  (let* ((lst (memql isl--last-overlay isl--item-overlays))
-         (ovs (nconc lst (nbutlast isl--item-overlays (length lst)))))
-      (setq isl--iterator (isl-iter-circular ovs))))
 
 (defun isl-check-input ()
   "Check minibuffer input."
