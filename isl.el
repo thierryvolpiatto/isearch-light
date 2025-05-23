@@ -787,7 +787,9 @@ all align operations you have to exit with RET."
 
 ;;; Iterators
 (oclosure-define isl-iterator
-  "Return an iterator from SEQ."
+  "Return an iterator from SEQ
+Provide accessors `isl-iterator--seq', `isl-iterator--element' and
+`isl-iterator--direction' from `isl--iterator'."
   (seq :type 'list :mutable t)
   (element :mutable t)
   (direction :type 'symbol :mutable t))
@@ -827,9 +829,7 @@ all align operations you have to exit with RET."
   (and iterator (funcall iterator)))
 
 (defun isl-set-iterator ()
-  "Build `isl--iterator' against `isl--item-overlays' according to context.
-When SKIP-FIRST is specified build iterator with the current overlay
-appended at end."
+  "Build `isl--iterator' against `isl--item-overlays'."
   (let* ((lst (memql isl--last-overlay isl--item-overlays))
          (ovs (nconc lst (nbutlast isl--item-overlays (length lst)))))
     (setq isl--iterator (isl-iter-circular ovs))))
