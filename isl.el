@@ -832,7 +832,7 @@ When SKIP-FIRST is specified build iterator with the current overlay
 appended at end."
   (let* ((lst (memql isl--last-overlay isl--item-overlays))
          (ovs (nconc lst (nbutlast isl--item-overlays (length lst)))))
-      (setq isl--iterator (isl-iter-circular ovs))))
+    (setq isl--iterator (isl-iter-circular ovs))))
 
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
