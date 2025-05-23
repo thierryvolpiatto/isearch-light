@@ -815,7 +815,7 @@ Provide accessors `isl-iterator--seq', `isl-iterator--element' and
   (let* ((lst     (isl-iterator--seq iterator))
          (rev     (reverse lst))
          (elm     (isl-iterator--element iterator))
-         (queue   (member elm rev))
+         (queue   (memql elm rev))
          (old-dir (isl-iterator--direction iterator))
          (new-dir (pcase old-dir
                     ('left 'right)
