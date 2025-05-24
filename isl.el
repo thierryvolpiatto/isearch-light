@@ -822,7 +822,7 @@ Provide accessors `isl-iterator--seq', `isl-iterator--element' and
                     ('right 'left))))
     (setf (isl-iterator--direction iterator) new-dir)
     (setf (isl-iterator--seq iterator)
-          (nconc queue (nbutlast rev (length queue))))))
+          (append queue (butlast rev (length queue))))))
 
 (defun isl-iter-next (iterator)
   "Return next elm of ITERATOR."
@@ -831,7 +831,7 @@ Provide accessors `isl-iterator--seq', `isl-iterator--element' and
 (defun isl-set-iterator ()
   "Build `isl--iterator' against `isl--item-overlays'."
   (let* ((lst (memql isl--last-overlay isl--item-overlays))
-         (ovs (nconc lst (nbutlast isl--item-overlays (length lst)))))
+         (ovs (append lst (butlast isl--item-overlays (length lst)))))
     (setq isl--iterator (isl-iter-circular ovs))))
 
 (defun isl-delete-overlays ()
