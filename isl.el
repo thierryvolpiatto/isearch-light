@@ -1057,9 +1057,10 @@ See `isl-requires-pattern'."
                               (> (point) isl-initial-pos))
                          isl-after-position-string
                        isl-before-position-string)))
-        (direction (if (eq (isl-iterator--direction isl--iterator) 'forward)
-                       isl-direction-down-string
-                     isl-direction-up-string)))
+        (direction (when isl--iterator
+                     (if (eq (isl-iterator--direction isl--iterator) 'right)
+                         isl-direction-down-string
+                       isl-direction-up-string))))
     (when (numberp isl--number-results)
       (setq mode-line-format
             (cond ((or (string= isl-pattern "")
