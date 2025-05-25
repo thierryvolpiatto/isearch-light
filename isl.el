@@ -786,24 +786,34 @@ all align operations you have to exit with RET."
 (put 'isl-align-regexp 'no-helm-mx t)
 
 ;;; Iterators
+;;
 (oclosure-define isl-iterator
-  "Return an iterator from SEQ
-Provide accessors `isl-iterator--seq', `isl-iterator--element' and
-`isl-iterator--direction' from `isl--iterator'."
+  "Return an iterator from SEQ."
   (seq :type 'list :mutable t)
+  (changing-direction :type 'boolean :mutable t)
   (element :mutable t)
   (direction :type 'symbol :mutable t))
 
 (defun isl-iter-circular (seq)
-  "Build a new iterator with infinite iteration on SEQ."
+  "Return an iterator from SEQ.
+When CYCLE arg is provided, make the iterator cycle infinitely."
   (let ((ori seq)
         (lis seq))
-    (oclosure-lambda (isl-iterator
-                      (seq seq)
-                      (element nil)
-                      (direction 'right))
+    (oclosure-lambda (isl-iterator (seq seq)
+                                   (element nil)
+                                   (direction 'right)
+                                   (changing-direction nil))
         ()
-      (let ((elm (car lis)))
+      (let ((elm (car lis))
+            rev queue)
+        (when changing-direction
+          (setq rev (reverse seq)
+                queue (memql element rev)
+                direction (pcase direction
+                            ('left 'right)
+                            ('right 'left))
+                seq (append queue (butlast rev (length queue)))
+                changing-direction nil))
         (if (not (equal seq ori))
             (setq lis (cddr seq)
                   ori seq
@@ -812,17 +822,7 @@ Provide accessors `isl-iterator--seq', `isl-iterator--element' and
         (setq element elm)))))
 
 (defun isl-iterator-reverse (iterator)
-  (let* ((lst     (isl-iterator--seq iterator))
-         (rev     (reverse lst))
-         (elm     (isl-iterator--element iterator))
-         (queue   (memql elm rev))
-         (old-dir (isl-iterator--direction iterator))
-         (new-dir (pcase old-dir
-                    ('left 'right)
-                    ('right 'left))))
-    (setf (isl-iterator--direction iterator) new-dir)
-    (setf (isl-iterator--seq iterator)
-          (append queue (butlast rev (length queue))))))
+  (setf (isl-iterator--changing-direction iterator) t))
 
 (defun isl-iter-next (iterator)
   "Return next elm of ITERATOR."
