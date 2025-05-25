@@ -811,14 +811,15 @@ you try to modify other elements externally."
                                  (changing-direction nil))
       ()
     (let ((elm (car tmp-seq))
-          revlist queue)
+          revlist queue index)
       (if changing-direction
           (setq revlist (reverse seq)
                 queue (memql element revlist)
                 direction (pcase direction
                             ('left 'right)
                             ('right 'left))
-                seq (append queue (butlast revlist (length queue)))
+                index (- (length seq) (length queue))
+                seq (append queue (take index revlist))
                 tmp-seq (cddr seq)
                 elm (cadr seq)
                 changing-direction nil)
@@ -835,8 +836,9 @@ you try to modify other elements externally."
 
 (defun isl-set-iterator ()
   "Build `isl--iterator' against `isl--item-overlays'."
-  (let* ((lst (memql isl--last-overlay isl--item-overlays))
-         (ovs (append lst (butlast isl--item-overlays (length lst)))))
+  (let* ((queue (memql isl--last-overlay isl--item-overlays))
+         (index (- (length isl--item-overlays) (length queue)))
+         (ovs   (append queue (take index isl--item-overlays))))
     (setq isl--iterator (isl-iter-circular ovs))))
 
 (defun isl-delete-overlays ()
