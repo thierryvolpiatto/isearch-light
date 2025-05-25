@@ -788,15 +788,21 @@ all align operations you have to exit with RET."
 ;;; Iterators
 ;;
 (oclosure-define isl-iterator
-  "Return an iterator from SEQ."
+  "Provide iterator for isl navigation."
   (seq :type 'list :mutable t)
   (changing-direction :type 'boolean :mutable t)
   (element :mutable t)
   (direction :type 'symbol :mutable t))
 
 (defun isl-iter-circular (seq)
-  "Return an iterator from SEQ.
-When CYCLE arg is provided, make the iterator cycle infinitely."
+  "Return an infinite iterator from SEQ.
+The iterator is mutable, its direction can be changed at anytime with
+the function `isl-iterator-reverse', when doing so the sequence
+handled by the iterator is reversed from the last element yielded.
+Elements of the iterator can be accessed via the isl-iterator--* fns.
+All the oclosure slots are mutable but the only one that can be
+changed safely is \\='changing-direction', expect weird behavior if
+you try to modify other elements externally."
   (let ((ori seq)
         (lis seq))
     (oclosure-lambda (isl-iterator (seq seq)
@@ -822,6 +828,7 @@ When CYCLE arg is provided, make the iterator cycle infinitely."
         (setq element elm)))))
 
 (defun isl-iterator-reverse (iterator)
+  "Change the direction of ITERATOR."
   (setf (isl-iterator--changing-direction iterator) t))
 
 (defun isl-iter-next (iterator)
