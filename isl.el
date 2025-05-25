@@ -6,8 +6,8 @@
 ;; Version: 1.1
 ;; URL: https://github.com/thierryvolpiatto/isearch-light
 
-;; Compatibility: GNU Emacs 29.1+
-;; Package-Requires: ((emacs "29.1"))
+;; Compatibility: GNU Emacs 25.1+
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,9 +34,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl-lib)
-  (require 'oclosure))
+(eval-when-compile (require 'cl-lib))
 
 ;; Compatibility
 (unless (and (fboundp 'pos-bol) (fboundp 'pos-eol))
@@ -76,6 +74,7 @@
 (defvar isl--item-overlays nil)
 (defvar isl--iterator nil)
 (defvar isl--last-overlay nil)
+(defvar isl--direction nil)
 (defvar isl-initial-pos nil)
 (defvar isl--number-results 0)
 (defvar isl-history nil)
@@ -423,16 +422,18 @@ It put overlay on current position, move to next overlay using
 (defun isl-goto-next (&optional arg)
   "Go to next ARG match."
   (interactive "p")
-  (when (eq (isl-iterator--direction isl--iterator) 'left)
-    (isl-iterator-reverse isl--iterator))
+  (when (eq isl--direction 'backward)
+    (setq isl--direction 'forward)
+    (isl-set-iterator t))
   (isl-goto-next-1 arg))
 (put 'isl-goto-next 'no-helm-mx t)
 
 (defun isl-goto-prev (&optional arg)
   "Go to previous ARG matches."
   (interactive "p")
-  (when (eq (isl-iterator--direction isl--iterator) 'right)
-    (isl-iterator-reverse isl--iterator))
+  (when (eq isl--direction 'forward)
+    (setq isl--direction 'backward)
+    (isl-set-iterator t))
   (isl-goto-next-1 arg))
 (put 'isl-goto-prev 'no-helm-mx t)
 
@@ -785,55 +786,18 @@ all align operations you have to exit with RET."
     (isl-update)))
 (put 'isl-align-regexp 'no-helm-mx t)
 
-;;; Iterators
-(oclosure-define isl-iterator
-  "Return an iterator from SEQ
-Provide accessors `isl-iterator--seq', `isl-iterator--element' and
-`isl-iterator--direction' from `isl--iterator'."
-  (seq :type 'list :mutable t)
-  (element :mutable t)
-  (direction :type 'symbol :mutable t))
-
 (defun isl-iter-circular (seq)
-  "Build a new iterator with infinite iteration on SEQ."
-  (let ((ori seq)
-        (lis seq))
-    (oclosure-lambda (isl-iterator
-                      (seq seq)
-                      (element nil)
-                      (direction 'right))
-        ()
-      (let ((elm (car lis)))
-        (if (not (equal seq ori))
-            (setq lis (cddr seq)
-                  ori seq
-                  elm (cadr seq))
-          (setq lis (or (cdr lis) seq)))
-        (setq element elm)))))
-
-(defun isl-iterator-reverse (iterator)
-  (let* ((lst     (isl-iterator--seq iterator))
-         (rev     (reverse lst))
-         (elm     (isl-iterator--element iterator))
-         (queue   (memql elm rev))
-         (old-dir (isl-iterator--direction iterator))
-         (new-dir (pcase old-dir
-                    ('left 'right)
-                    ('right 'left))))
-    (setf (isl-iterator--direction iterator) new-dir)
-    (setf (isl-iterator--seq iterator)
-          (append queue (butlast rev (length queue))))))
+  "Infinite iteration on SEQ."
+  (let ((lis seq))
+     (lambda ()
+       (let ((elm (car lis)))
+         (setq lis (or (cdr lis) seq))
+         elm))))
 
 (defun isl-iter-next (iterator)
   "Return next elm of ITERATOR."
   (and iterator (funcall iterator)))
 
-(defun isl-set-iterator ()
-  "Build `isl--iterator' against `isl--item-overlays'."
-  (let* ((lst (memql isl--last-overlay isl--item-overlays))
-         (ovs (append lst (butlast isl--item-overlays (length lst)))))
-    (setq isl--iterator (isl-iter-circular ovs))))
-
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
   (when isl--item-overlays
@@ -1057,10 +1021,9 @@ See `isl-requires-pattern'."
                               (> (point) isl-initial-pos))
                          isl-after-position-string
                        isl-before-position-string)))
-        (direction (when isl--iterator
-                     (if (eq (isl-iterator--direction isl--iterator) 'right)
-                         isl-direction-down-string
-                       isl-direction-up-string))))
+        (direction (if (eq isl--direction 'forward)
+                       isl-direction-down-string
+                     isl-direction-up-string)))
     (when (numberp isl--number-results)
       (setq mode-line-format
             (cond ((or (string= isl-pattern "")
@@ -1122,6 +1085,19 @@ See `isl-requires-pattern'."
            collect (cons diff ov) into res
            minimize diff into min
            finally return (cdr (assq min res))))
+
+(defun isl-set-iterator (&optional skip-first)
+  "Build `isl--iterator' against `isl--item-overlays' according to context.
+When SKIP-FIRST is specified build iterator with the current overlay
+appended at end."
+  (let* ((revlst (if (eq isl--direction 'forward)
+                     isl--item-overlays
+                   (reverse isl--item-overlays)))
+         (fwdlst (memql isl--last-overlay revlst))
+         (ovlst (append (if skip-first (cdr fwdlst) fwdlst)
+                        (butlast revlst (length fwdlst))
+                        (and skip-first (list (car fwdlst))))))
+      (setq isl--iterator (isl-iter-circular ovlst))))
 
 (defun isl-check-input ()
   "Check minibuffer input."
@@ -1224,6 +1200,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
   (unless resume
     (setq isl-initial-pos (point)
           isl-pattern ""
+          isl--direction 'forward
           isl-current-buffer (current-buffer)
           isl--buffer-tick (buffer-modified-tick)
           isl--buffer-invisibility-spec buffer-invisibility-spec
