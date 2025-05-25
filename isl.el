@@ -3,7 +3,7 @@
 ;; Author:      Thierry Volpiatto <thievol@posteo.net>
 ;; Copyright (C) 2021~2024 Thierry Volpiatto <thievol@posteo.net>
 
-;; Version: 1.1
+;; Version: 1.3
 ;; URL: https://github.com/thierryvolpiatto/isearch-light
 
 ;; Compatibility: GNU Emacs 29.1+
