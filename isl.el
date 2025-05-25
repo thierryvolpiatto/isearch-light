@@ -834,7 +834,7 @@ you try to modify other elements externally."
   "Return next elm of ITERATOR."
   (and iterator (funcall iterator)))
 
-(defun isl-set-iterator ()
+(defun isl-make-iterator ()
   "Build `isl--iterator' against `isl--item-overlays'."
   (let* ((queue (memql isl--last-overlay isl--item-overlays))
          (index (- (length isl--item-overlays) (length queue)))
@@ -1028,7 +1028,7 @@ See `isl-requires-pattern'."
                    (or isl-initial-pos 0) isl--item-overlays)
                   isl--number-results (max (length isl--item-overlays) 0))
             (isl--highlight-last-overlay 'isl-on)
-            (isl-set-iterator)
+            (isl-make-iterator)
             (goto-char (overlay-end (isl-iter-next isl--iterator)))
             (setq isl--yank-point (point)))))
       (isl-setup-mode-line))))
