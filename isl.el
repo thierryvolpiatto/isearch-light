@@ -1065,7 +1065,7 @@ See `isl-requires-pattern'."
                          isl-after-position-string
                        isl-before-position-string)))
         (direction (when isl--iterator
-                     (if (eq (isl-iterator--direction isl--iterator) 'forward)
+                     (if (eq (isl-iterator--direction isl--iterator) 'right)
                          isl-direction-down-string
                        isl-direction-up-string))))
     (when (numberp isl--number-results)
