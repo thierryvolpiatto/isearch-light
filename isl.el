@@ -790,6 +790,7 @@ all align operations you have to exit with RET."
 (oclosure-define isl-iterator
   "Provide iterator for isl navigation."
   (seq :type 'list :mutable t)
+  (tmp-seq :type 'list :mutable t)
   (changing-direction :type 'boolean :mutable t)
   (element :mutable t)
   (direction :type 'symbol :mutable t))
@@ -803,29 +804,26 @@ Elements of the iterator can be accessed via the isl-iterator--* fns.
 All the oclosure slots are mutable but the only one that can be
 changed safely is \\='changing-direction', expect weird behavior if
 you try to modify other elements externally."
-  (let ((ori seq)
-        (lis seq))
-    (oclosure-lambda (isl-iterator (seq seq)
-                                   (element nil)
-                                   (direction 'right)
-                                   (changing-direction nil))
-        ()
-      (let ((elm (car lis))
-            rev queue)
-        (when changing-direction
-          (setq rev (reverse seq)
-                queue (memql element rev)
+  (oclosure-lambda (isl-iterator (seq seq)
+                                 (tmp-seq seq)
+                                 (element nil)
+                                 (direction 'right)
+                                 (changing-direction nil))
+      ()
+    (let ((elm (car tmp-seq))
+          revlist queue)
+      (if changing-direction
+          (setq revlist (reverse seq)
+                queue (memql element revlist)
                 direction (pcase direction
                             ('left 'right)
                             ('right 'left))
-                seq (append queue (butlast rev (length queue)))
-                changing-direction nil))
-        (if (not (equal seq ori))
-            (setq lis (cddr seq)
-                  ori seq
-                  elm (cadr seq))
-          (setq lis (or (cdr lis) seq)))
-        (setq element elm)))))
+                seq (append queue (butlast revlist (length queue)))
+                tmp-seq (cddr seq)
+                elm (cadr seq)
+                changing-direction nil)
+        (setq tmp-seq (or (cdr tmp-seq) seq)))
+      (setq element elm))))
 
 (defun isl-iterator-reverse (iterator)
   "Change the direction of ITERATOR."
