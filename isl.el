@@ -813,7 +813,7 @@ changed safely is \\='changing-direction', expect weird behavior if
 you try to modify other elements externally."
   (oclosure-lambda (isl-iterator (seq seq)
                                  (tmp-seq seq)
-                                 (element nil)
+                                 (element (car seq))
                                  (direction 'right)
                                  (changing-direction nil))
       ()
