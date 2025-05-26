@@ -383,7 +383,7 @@ It put overlay on current position, move to next overlay using
 (put 'isl-delete-minibuffer-contents 'no-helm-mx t)
 
 (defun isl--find-and-goto-overlay (overlay)
-  "Consume iterators up to OVERLAY and jump to it."
+  "Consume iterator up to OVERLAY and jump to it."
   (with-selected-window (minibuffer-selected-window)
     (let (ov)
       (while (not (eql (setq ov (isl-iter-next isl--iterator))
