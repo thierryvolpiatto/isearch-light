@@ -1026,7 +1026,7 @@ See `isl-requires-pattern'."
                     (when (looking-at isl-pattern)
                       (setq go (cons (pos-bol) (pos-eol))))))
               (invalid-regexp (setq isl--invalid t) nil))
-            (setq isl--item-overlays (reverse isl--item-overlays)))
+            (setq isl--item-overlays (nreverse isl--item-overlays)))
           (if (null isl--item-overlays)
               (progn (setq isl--number-results 0)
                      (and isl-initial-pos (goto-char isl-initial-pos)))
