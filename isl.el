@@ -788,7 +788,14 @@ all align operations you have to exit with RET."
 ;;; Iterators
 ;;
 (oclosure-define isl-iterator
-  "Provide iterator for isl navigation."
+  "Provide iterator for isl navigation.
+SEQ is the main list where the iterator is bound to, it is modified
+only when changing direction.
+TMP-SEQ is bound to SEQ and modified each time the iterator is called.
+CHANGING-DIRECTION tells the iterator we want to change direction.
+ELEMENT refers to the last element yielded.
+DIRECTION refers to the direction we are currently using, left or right.
+All slots are mutables."
   (seq :type 'list :mutable t)
   (tmp-seq :type 'list :mutable t)
   (changing-direction :type 'boolean :mutable t)
