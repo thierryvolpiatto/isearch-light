@@ -846,7 +846,12 @@ you try to modify other elements externally."
   (let* ((queue (memql isl--last-overlay isl--item-overlays))
          (index (- (length isl--item-overlays) (length queue)))
          (ovs   (append queue (take index isl--item-overlays))))
-    (setq isl--iterator (isl-iter-circular ovs))))
+    (if isl--iterator
+        (setf (isl-iterator--seq isl--iterator) ovs
+              (isl-iterator--tmp-seq isl--iterator) ovs
+              (isl-iterator--element isl--iterator) isl--last-overlay
+              (isl-iterator--direction isl--iterator) 'right)
+      (setq isl--iterator (isl-iter-circular ovs)))))
 
 (defun isl-delete-overlays ()
   "Cleanup ovelays."
