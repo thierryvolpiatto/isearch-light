@@ -123,31 +123,31 @@ want to modify it accordingly to fit with =isl-map=.
 
 *** Available commands
 
-| C-s    | isl-goto-next                   |
-| C-r    | isl-goto-prev                   |
-| <down> | isl-goto-next                   |
-| <up>   | isl-goto-prev                   |
-| C-n    | isl-goto-next                   |
-| C-p    | isl-goto-prev                   |
-| RET    | isl-exit-at-point               |
-| C-w    | isl-yank-word-at-point          |
-| C-z    | isl-yank-symbol-at-point        |
-| M-r    | isl-change-matching-style       |
-| M-c    | isl-select-case-fold-search     |
-| M-<    | isl-goto-first                  |
-| M->    | isl-goto-last                   |
-| M-=    | isl-goto-closest-from-start     |
-| M-s    | isl-jump-to-helm-occur          |
-| C-;    | isl-jump-to-iedit-mode          |
-| M-%    | isl-query-replace               |
-| C-h m  | isl-display-or-quit-help        |
-| C-q    | isl-help-quit                   |
-| C-'    | isl-show-or-hide-context-lines  |
-| C-l    | isl-recenter                    |
-| C-v    | isl-scroll-up                   |
-| M-v    | isl-scroll-down                 |
-| C-k    | isl-delete-minibuffer-contents  |
-| C-j    | isl-toggle-multi-search-in-line |
+| C-h m   | Display or quit this help buffer                     |
+| C-q     | Quit this help buffer                                |
+| C-n     | Goto next occurence                                  |
+| C-p     | Goto previous occurence                              |
+| M-v     | Scroll down                                          |
+| C-v     | Scroll up                                            |
+| RET     | Exit at current position                             |
+| C-]     | Quit and restore initial position                    |
+| C-w     | Yank word at point                                   |
+| C-z     | Yank symbol at point                                 |
+| C-l     | Recenter current buffer                              |
+| M-r     | Toggle matching style (regexp/litteral)              |
+| M-c     | Change case fold search (cycle: *=smart, 1=t, 0=nil) |
+| M-<     | Goto first occurence                                 |
+| M->     | Goto last occurence                                  |
+| M-=     | Goto closest occurence from start                    |
+| M-s     | Jump to helm-occur                                   |
+| C-;     | Jump to iedit-mode                                   |
+| M-%     | Jump to query replace                                |
+| C-'     | Hide or show non matching lines                      |
+| C-j     | Toggle multi search style (InLine/InSymbol)          |
+| M-i     | Toggle searching in invisible text                   |
+| C-!     | Add bookmark BM to current pos                       |
+| C-c C-k | Kill selected occurence                              |
+| C-}     | Align text matching regexp in region                 |
 
 ** About multi matching
 
