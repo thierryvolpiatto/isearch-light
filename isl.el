@@ -1016,6 +1016,10 @@ See `isl-requires-pattern'."
                                    (propertize "$" 'face 'isl-match)))
                     (overlay-put ov 'isl t)
                     (overlay-put ov 'pos count)
+                    ;; I could highlight only from window-start to
+                    ;; window-end (lazy highlight) after this loop and
+                    ;; also in isl--goto-overlay but the win is very
+                    ;; small so just highlight all.
                     (overlay-put ov 'face 'isl-match)
                     (let* ((pos      (or isl-initial-pos 0))
                            (ovpos    (car bounds))
