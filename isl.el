@@ -1024,7 +1024,7 @@ See `isl-requires-pattern'."
                     (let* ((pos      (or isl-initial-pos 0))
                            (ovpos    (car bounds))
                            (diff (if (> pos ovpos)
-                                         (- pos ovpos) (- ovpos pos))))
+                                     (- pos ovpos) (- ovpos pos))))
                       (push (cons diff ov) ovs-alist)
                       (setq npos (min diff npos)))
                     (when isl-multi-search-in-line
