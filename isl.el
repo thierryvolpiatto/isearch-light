@@ -1016,15 +1016,15 @@ See `isl-requires-pattern'."
                                    (propertize "$" 'face 'isl-match)))
                     (overlay-put ov 'isl t)
                     (overlay-put ov 'pos count)
-                    ;; I could highlight only from window-start to
+                    ;; We could highlight later from window-start to
                     ;; window-end (lazy highlight) after this loop and
-                    ;; also in isl--goto-overlay but the win is very
-                    ;; small so just highlight all.
+                    ;; also in isl--goto-overlay but the gain is
+                    ;; insignifiant.
                     (overlay-put ov 'face 'isl-match)
-                    (let* ((pos      (or isl-initial-pos 0))
-                           (ovpos    (car bounds))
-                           (diff (if (> pos ovpos)
-                                     (- pos ovpos) (- ovpos pos))))
+                    (let* ((pos   (or isl-initial-pos 0))
+                           (ovpos (car bounds))
+                           (diff  (if (> pos ovpos)
+                                      (- pos ovpos) (- ovpos pos))))
                       (push (cons diff ov) ovs-alist)
                       (setq npos (min diff npos)))
                     (when isl-multi-search-in-line
@@ -1032,10 +1032,9 @@ See `isl-requires-pattern'."
                     (cl-incf count))
                   (when (= (car bounds) (cdr bounds))
                     (forward-line 1)
-                    ;; If we are here we are matching empty lines and
-                    ;; isl--re-search-forward fails on this new
-                    ;; empty line (re-search-forward instead would be
-                    ;; stuck and infloop) so match it with looking-at
+                    ;; If the line we are on if again an empty line
+                    ;; `isl--re-search-forward' will be stuck on next
+                    ;; turn of the loop so match it with looking-at
                     ;; and use GO value in next turn of the loop.
                     (when (looking-at isl-pattern)
                       (setq go (cons (pos-bol) (pos-eol))))))
