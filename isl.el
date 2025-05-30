@@ -1030,7 +1030,7 @@ See `isl-requires-pattern'."
                     (cl-incf count))
                   (when (= (car bounds) (cdr bounds))
                     (forward-line 1)
-                    ;; If the line we are on if again an empty line
+                    ;; If the line we are on is again an empty line
                     ;; `isl--re-search-forward' will be stuck on next
                     ;; turn of the loop so match it with looking-at
                     ;; and use GO value in next turn of the loop.
