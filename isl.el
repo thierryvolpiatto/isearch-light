@@ -76,7 +76,7 @@
 (defvar isl--item-overlays nil)
 (defvar isl--iterator nil)
 (defvar isl--last-overlay nil)
-(defvar isl-initial-pos nil)
+(defvar isl--initial-pos nil)
 (defvar isl--number-results 0)
 (defvar isl-history nil)
 (defvar isl--yank-point nil)
@@ -413,7 +413,7 @@ It put overlay on current position, move to next overlay using
   "Goto closest match from start."
   (interactive)
   (let ((ov (isl-closest-overlay
-             isl-initial-pos isl--item-overlays)))
+             isl--initial-pos isl--item-overlays)))
     (if (eql ov isl--last-overlay)
         (user-error "Already at closest occurence from start")
       (isl--find-and-goto-overlay ov))))
@@ -452,8 +452,8 @@ It put overlay on current position, move to next overlay using
         (when matches
           (goto-char (overlay-end (car matches))))))
     (when isl-save-pos-to-mark-ring
-      (set-marker (mark-marker) isl-initial-pos)
-      (push-mark isl-initial-pos 'nomsg))
+      (set-marker (mark-marker) isl--initial-pos)
+      (push-mark isl--initial-pos 'nomsg))
     (let ((ov (make-overlay (pos-bol) (1+ (pos-eol)))))
       (overlay-put ov 'face 'isl-line)
       (sit-for 0.2)
@@ -1019,7 +1019,7 @@ See `isl-requires-pattern'."
                     ;; also in isl--goto-overlay but the gain is
                     ;; insignifiant.
                     (overlay-put ov 'face 'isl-match)
-                    (let* ((pos   (or isl-initial-pos 0))
+                    (let* ((pos   (or isl--initial-pos 0))
                            (ovpos (car bounds))
                            (diff  (if (> pos ovpos)
                                       (- pos ovpos) (- ovpos pos))))
@@ -1040,7 +1040,7 @@ See `isl-requires-pattern'."
             (setq isl--item-overlays (nreverse isl--item-overlays)))
           (if (null isl--item-overlays)
               (progn (setq isl--number-results 0)
-                     (and isl-initial-pos (goto-char isl-initial-pos)))
+                     (and isl--initial-pos (goto-char isl--initial-pos)))
             (setq isl--last-overlay (cdr (assq npos ovs-alist))
                   isl--number-results (max (length isl--item-overlays) 0))
             (isl--highlight-last-overlay 'isl-on)
@@ -1075,8 +1075,8 @@ See `isl-requires-pattern'."
                     (propertize "Inline" 'help-echo "Search in line")
                   (propertize "Insym" 'help-echo "Search in symbol")))
         (position (with-current-buffer isl-current-buffer
-                     (if (and isl-initial-pos
-                              (> (point) isl-initial-pos))
+                     (if (and isl--initial-pos
+                              (> (point) isl--initial-pos))
                          isl-after-position-string
                        isl-before-position-string)))
         (direction (when isl--iterator
@@ -1157,7 +1157,7 @@ See `isl-requires-pattern'."
           (with-selected-window (minibuffer-selected-window)
             (isl-delete-overlays)
             (isl-setup-mode-line)
-            (goto-char isl-initial-pos)))))))
+            (goto-char isl--initial-pos)))))))
 
 (defun isl-read-from-minibuffer (prompt &optional initial-input default)
   "Read input from minibuffer with prompt PROMPT.
@@ -1185,7 +1185,7 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
             `(lambda ()
                (setq-local mode-line-format ',mode-line-format
                            isl-last-query ,isl-pattern
-                           isl-initial-pos ,pos
+                           isl--initial-pos ,pos
                            isl--point-min ,isl--point-min
                            isl--point-max ,isl--point-max
                            isl--narrow-to-region ,isl--narrow-to-region
@@ -1244,7 +1244,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
                  (and (not input) (not resume)))
              nil "(isl-search-1): RESUME and INPUT can't be used together")
   (unless resume
-    (setq isl-initial-pos (point)
+    (setq isl--initial-pos (point)
           isl-pattern ""
           isl-current-buffer (current-buffer)
           isl--buffer-tick (buffer-modified-tick)
@@ -1287,8 +1287,8 @@ Note that INPUT cannot be used with a non nil value for RESUME."
            (quit
             (setq isl--quit t)
             (isl--maybe-revert-to-original)
-            (when isl-initial-pos
-              (goto-char isl-initial-pos))))
+            (when isl--initial-pos
+              (goto-char isl--initial-pos))))
       (isl-cleanup)
       ;; Avoid loosing focus in helm help buffer.
       (unless (eq (window-buffer (selected-window))
