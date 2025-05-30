@@ -147,7 +147,7 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 (defcustom isl-search-function #'isl--re-search-forward
   "The search function that will be used by default when starting `isl-search'.
 Possible values are `isl--re-search-forward' and `search-forward', the
-first use regexp matching while the second is using literal matching.
+first uses regexp matching while the second is using literal matching.
 Its value can be changed during `isl-search' session with `\\<isl-map>\\[isl-change-matching-style]'."
   :type '(choice
            (function :tag "Regexp matching" isl--re-search-forward)
