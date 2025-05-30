@@ -93,7 +93,6 @@
 (defvar isl--point-min nil)
 (defvar isl--point-max nil)
 (defvar isl--narrow-to-region nil)
-(defvar isl--extra-items-overlays nil)
 (defvar isl-search-invisible t)
 (defvar isl--buffer-tick nil)
 
@@ -857,8 +856,7 @@ you try to modify other elements externally."
   "Cleanup ovelays."
   (when isl--item-overlays
     (remove-overlays nil nil 'isl t)
-    (setq isl--item-overlays nil
-          isl--extra-items-overlays nil)))
+    (setq isl--item-overlays nil)))
 
 (cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
   "Return a suitable value for `case-fold-search'.
@@ -1065,7 +1063,6 @@ See `isl-requires-pattern'."
                  do (save-excursion
                       (while (isl--re-search-forward p end t)
                         (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
-                        (push ov2 isl--extra-items-overlays)
                         (overlay-put ov2 'face 'isl-match-items)
                         (overlay-put ov2 'isl t)
                         (overlay-put ov2 'isl-matches t)
