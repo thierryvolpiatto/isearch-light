@@ -65,6 +65,9 @@
 (declare-function markdown-show-entry "ext:markdown-mode.el")
 (declare-function bm-toggle "ext:bm.el")
 
+;; History
+(defvar isl-history nil)
+
 ;; Internals
 (defvar isl-pattern "")
 (defvar-local isl-last-query nil)
@@ -78,7 +81,6 @@
 (defvar isl--last-overlay nil)
 (defvar isl--initial-pos nil)
 (defvar isl--number-results 0)
-(defvar isl-history nil)
 (defvar isl--yank-point nil)
 (defvar isl--quit nil)
 (defvar isl--invalid nil)
@@ -88,7 +90,6 @@
   "Match a quoted space in a string.")
 (defconst isl--case-fold-choices '(smart nil t))
 (defvar isl--case-fold-choices-iterator nil)
-(defvar isl-help-buffer-name "*isl help*")
 (defvar isl--hidding nil)
 (defvar isl--point-min nil)
 (defvar isl--point-max nil)
@@ -97,6 +98,8 @@
 (defvar isl--buffer-tick nil)
 
 ;; User vars
+
+(defvar isl-help-buffer-name "*isl help*")
 
 (defvar isl-timer-delay 0.01)
 
