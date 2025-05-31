@@ -67,7 +67,7 @@
 
 ;; History
 (defvar isl-history nil)
-
+
 ;; Internals
 (defvar isl-pattern "")
 (defvar-local isl-last-query nil)
@@ -96,6 +96,7 @@
 (defvar isl--narrow-to-region nil)
 (defvar isl-search-invisible t)
 (defvar isl--buffer-tick nil)
+(defvar isl--closest-overlay nil)
 
 ;; User vars
 
@@ -416,11 +417,9 @@ It put overlay on current position, move to next overlay using
 (defun isl-goto-closest-from-start ()
   "Goto closest match from start."
   (interactive)
-  (let ((ov (isl-closest-overlay
-             isl--initial-pos isl--item-overlays)))
-    (if (eql ov isl--last-overlay)
-        (user-error "Already at closest occurence from start")
-      (isl--find-and-goto-overlay ov))))
+  (if (eql isl--closest-overlay isl--last-overlay)
+      (user-error "Already at closest occurence from start")
+    (isl--find-and-goto-overlay isl--closest-overlay)))
 (put 'isl-goto-closest-from-start 'no-helm-mx t)
 
 (defun isl-goto-next (&optional arg)
@@ -1051,6 +1050,7 @@ See `isl-requires-pattern'."
               (progn (setq isl--number-results 0)
                      (and isl--initial-pos (goto-char isl--initial-pos)))
             (setq isl--last-overlay (cdr (assq npos ovs-alist))
+                  isl--closest-overlay (cdr (assq npos ovs-alist))
                   isl--number-results (max (length isl--item-overlays) 0))
             (isl--highlight-last-overlay 'isl-on)
             (isl-make-or-update-iterator)
@@ -1145,15 +1145,6 @@ See `isl-requires-pattern'."
                                                 'help-echo "case-fold-search")))
                            " " mode-line-position)))))))
 
-(defun isl-closest-overlay (pos overlays)
-  "Return closest overlay from POS in OVERLAYS list."
-  (cl-loop for ov in overlays
-           for ovpos = (overlay-start ov)
-           for diff = (if (> pos ovpos) (- pos ovpos) (- ovpos pos))
-           collect (cons diff ov) into res
-           minimize diff into min
-           finally return (cdr (assq min res))))
-
 (defun isl-check-input ()
   "Check minibuffer input."
   (with-selected-window (minibuffer-window)
@@ -1212,6 +1203,7 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
             isl--yank-point nil
             isl--iterator nil
             isl--item-overlays nil
+            isl--closest-overlay nil
             isl--last-overlay nil
             isl--number-results nil
             isl-case-fold-search (default-value 'isl-case-fold-search)
