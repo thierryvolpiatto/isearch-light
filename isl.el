@@ -127,7 +127,7 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 \\[isl-yank-word-at-point]\t\tYank word at point
 \\[isl-yank-symbol-at-point]\t\tYank symbol at point
 \\[isl-recenter]\t\tRecenter current buffer
-\\[isl-change-matching-style]\t\tToggle matching style (regexp/litteral)
+\\[isl-change-matching-style]\t\tToggle matching style (regexp/literal)
 \\[isl-select-case-fold-search]\t\tChange case fold search (cycle: *=smart, 1=t, 0=nil)
 \\[isl-goto-first]\t\tGoto first occurence
 \\[isl-goto-last]\t\tGoto last occurence
