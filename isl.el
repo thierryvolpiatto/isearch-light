@@ -387,12 +387,13 @@ It put overlay on current position, move to next overlay using
 (defun isl--find-and-goto-overlay (overlay)
   "Consume iterator up to OVERLAY and jump to it."
   (with-selected-window (minibuffer-selected-window)
-    (let (ov)
-      (while (not (eql (setq ov (isl-iter-next isl--iterator))
-                       overlay)))
-      (isl--highlight-last-overlay 'isl-match)
-      (and ov (isl--goto-overlay ov)))
-    (isl-setup-mode-line)))
+    (when isl--iterator
+      (let (ov)
+        (while (not (eql (setq ov (isl-iter-next isl--iterator))
+                         overlay)))
+        (isl--highlight-last-overlay 'isl-match)
+        (and ov (isl--goto-overlay ov)))
+      (isl-setup-mode-line))))
 
 (defun isl-goto-first ()
   "Goto first match."
@@ -425,7 +426,8 @@ It put overlay on current position, move to next overlay using
 (defun isl-goto-next (&optional arg)
   "Go to next ARG match."
   (interactive "p")
-  (when (eq (isl-iterator--direction isl--iterator) 'left)
+  (when (and isl--iterator
+             (eq (isl-iterator--direction isl--iterator) 'left))
     (isl-iterator-reverse isl--iterator))
   (isl-goto-next-1 arg))
 (put 'isl-goto-next 'no-helm-mx t)
@@ -433,7 +435,8 @@ It put overlay on current position, move to next overlay using
 (defun isl-goto-prev (&optional arg)
   "Go to previous ARG matches."
   (interactive "p")
-  (when (eq (isl-iterator--direction isl--iterator) 'right)
+  (when (and isl--iterator
+             (eq (isl-iterator--direction isl--iterator) 'right))
     (isl-iterator-reverse isl--iterator))
   (isl-goto-next-1 arg))
 (put 'isl-goto-prev 'no-helm-mx t)
@@ -442,28 +445,29 @@ It put overlay on current position, move to next overlay using
   "Exit minibuffer and jump at current position."
   (interactive)
   (with-selected-window (minibuffer-selected-window)
-    ;; Ensure user haven't scrolled to another place.
-    (let ((end (overlay-end isl--last-overlay))
-          (lp (overlay-get isl--last-overlay 'line-prefix)))
-      (goto-char (if (or isl-multi-search-in-line lp)
-                     (1- end) end)))
-    (when isl-multi-search-in-line
-      (let* ((ovs     (overlays-in (pos-bol) (pos-eol)))
-             (matches (cl-loop for ov in ovs
-                               when (overlay-get ov 'isl-matches)
-                               collect ov)))
-        (when matches
-          (goto-char (overlay-end (car matches))))))
-    (when isl-save-pos-to-mark-ring
-      (set-marker (mark-marker) isl--initial-pos)
-      (push-mark isl--initial-pos 'nomsg))
-    (let ((ov (make-overlay (pos-bol) (1+ (pos-eol)))))
-      (overlay-put ov 'face 'isl-line)
-      (sit-for 0.2)
-      (delete-overlay ov))
-    ;; Save `window-start' position before exiting minibuffer and
-    ;; restore it after in `isl-cleanup' to avoid a moving screen.
-    (setq isl--window-start (window-start)))
+    (when isl--last-overlay
+      ;; Ensure user haven't scrolled to another place.
+      (let ((end (overlay-end isl--last-overlay))
+            (lp (overlay-get isl--last-overlay 'line-prefix)))
+        (goto-char (if (or isl-multi-search-in-line lp)
+                       (1- end) end)))
+      (when isl-multi-search-in-line
+        (let* ((ovs     (overlays-in (pos-bol) (pos-eol)))
+               (matches (cl-loop for ov in ovs
+                                 when (overlay-get ov 'isl-matches)
+                                 collect ov)))
+          (when matches
+            (goto-char (overlay-end (car matches))))))
+      (when isl-save-pos-to-mark-ring
+        (set-marker (mark-marker) isl--initial-pos)
+        (push-mark isl--initial-pos 'nomsg))
+      (let ((ov (make-overlay (pos-bol) (1+ (pos-eol)))))
+        (overlay-put ov 'face 'isl-line)
+        (sit-for 0.2)
+        (delete-overlay ov))
+      ;; Save `window-start' position before exiting minibuffer and
+      ;; restore it after in `isl-cleanup' to avoid a moving screen.
+      (setq isl--window-start (window-start))))
   ;; Call `exit-minibuffer' out of the `with-selected-window' block to
   ;; avoid error with the emacs-28 version.
   (exit-minibuffer))
@@ -768,6 +772,7 @@ Numeric prefix ARG is applied to the SPACING arg of `align-regexp'.
 Quitting undo all the align actions done in current session, to valid
 all align operations you have to exit with RET."
   (interactive "p")
+  (cl-assert isl--item-overlays nil "Nothing yet to align")
   (cl-assert isl--narrow-to-region nil "No region found")
   (cl-assert (not (cdr (isl-split-string isl-pattern))) nil
              "Can't align with a multi match expression")
