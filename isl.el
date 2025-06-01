@@ -64,6 +64,7 @@
 (declare-function hs-show-block "hideshow.el")
 (declare-function markdown-show-entry "ext:markdown-mode.el")
 (declare-function bm-toggle "ext:bm.el")
+(declare-function pulse-momentary-highlight-region "pulse.el")
 
 ;; History
 (defvar isl-history nil)
@@ -236,10 +237,6 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
   '((t :background "SandyBrown"
        :foreground "black"))
   "Face used to highlight the item where point is.")
-
-(defface isl-line
-  '((t :background "Darkgoldenrod1" :extend t))
-  "Face used to flash line on exit.")
 
 (defface isl-number
   '((t :foreground "green"))
@@ -460,10 +457,7 @@ It put overlay on current position, move to next overlay using
       (when isl-save-pos-to-mark-ring
         (set-marker (mark-marker) isl--initial-pos)
         (push-mark isl--initial-pos 'nomsg))
-      (let ((ov (make-overlay (pos-bol) (1+ (pos-eol)))))
-        (overlay-put ov 'face 'isl-line)
-        (sit-for 0.2)
-        (delete-overlay ov))
+      (pulse-momentary-highlight-region (pos-bol) (pos-eol))
       ;; Save `window-start' position before exiting minibuffer and
       ;; restore it after in `isl-cleanup' to avoid a moving screen.
       (setq isl--window-start (window-start))))
