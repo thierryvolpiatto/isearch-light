@@ -1,7 +1,7 @@
 ;;; isl.el --- Simple incremental search in current-buffer -*- lexical-binding: t -*-
 
 ;; Author:      Thierry Volpiatto <thievol@posteo.net>
-;; Copyright (C) 2021~2024 Thierry Volpiatto <thievol@posteo.net>
+;; Copyright (C) 2021~2025 Thierry Volpiatto <thievol@posteo.net>
 
 ;; Version: 1.4
 ;; URL: https://github.com/thierryvolpiatto/isearch-light
