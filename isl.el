@@ -137,7 +137,7 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 \\[isl-jump-to-helm-occur]\t\tJump to helm-occur
 \\[isl-jump-to-iedit-mode]\t\tJump to iedit-mode
 \\[isl-query-replace]\t\tJump to query replace
-\\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines
+\\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines (num prefarg or default)
 \\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)
 \\[isl-toggle-invisible-search]\t\tToggle searching in invisible text
 \\[isl-bm-this-pos]\t\tAdd bookmark BM to current pos
@@ -709,9 +709,11 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
       (user-error "No help buffer found"))))
 (put 'isl-help-quit 'no-helm-mx t)
 
-(defun isl-show-or-hide-context-lines ()
-  "Hide or show non matching lines."
-  (interactive)
+(defun isl-show-or-hide-context-lines (&optional arg)
+  "Hide or show non matching lines.
+Show only numeric prefix arg or `isl-visible-context-lines'
+number lines around match."
+  (interactive "p")
   (when isl--item-overlays
     (with-selected-window (minibuffer-selected-window)
       (if (setq isl--hidding (not isl--hidding))
@@ -723,7 +725,9 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
               (set (make-local-variable 'line-move-ignore-invisible) t)
               (add-to-invisibility-spec '(isl-invisible . t))
               (while (not (eobp))
-                (forward-line (- isl-visible-context-lines))
+                (forward-line
+                 (- (or (and current-prefix-arg (max arg 0))
+                        isl-visible-context-lines)))
                 ;; Store position from n lines before
                 ;; this overlay and bol and move to next overlay.
                 (when (> (setq bol (pos-bol)) start)
@@ -731,7 +735,9 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
                 (goto-char ov-end)
                 ;; Go to n lines after last overlay found and jump to
                 ;; next overlay from there.
-                (forward-line isl-visible-context-lines)
+                (forward-line
+                 (or (and current-prefix-arg (max arg 0))
+                     isl-visible-context-lines))
                 (setq start (1+ (pos-eol)))
                 (goto-char (next-single-char-property-change ov-end 'isl))
                 (setq ov-end (point)))
