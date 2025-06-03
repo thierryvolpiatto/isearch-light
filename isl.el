@@ -808,9 +808,7 @@ The iterator is mutable, its direction can be changed at anytime with
 the function `isl-iterator-reverse', when doing so the sequence
 handled by the iterator is reversed from the last element yielded.
 Elements of the iterator can be accessed via the isl-iterator--* fns.
-All the oclosure slots are mutable but the only one that can be
-changed safely is \\='changing-direction', expect weird behavior if
-you try to modify other elements externally."
+All the oclosure slots are mutables."
   (oclosure-lambda (isl-iterator (seq seq)
                                  (tmp-seq seq)
                                  (element (car seq))
