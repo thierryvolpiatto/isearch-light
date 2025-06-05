@@ -333,9 +333,8 @@ It put overlay on current position, move to next overlay using
   (with-selected-window (minibuffer-selected-window)
     (isl--highlight-last-overlay 'isl-match)
     (when isl--iterator
-      ;; This is a noop when ARG==1 i.e. (1- 1) == 0.
-      (cl-loop repeat (1- arg) do (isl-iter-next isl--iterator))
-      (isl--goto-overlay (isl-iter-next isl--iterator)))
+      (cl-loop with ov repeat arg do (setq ov (isl-iter-next isl--iterator))
+               finally (isl--goto-overlay ov)))
     (isl-setup-mode-line)))
 
 (defun isl-scroll-1 (arg)
