@@ -997,7 +997,7 @@ See `isl-requires-pattern'."
                  (listp buffer-invisibility-spec))
         (mapc 'remove-from-invisibility-spec buffer-invisibility-spec))
       (let ((count 1)
-            (npos (point-max)) ; nearest match position from start.
+            (npos (point-max)) ; start comparing at highest pos [1].
             ov bounds go nearest)
         (unless (string= isl-pattern "")
           (save-excursion
@@ -1028,7 +1028,7 @@ See `isl-requires-pattern'."
                            (ovpos (car bounds))
                            (diff  (if (> pos ovpos)
                                       (- pos ovpos) (- ovpos pos))))
-                      ;; At first run, npos is (point-max) so diff is
+                      ;; [1] At first run, npos is (point-max) so diff is
                       ;; always smaller at this time.
                       (when (< diff npos) (setq nearest ov))
                       (setq npos (min diff npos)))
@@ -1048,9 +1048,9 @@ See `isl-requires-pattern'."
           (if (null isl--item-overlays)
               (progn (setq isl--number-results 0)
                      (and isl--initial-pos (goto-char isl--initial-pos)))
-            (setq isl--last-overlay nearest
-                  isl--closest-overlay nearest
-                  isl--number-results (max (length isl--item-overlays) 0))
+            (setq isl--last-overlay    nearest ; Will change while moving.
+                  isl--closest-overlay nearest ; Will change only on next update.
+                  isl--number-results  (max (length isl--item-overlays) 0))
             (isl--highlight-last-overlay 'isl-on)
             (isl-make-or-update-iterator)
             (goto-char (overlay-end (isl-iter-next isl--iterator)))
