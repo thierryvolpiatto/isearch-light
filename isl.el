@@ -350,14 +350,14 @@ It put overlay on current position, move to next overlay using
       (isl--find-and-goto-overlay ov))))
 
 (defun isl--first-ov-after-pos (pos)
-  "Move to next overlay from POS."
-  (cl-loop for ov in isl--item-overlays
+  "Find next overlay after POS."
+  (cl-loop for ov in (memql isl--last-overlay isl--item-overlays)
            when (> (overlay-start ov) pos)
            return ov))
 
 (defun isl--first-ov-before-pos (pos)
-  "Move to previous overlay from POS."
-  (cl-loop for ov in (reverse isl--item-overlays)
+  "Find previous overlay before POS."
+  (cl-loop for ov in (memql isl--last-overlay (reverse isl--item-overlays))
            when (< (overlay-start ov) pos)
            return ov))
 
