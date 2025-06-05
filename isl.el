@@ -1069,7 +1069,7 @@ See `isl-requires-pattern'."
                  for p in split
                  unless (string-match "\\`!" p)
                  do (save-excursion
-                      (while (isl--re-search-forward p end t)
+                      (while (funcall isl-search-function p end t)
                         (setq ov2 (make-overlay (match-beginning 0) (match-end 0)))
                         (overlay-put ov2 'face 'isl-match-items)
                         (overlay-put ov2 'isl t)
