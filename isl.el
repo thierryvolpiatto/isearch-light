@@ -989,7 +989,7 @@ See `isl-requires-pattern'."
       (setq isl--invalid nil)
       ;; We don't use the isearch-invisible mechanism which is heavy
       ;; and don't behave as we want, instead remove invisibility in
-      ;; all buffer and on exit restore it and unhide only the place
+      ;; all buffers and on exit restore it and unhide only the place
       ;; where point is with appropriate functions belonging to
       ;; major-mode e.g. org => org-reveal etc...
       (when (and isl-search-invisible
