@@ -230,7 +230,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
   "Face used to highlight the items matched.")
 
 (defface isl-match-items
-  '((t :background "SaddleBrown" :foreground "black"))
+  '((t :background "Orangered3" :foreground "black"))
   "Face used to highlight the items matched inside line.")
 
 (defface isl-on
