@@ -38,11 +38,6 @@
   (require 'cl-lib)
   (require 'oclosure))
 
-;; Compatibility
-(unless (and (fboundp 'pos-bol) (fboundp 'pos-eol))
-  (defalias 'pos-bol 'line-beginning-position)
-  (defalias 'pos-eol 'line-end-position))
-
 (defvar iedit-aborting)
 (defvar iedit-read-only-occurrences-overlays)
 (defvar iedit-read-only-occurrences-overlays)
