@@ -221,7 +221,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
   :type '(repeat symbol))
 
 (defcustom isl-align-regexp-group-pattern t
-  "Always surround isl--pattern with parens when non nil."
+  "Always surround `isl--pattern' with parens when non nil."
   :type 'boolean)
 
 (defface isl-match
@@ -709,7 +709,7 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
 
 (defun isl-show-or-hide-context-lines (&optional arg)
   "Hide or show non matching lines.
-Show only numeric prefix arg or `isl-visible-context-lines'
+Show only numeric prefix ARG or `isl-visible-context-lines'
 number lines around match."
   (interactive "p")
   (when isl--item-overlays
@@ -764,7 +764,7 @@ Buffer may have been modified by `isl-align-regexp'."
       (insert contents))))
 
 (defun isl-align-regexp (arg)
-  "Align text matching regexp in current-buffer.
+  "Align text matching regexp in `current-buffer'.
 Numeric prefix ARG is applied to the SPACING arg of `align-regexp'.
 Quitting undo all the align actions done in current session, to valid
 all align operations you have to exit with RET."
@@ -1372,7 +1372,7 @@ With a prefix ARG choose one of the last buffers isl had visited."
 
 ;;;###autoload
 (defun isl-narrow-to-region-or-defun (beg end)
-  "Start incremental searching in region or current defun."
+  "Start incremental searching in region from BEG to END or current defun."
   (interactive "r")
   (setq isl--point-min nil
         isl--point-max nil
