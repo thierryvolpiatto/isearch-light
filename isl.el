@@ -63,43 +63,9 @@
 
 ;; History
 (defvar isl-history nil)
+
 
-;; Internals
-(defvar isl-pattern "")
-(defvar-local isl-last-query nil)
-(put 'isl-last-query 'permanent-local t)
-(defvar-local isl-last-object nil)
-(put 'isl-last-object 'permanent-local t)
-(defvar isl-visited-buffers nil)
-(defvar isl-current-buffer nil)
-(defvar isl--item-overlays nil)
-(defvar isl--iterator nil)
-(defvar isl--last-overlay nil)
-(defvar isl--initial-pos nil)
-(defvar isl--number-results 0)
-(defvar isl--yank-point nil)
-(defvar isl--quit nil)
-(defvar isl--invalid nil)
-(defvar isl--window-start nil)
-(defvar-local isl--buffer-invisibility-spec nil)
-(defconst isl-space-regexp "\\s\\\\s-"
-  "Match a quoted space in a string.")
-(defconst isl--case-fold-choices '(smart nil t))
-(defvar isl--case-fold-choices-iterator nil)
-(defvar isl--hidding nil)
-(defvar isl--point-min nil)
-(defvar isl--point-max nil)
-(defvar isl--narrow-to-region nil)
-(defvar isl-search-invisible t)
-(defvar isl--buffer-tick nil)
-(defvar isl--closest-overlay nil)
-
-;; User vars
-
-(defvar isl-help-buffer-name "*isl help*")
-
-(defvar isl-timer-delay 0.01)
-
+;; Help
 (defvar isl-help-string
   "* ISL help\n
 
@@ -138,6 +104,44 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 \\[isl-bm-this-pos]\t\tAdd bookmark BM to current pos
 \\[isl-kill-selection]\t\tKill selected occurence
 \\[isl-align-regexp]\t\tAlign text matching regexp in region")
+
+
+;; Private internals
+(defvar isl--pattern "")
+(defvar-local isl--last-query nil)
+(put 'isl--last-query 'permanent-local t)
+(defvar-local isl--last-object nil)
+(put 'isl--last-object 'permanent-local t)
+(defvar isl--visited-buffers nil)
+(defvar isl--current-buffer nil)
+(defvar isl--item-overlays nil)
+(defvar isl--iterator nil)
+(defvar isl--last-overlay nil)
+(defvar isl--initial-pos nil)
+(defvar isl--number-results 0)
+(defvar isl--yank-point nil)
+(defvar isl--quit nil)
+(defvar isl--invalid nil)
+(defvar isl--window-start nil)
+(defvar-local isl--buffer-invisibility-spec nil)
+(defconst isl--space-regexp "\\s\\\\s-"
+  "Match a quoted space in a string.")
+(defconst isl--case-fold-choices '(smart nil t))
+(defvar isl--case-fold-choices-iterator nil)
+(defvar isl--hidding nil)
+(defvar isl--point-min nil)
+(defvar isl--point-max nil)
+(defvar isl--narrow-to-region nil)
+(defvar isl--buffer-tick nil)
+(defvar isl--closest-overlay nil)
+
+;; Others
+(defvar isl-help-buffer-name "*isl help*")
+(defvar isl-timer-delay 0.01)
+(defvar isl-search-invisible t)
+
+
+;; User vars
 
 (defgroup isl nil
   "Search buffers with `isl-search'."
@@ -217,7 +221,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
   :type '(repeat symbol))
 
 (defcustom isl-align-regexp-group-pattern t
-  "Always surround isl-pattern with parens when non nil."
+  "Always surround isl--pattern with parens when non nil."
   :type 'boolean)
 
 (defface isl-match
@@ -466,7 +470,7 @@ The word at point is relative to the current position in buffer, not
 the initial position i.e. the position before launching `isl-search'."
   (interactive)
   (let (str)
-    (with-current-buffer isl-current-buffer
+    (with-current-buffer isl--current-buffer
       (when (eolp) (error "End of line"))
       (when (or (memq (char-syntax (or (char-after) 0)) '(?w ?_ ? ))
                 (memq (char-syntax (or (char-after (1+ (point))) 0))
@@ -487,7 +491,7 @@ The symbol at point is relative to the current position in buffer, not
 the initial position i.e. the position before launching `isl-search'."
   (interactive)
   (let (str)
-    (with-current-buffer isl-current-buffer
+    (with-current-buffer isl--current-buffer
       (when (setq str (thing-at-point 'symbol t))
         (with-selected-window (minibuffer-window)
           (delete-minibuffer-contents)
@@ -510,13 +514,13 @@ the initial position i.e. the position before launching `isl-search'."
 (defun isl-change-matching-style ()
   "Toggle style matching in `isl-search' i.e. regexp/literal."
   (interactive)
-  (with-current-buffer isl-current-buffer
+  (with-current-buffer isl--current-buffer
     (setq-local isl-search-function
                 (cl-ecase isl-search-function
                   (isl--re-search-forward #'search-forward)
                   (search-forward #'isl--re-search-forward)))
     (unless executing-kbd-macro
-      (when (string= isl-pattern "")
+      (when (string= isl--pattern "")
         (let* ((style (isl-matching-style))
                (mode-line-format (format " Switching to %s searching" style)))
           (force-mode-line-update)
@@ -527,7 +531,7 @@ the initial position i.e. the position before launching `isl-search'."
 (defun isl-toggle-invisible-search ()
   "Toggle searching in invisible text."
   (interactive)
-  (with-current-buffer isl-current-buffer
+  (with-current-buffer isl--current-buffer
     (setq-local isl-search-invisible (not isl-search-invisible))
     (unless isl-search-invisible
       (setq buffer-invisibility-spec isl--buffer-invisibility-spec))
@@ -539,8 +543,8 @@ the initial position i.e. the position before launching `isl-search'."
   "Invoke `helm-occur' from `isl-search'."
   (interactive)
   (cl-assert (require 'helm-occur nil t) nil "Please install Helm package")
-  (let ((input isl-pattern)
-        (bufs (list isl-current-buffer)))
+  (let ((input isl--pattern)
+        (bufs (list isl--current-buffer)))
     (run-at-time 0.1 nil
                  (lambda ()
                    ;; Use `helm-occur-always-search-in-current' as a
@@ -558,7 +562,7 @@ automatically backward."
   (interactive "P")
   (cl-assert isl--item-overlays nil "Nothing yet to replace")
   (let* ((style    (isl-matching-style))
-         (regexp   isl-pattern)
+         (regexp   isl--pattern)
          (start    (overlay-start isl--last-overlay))
          (end      (overlay-end isl--last-overlay))
          (bottom   (overlay-start (car (last isl--item-overlays))))
@@ -579,7 +583,7 @@ automatically backward."
                       (format prompt (if wr " word" ""))
                       regexp-flag)
                      (and wr arg))))
-         (with-current-buffer isl-current-buffer
+         (with-current-buffer isl--current-buffer
            (save-excursion
              (let ((case-fold-search t))
                (goto-char (if backward end start))
@@ -637,9 +641,9 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
   (cl-assert (require 'iedit nil t))
   (cl-assert isl--item-overlays nil "Nothing yet to replace")
   (let ((regexp (if (eq isl-search-function 'search-forward)
-                    (regexp-quote isl-pattern)
-                  isl-pattern))
-        (pos (with-current-buffer isl-current-buffer
+                    (regexp-quote isl--pattern)
+                  isl--pattern))
+        (pos (with-current-buffer isl--current-buffer
                (overlay-end isl--last-overlay))))
     (run-at-time
      0.1 nil
@@ -767,16 +771,16 @@ all align operations you have to exit with RET."
   (interactive "p")
   (cl-assert isl--item-overlays nil "Nothing yet to align")
   (cl-assert isl--narrow-to-region nil "No region found")
-  (cl-assert (not (cdr (isl-split-string isl-pattern))) nil
+  (cl-assert (not (cdr (isl-split-string isl--pattern))) nil
              "Can't align with a multi match expression")
-  (with-current-buffer isl-current-buffer
+  (with-current-buffer isl--current-buffer
     (align-regexp isl--point-min isl--point-max
                   (concat "\\(\\s-+\\)"
                           (if (equal (isl-matching-style) "Regex")
                               (if isl-align-regexp-group-pattern
-                                  (format "\\(%s\\)" isl-pattern)
-                                isl-pattern)
-                            (regexp-quote isl-pattern)))
+                                  (format "\\(%s\\)" isl--pattern)
+                                isl--pattern)
+                            (regexp-quote isl--pattern)))
                   1 arg)
     ;; Align-regexp has probably added or removed spaces so update
     ;; isl--point-min/max.
@@ -858,10 +862,10 @@ If `isl--iterator' is non nil update it otherwise create it."
     (remove-overlays nil nil 'isl t)
     (setq isl--item-overlays nil)))
 
-(cl-defun isl-set-case-fold-search (&optional (pattern isl-pattern))
+(cl-defun isl-set-case-fold-search (&optional (pattern isl--pattern))
   "Return a suitable value for `case-fold-search'.
 This is done according to `isl-case-fold-search'.
-Optional argument PATTERN default to `isl-pattern'."
+Optional argument PATTERN default to `isl--pattern'."
   (cl-case isl-case-fold-search
     (smart (let ((case-fold-search nil))
              (if (string-match "[[:upper:]]" pattern) nil t)))
@@ -870,7 +874,7 @@ Optional argument PATTERN default to `isl-pattern'."
 (defun isl-select-case-fold-search ()
   "Set `case-fold-search' from `isl-search' session."
   (interactive)
-  (with-current-buffer isl-current-buffer
+  (with-current-buffer isl--current-buffer
     (if (eq last-command 'isl-select-case-fold-search)
         (setq-local isl-case-fold-search
                     (isl-iter-next isl--case-fold-choices-iterator))
@@ -888,7 +892,7 @@ Optional argument PATTERN default to `isl-pattern'."
   "Split string STR at non quoted spaces."
   (split-string
    (replace-regexp-in-string
-    isl-space-regexp "\\s-" str nil t)))
+    isl--space-regexp "\\s-" str nil t)))
 
 (defun isl-patterns (str)
   "Return an alist of (pred . regexp) elements from STR."
@@ -959,7 +963,7 @@ symbol or line position according to `isl-multi-search-in-line'."
 (defun isl-toggle-multi-search-in-line ()
   "Toggle multi-search in lines/symbols."
   (interactive)
-  (with-current-buffer isl-current-buffer
+  (with-current-buffer isl--current-buffer
     (setq-local isl-multi-search-in-line (not isl-multi-search-in-line))
     (unless executing-kbd-macro
       (if isl-multi-search-in-line
@@ -973,7 +977,7 @@ See `isl-requires-pattern'."
   (> (length str) isl-requires-pattern))
 
 (defun isl-update ()
-  "Update `current-buffer' when `isl-pattern' change."
+  "Update `current-buffer' when `isl--pattern' change."
   (with-selected-window (minibuffer-selected-window)
     (while-no-input
       (when isl--hidding
@@ -994,12 +998,12 @@ See `isl-requires-pattern'."
       (let ((count 1)
             (npos (point-max)) ; start comparing at highest pos [1].
             ov bounds go nearest)
-        (unless (string= isl-pattern "")
+        (unless (string= isl--pattern "")
           (save-excursion
             (goto-char (point-min))
             (condition-case-unless-debug nil
                 (while (and (setq bounds (or go (isl-multi-search-fwd
-                                                 isl-pattern nil t)))
+                                                 isl--pattern nil t)))
                             (not (eobp)))
                   (setq go nil)
                   (unless (and (not isl-search-invisible)
@@ -1036,7 +1040,7 @@ See `isl-requires-pattern'."
                     ;; `isl--re-search-forward' will be stuck on next
                     ;; turn of the loop so match it with looking-at
                     ;; and use GO value in next turn of the loop.
-                    (when (looking-at isl-pattern)
+                    (when (looking-at isl--pattern)
                       (setq go (cons (pos-bol) (pos-eol))))))
               (invalid-regexp (setq isl--invalid t) nil))
             (setq isl--item-overlays (nreverse isl--item-overlays)))
@@ -1054,7 +1058,7 @@ See `isl-requires-pattern'."
 
 (defun isl--highlight-items-in-line (beg end)
   "Highlight items inside a matched line from BEG to END."
-  (let ((split (isl-split-string isl-pattern)))
+  (let ((split (isl-split-string isl--pattern)))
     ;; Do nothing until we have a multi pattern.
     (when (cdr split)
       ;; When this is called we are at eol.
@@ -1077,7 +1081,7 @@ See `isl-requires-pattern'."
         (search (if isl-multi-search-in-line
                     (propertize "Inline" 'help-echo "Search in line")
                   (propertize "Insym" 'help-echo "Search in symbol")))
-        (position (with-current-buffer isl-current-buffer
+        (position (with-current-buffer isl--current-buffer
                      (if (and isl--initial-pos
                               (> (point) isl--initial-pos))
                          isl-after-position-string
@@ -1088,8 +1092,8 @@ See `isl-requires-pattern'."
                        isl-direction-up-string))))
     (when (numberp isl--number-results)
       (setq mode-line-format
-            (cond ((or (string= isl-pattern "")
-                       (<= (length isl-pattern)
+            (cond ((or (string= isl--pattern "")
+                       (<= (length isl--pattern)
                            isl-requires-pattern))
                    (default-value 'mode-line-format))
                   ((zerop isl--number-results)
@@ -1101,7 +1105,7 @@ See `isl-requires-pattern'."
                                                       isl-warning-char)
                                               'face 'font-lock-warning-face)
                                            "No results found for pattern")
-                                         (propertize isl-pattern
+                                         (propertize isl--pattern
                                                      'face 'isl-string)
                                          style
                                          search
@@ -1143,10 +1147,10 @@ See `isl-requires-pattern'."
   "Check minibuffer input."
   (with-selected-window (minibuffer-window)
     (let ((input (minibuffer-contents)))
-      (when (not (string= input isl-pattern))
-        (setq isl-pattern input)
-        (if (and (stringp isl-pattern)
-                 (isl-maybe-update isl-pattern))
+      (when (not (string= input isl--pattern))
+        (setq isl--pattern input)
+        (if (and (stringp isl--pattern)
+                 (isl-maybe-update isl--pattern))
             (isl-update)
           (with-selected-window (minibuffer-selected-window)
             (isl-delete-overlays)
@@ -1169,16 +1173,16 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
 
 (defun isl-cleanup ()
   "Cleanup various things when `isl-search' exit."
-  (with-current-buffer isl-current-buffer
+  (with-current-buffer isl--current-buffer
     (let* ((pos (and isl--last-overlay ; nil when quitting with no results.
                      (overlay-end isl--last-overlay)))
            (hs-show-hook (list (lambda () (and pos (goto-char pos))))))
       (when (buffer-live-p (get-buffer isl-help-buffer-name))
         (kill-buffer isl-help-buffer-name))
-      (setq isl-last-object
+      (setq isl--last-object
             `(lambda ()
                (setq-local mode-line-format ',mode-line-format
-                           isl-last-query ,isl-pattern
+                           isl--last-query ,isl--pattern
                            isl--initial-pos ,pos
                            isl--point-min ,isl--point-min
                            isl--point-max ,isl--point-max
@@ -1240,18 +1244,18 @@ Note that INPUT cannot be used with a non nil value for RESUME."
              nil "(isl-search-1): RESUME and INPUT can't be used together")
   (unless resume
     (setq isl--initial-pos (point)
-          isl-pattern ""
-          isl-current-buffer (current-buffer)
+          isl--pattern ""
+          isl--current-buffer (current-buffer)
           isl--buffer-tick (buffer-modified-tick)
           isl--buffer-invisibility-spec buffer-invisibility-spec
           cursor-in-non-selected-windows nil))
   (setq isl--window-start nil)
-  (when (and (buffer-live-p isl-current-buffer)
-             (not (member (buffer-name isl-current-buffer)
+  (when (and (buffer-live-p isl--current-buffer)
+             (not (member (buffer-name isl--current-buffer)
                           isl-noresume-buffers)))
-    (setq isl-visited-buffers
-          (cons isl-current-buffer
-                (delete isl-current-buffer isl-visited-buffers))))
+    (setq isl--visited-buffers
+          (cons isl--current-buffer
+                (delete isl--current-buffer isl--visited-buffers))))
   (when (memq major-mode isl-no-invisible-search-in-modes)
     (setq-local isl-search-invisible nil))
   (let* ((format-fn (if (eq isl-search-function 'search-forward)
@@ -1276,7 +1280,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
               "Search: "
               (if resume
                   (buffer-local-value
-                   'isl-last-query isl-current-buffer)
+                   'isl--last-query isl--current-buffer)
                 input)
               default)
            (quit
@@ -1287,8 +1291,8 @@ Note that INPUT cannot be used with a non nil value for RESUME."
       (isl-cleanup)
       ;; Avoid loosing focus in helm help buffer.
       (unless (eq (window-buffer (selected-window))
-                  isl-current-buffer)
-        (switch-to-buffer isl-current-buffer)))))
+                  isl--current-buffer)
+        (switch-to-buffer isl--current-buffer)))))
 
 (defun isl--thing-at-point ()
   "Return symbol or filename at point."
@@ -1315,7 +1319,7 @@ modifying keybindings here.")
 This function is intended to be used in kmacros."
   (unwind-protect
        ;; Needed when toggling inline search.
-       (let* ((isl-current-buffer (current-buffer))
+       (let* ((isl--current-buffer (current-buffer))
               (str (read-from-minibuffer "Search: " nil isl-mini-map)))
          (isl-multi-search-fwd str nil t))
     ;; Reset local var to their default value for next iteration.
@@ -1342,23 +1346,23 @@ stop, assuming user starts its macro above the text to edit."
   "Resume isl session in current buffer.
 With a prefix ARG choose one of the last buffers isl had visited."
   (interactive "P")
-  (setq isl-current-buffer
-        (cond ((and arg isl-visited-buffers)
+  (setq isl--current-buffer
+        (cond ((and arg isl--visited-buffers)
                (get-buffer
                 (completing-read
                  "Resume from buffer: "
-                 (delq nil (mapcar 'buffer-name isl-visited-buffers))
+                 (delq nil (mapcar 'buffer-name isl--visited-buffers))
                  nil t)))
-              (isl-visited-buffers
+              (isl--visited-buffers
                (car (memql (current-buffer)
-                           isl-visited-buffers)))))
-  (cl-assert isl-current-buffer
+                           isl--visited-buffers)))))
+  (cl-assert isl--current-buffer
              nil "No previous Isl session yet recorded here")
-  (switch-to-buffer isl-current-buffer)
+  (switch-to-buffer isl--current-buffer)
   (let (beg end)
-    (with-current-buffer isl-current-buffer
-      (funcall isl-last-object)
-      (setq isl-pattern "")
+    (with-current-buffer isl--current-buffer
+      (funcall isl--last-object)
+      (setq isl--pattern "")
       ;; Last session was isl-narrow-to-defun.
       (setq beg isl--point-min end isl--point-max))
     (save-restriction
