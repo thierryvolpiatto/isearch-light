@@ -862,10 +862,11 @@ If `isl--iterator' is non nil update it otherwise create it."
     (remove-overlays nil nil 'isl t)
     (setq isl--item-overlays nil)))
 
-(cl-defun isl-set-case-fold-search (&optional (pattern isl--pattern))
+(defun isl-set-case-fold-search (&optional pattern)
   "Return a suitable value for `case-fold-search'.
 This is done according to `isl-case-fold-search'.
 Optional argument PATTERN default to `isl--pattern'."
+  (unless pattern (setq pattern isl--pattern))
   (cl-case isl-case-fold-search
     (smart (let ((case-fold-search nil))
              (if (string-match "[[:upper:]]" pattern) nil t)))
