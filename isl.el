@@ -100,7 +100,7 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 \\[isl-query-replace]\t\tJump to query replace
 \\[isl-show-or-hide-context-lines]\t\tHide or show non matching lines (num prefarg or default)
 \\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)
-\\[isl-toggle-invisible-search]\t\tToggle searching in invisible text
+\\[isl-toggle-invisible-search]\t\tToggle searching in invisible text (Sinv)
 \\[isl-bm-this-pos]\t\tAdd bookmark BM to current pos
 \\[isl-kill-selection]\t\tKill selected occurence
 \\[isl-align-regexp]\t\tAlign text matching regexp in region")
