@@ -377,7 +377,8 @@ It put overlay on current position, move to next overlay using
   (with-selected-window (minibuffer-window)
     (if (eolp)
         (delete-region (minibuffer-prompt-end) (point))
-      (delete-region (point) (point-max)))))
+      (delete-region (point) (point-max)))
+    (setq isl--yank-point nil)))
 (put 'isl-delete-minibuffer-contents 'no-helm-mx t)
 
 (defun isl--find-and-goto-overlay (overlay)
