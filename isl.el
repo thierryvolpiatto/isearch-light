@@ -372,7 +372,9 @@ It put overlay on current position, move to next overlay using
 (put 'isl-scroll-down 'no-helm-mx t)
 
 (defun isl-delete-minibuffer-contents ()
-  "No docstring."
+  "Delete minibuffer contents from isl prompt.
+If cursor is at eol delete whole contents otherwise delete from point
+to end."
   (interactive)
   (with-selected-window (minibuffer-window)
     (if (eolp)
