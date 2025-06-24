@@ -330,11 +330,14 @@ Need to have the `bm' package installed."
 It put overlay on current position, move to next overlay using
 `isl--iterator', set `isl--yank-point' and then setup mode-line."
   (with-selected-window (minibuffer-selected-window)
-    (isl--highlight-last-overlay 'isl-match)
-    (when isl--iterator
-      (cl-loop with ov repeat arg do (setq ov (isl-iter-next isl--iterator))
-               finally (isl--goto-overlay ov)))
-    (isl-setup-mode-line)))
+    (if (cdr isl--item-overlays)
+        (progn
+          (isl--highlight-last-overlay 'isl-match)
+          (when isl--iterator
+            (cl-loop with ov repeat arg do (setq ov (isl-iter-next isl--iterator))
+                     finally (isl--goto-overlay ov)))
+          (isl-setup-mode-line))
+      (user-error "No more matches"))))
 
 (defun isl-scroll-1 (arg)
   "Scroll up if ARG is positive, down if it is negative."
