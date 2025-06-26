@@ -835,7 +835,7 @@ All the oclosure slots are mutables."
                             ('right 'left))
                 index (- (length seq) (length queue))
                 seq (append queue (take index revlist))
-                tmp-seq (cddr seq)
+                tmp-seq (or (cddr seq) seq) ; Fix seq with only two elements.
                 elm (cadr seq)
                 changing-direction nil)
         (setq tmp-seq (or (cdr tmp-seq) seq)))
