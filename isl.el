@@ -1202,7 +1202,7 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
                            isl--hidding ,isl--hidding
                            isl-search-invisible ,isl-search-invisible
                            isl-multi-search-in-line ,isl-multi-search-in-line
-                           cursor-in-non-selected-windows ,cursor-in-non-selected-windows)))
+                           cursor-in-non-selected-windows ',cursor-in-non-selected-windows)))
       (isl-delete-overlays)
       (setq mode-line-format (default-value 'mode-line-format)
             isl--yank-point nil
@@ -1255,7 +1255,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
           isl--current-buffer (current-buffer)
           isl--buffer-tick (buffer-modified-tick)
           isl--buffer-invisibility-spec buffer-invisibility-spec
-          cursor-in-non-selected-windows nil))
+          cursor-in-non-selected-windows 'bar))
   (setq isl--window-start nil)
   (when (and (buffer-live-p isl--current-buffer)
              (not (member (buffer-name isl--current-buffer)
