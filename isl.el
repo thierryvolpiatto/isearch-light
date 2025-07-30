@@ -102,8 +102,7 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 \\[isl-toggle-multi-search-in-line]\t\tToggle multi search style (InLine/InSymbol)
 \\[isl-toggle-invisible-search]\t\tToggle searching in invisible text (Sinv)
 \\[isl-bm-this-pos]\t\tAdd bookmark BM to current pos
-\\[isl-kill-selection]\t\tKill selected occurence
-\\[isl-align-regexp]\t\tAlign text matching regexp in region")
+\\[isl-kill-selection]\t\tKill selected occurence")
 
 
 ;; Private internals
@@ -219,10 +218,6 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
 (defcustom isl-no-invisible-search-in-modes nil
   "Do not search invisible text in these modes."
   :type '(repeat symbol))
-
-(defcustom isl-align-regexp-group-pattern t
-  "Always surround `isl--pattern' with parens when non nil."
-  :type 'boolean)
 
 (defface isl-match
   '((t :background "Brown4"))
@@ -280,7 +275,6 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
     (define-key map (kbd "C-j")     'isl-toggle-multi-search-in-line)
     (define-key map (kbd "C-!")     'isl-bm-this-pos)
     (define-key map (kbd "C-c C-k") 'isl-kill-selection)
-    (define-key map (kbd "C-}")     'isl-align-regexp)
     map)
   "The map used when `isl-search' is running.
 Don't forget to modify `isl-mini-map' accordingly to fit with kmacros
@@ -757,43 +751,6 @@ number lines around match."
   (let ((ol (make-overlay beg end)))
     (overlay-put ol 'isl-invisible t)
     (overlay-put ol 'invisible 'isl-invisible)))
-
-(defun isl--maybe-revert-to-original ()
-  "Maybe restore original buffer contents on quit.
-Buffer may have been modified by `isl-align-regexp'."
-  (let ((contents isl--narrow-to-region))
-    (when (and (stringp contents)
-               (> (buffer-modified-tick) isl--buffer-tick))
-      ;; When isl--narrow-to-region is non nil isl--point-min and
-      ;; max are set as well.
-      (delete-region isl--point-min isl--point-max)
-      (insert contents))))
-
-(defun isl-align-regexp (arg)
-  "Align text matching regexp in `current-buffer'.
-Numeric prefix ARG is applied to the SPACING arg of `align-regexp'.
-Quitting undo all the align actions done in current session, to valid
-all align operations you have to exit with RET."
-  (interactive "p")
-  (cl-assert isl--item-overlays nil "Nothing yet to align")
-  (cl-assert isl--narrow-to-region nil "No region found")
-  (cl-assert (not (cdr (isl-split-string isl--pattern))) nil
-             "Can't align with a multi match expression")
-  (with-current-buffer isl--current-buffer
-    (align-regexp isl--point-min isl--point-max
-                  (concat "\\(\\s-+\\)"
-                          (if (equal (isl-matching-style) "Regex")
-                              (if isl-align-regexp-group-pattern
-                                  (format "\\(%s\\)" isl--pattern)
-                                isl--pattern)
-                            (regexp-quote isl--pattern)))
-                  1 arg)
-    ;; Align-regexp has probably added or removed spaces so update
-    ;; isl--point-min/max.
-    (setq isl--point-min (point-min)
-          isl--point-max (point-max))
-    (isl-update)))
-(put 'isl-align-regexp 'no-helm-mx t)
 
 ;;; Iterators
 ;;
@@ -1292,7 +1249,6 @@ Note that INPUT cannot be used with a non nil value for RESUME."
               default)
            (quit
             (setq isl--quit t)
-            (isl--maybe-revert-to-original)
             (when isl--initial-pos
               (goto-char isl--initial-pos))))
       (isl-cleanup)
