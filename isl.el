@@ -220,11 +220,11 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
   :type '(repeat symbol))
 
 (defface isl-match
-  '((t :background "Brown4"))
+  '((t :background "brown4"))
   "Face used to highlight the items matched.")
 
 (defface isl-match-items
-  '((t :background "Orangered3" :foreground "black"))
+  '((t :background "OrangeRed3" :foreground "black"))
   "Face used to highlight the items matched inside line.")
 
 (defface isl-on
@@ -237,7 +237,7 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
   "Face used to highlight number in mode-line.")
 
 (defface isl-string
-  '((t :foreground "Lightgoldenrod1" :bold t))
+  '((t :foreground "LightGoldenrod1" :bold t))
   "Face used to highlight pattern in mode-line.")
 
 (defface isl-case-fold
