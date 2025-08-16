@@ -191,9 +191,17 @@ in pattern."
   "Start updating after this number of chars."
   :type 'integer)
 
-(defcustom isl-visible-context-lines 1
-  "Number of lines to show around line when hiding non matching lines."
-  :type 'integer)
+(defcustom isl-visible-context-lines 0
+  "Number of lines to show around matched line when hiding context.
+Can be a cons cell like (nlines_before . nlines_after) or an integer,
+in this case it is used for before and after.
+When 0, the default show no context lines."
+  :type '(choice
+          (cons
+           :tag "Context lines number before and after"
+           (integer :tag "Show num lines before")
+           (integer :tag "Show num lines after"))
+          (integer :tag "Context lines number")))
 
 (defcustom isl-noresume-buffers '("*Helm Help*")
   "Prevent resuming in these buffers."
@@ -710,7 +718,10 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
 (defun isl-show-or-hide-context-lines (&optional arg)
   "Hide or show non matching lines.
 Show only numeric prefix ARG or `isl-visible-context-lines'
-number lines around match."
+number of lines around match.  Note that prefix arg allows specifying
+only the same number before and after matched lines whereas
+`isl-visible-context-lines' allows specifying a different value for
+before and after."
   (interactive "p")
   (when isl--item-overlays
     (with-selected-window (minibuffer-selected-window)
@@ -725,7 +736,9 @@ number lines around match."
               (while (not (eobp))
                 (forward-line
                  (- (or (and current-prefix-arg (max arg 0))
-                        isl-visible-context-lines)))
+                        (pcase isl-visible-context-lines
+                          (`(,before . ,after) before)
+                          ((and same) same)))))
                 ;; Store position from n lines before
                 ;; this overlay and bol and move to next overlay.
                 (when (> (setq bol (pos-bol)) start)
@@ -735,7 +748,9 @@ number lines around match."
                 ;; next overlay from there.
                 (forward-line
                  (or (and current-prefix-arg (max arg 0))
-                     isl-visible-context-lines))
+                     (pcase isl-visible-context-lines
+                       (`(,before . ,after) after)
+                       ((and same) same))))
                 (setq start (1+ (pos-eol)))
                 (goto-char (next-single-char-property-change ov-end 'isl))
                 (setq ov-end (point)))
