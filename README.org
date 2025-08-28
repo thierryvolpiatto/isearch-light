@@ -147,7 +147,6 @@ want to modify it accordingly to fit with =isl-map=.
 | M-i     | Toggle searching in invisible text                   |
 | C-!     | Add bookmark BM to current pos                       |
 | C-c C-k | Kill selected occurence                              |
-| C-}     | Align text matching regexp in region                 |
 
 ** About multi matching
 
