@@ -737,7 +737,7 @@ before and after."
                 (forward-line
                  (- (or (and current-prefix-arg (max arg 0))
                         (pcase isl-visible-context-lines
-                          (`(,before . ,after) before)
+                          (`(,before . ,_after) before)
                           ((and same) same)))))
                 ;; Store position from n lines before
                 ;; this overlay and bol and move to next overlay.
@@ -749,7 +749,7 @@ before and after."
                 (forward-line
                  (or (and current-prefix-arg (max arg 0))
                      (pcase isl-visible-context-lines
-                       (`(,before . ,after) after)
+                       (`(,_before . ,after) after)
                        ((and same) same))))
                 (setq start (1+ (pos-eol)))
                 (goto-char (next-single-char-property-change ov-end 'isl))
