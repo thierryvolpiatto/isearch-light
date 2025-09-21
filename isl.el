@@ -1274,11 +1274,14 @@ Note that INPUT cannot be used with a non nil value for RESUME."
 
 (defun isl--thing-at-point ()
   "Return symbol or filename at point."
-  (thing-at-point
-   (if (and (derived-mode-p 'prog-mode)
-            (not (nth 3 (syntax-ppss))))
-       'symbol 'filename)
-   t))
+  (cl-loop for win in (window-list nil 1)
+           when (with-selected-window win
+                  (thing-at-point
+                   (if (and (derived-mode-p 'prog-mode)
+                            (not (nth 3 (syntax-ppss))))
+                       'symbol 'filename)
+                   t))
+           collect it))
 
 (defvar isl-mini-map
   (let ((map (make-sparse-keymap)))
