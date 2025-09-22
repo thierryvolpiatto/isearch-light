@@ -1273,7 +1273,8 @@ Note that INPUT cannot be used with a non nil value for RESUME."
         (switch-to-buffer isl--current-buffer)))))
 
 (defun isl--thing-at-point ()
-  "Return symbol or filename at point."
+  "Collect symbol or filename at point in all visible buffers.
+The return value is a list."
   (cl-loop for win in (window-list nil 1)
            when (with-selected-window win
                   (thing-at-point
