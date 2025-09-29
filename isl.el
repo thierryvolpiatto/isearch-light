@@ -138,6 +138,7 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 (defvar isl-help-buffer-name "*isl help*")
 (defvar isl-timer-delay 0.01)
 (defvar isl-search-invisible t)
+(defvar isl-prog-modes '(prog-mode))
 
 
 ;; User vars
@@ -916,9 +917,7 @@ symbol or line position according to `isl-multi-search-in-line'."
                                  (cons (pos-bol) (1+ (pos-eol))))
                                 (rest
                                  (bounds-of-thing-at-point
-                                  (if (and (derived-mode-p 'prog-mode)
-                                           (not (nth 3 (syntax-ppss))))
-                                      'symbol 'filename)))
+                                  (isl--type-for-mode)))
                                 (t (cons (match-beginning 0) (match-end 0))))
              unless bounds return nil
              if (or (not rest)
@@ -1272,16 +1271,18 @@ Note that INPUT cannot be used with a non nil value for RESUME."
                   isl--current-buffer)
         (switch-to-buffer isl--current-buffer)))))
 
+(defun isl--type-for-mode ()
+  "Return the type of thing to use with `thing-at-point' according to context."
+  (if (and (derived-mode-p isl-prog-modes)
+           (not (nth 3 (syntax-ppss))))
+      'symbol 'filename))
+
 (defun isl--thing-at-point ()
   "Collect symbol or filename at point in all visible buffers.
 The return value is a list."
   (cl-loop for win in (window-list nil 1)
            when (with-selected-window win
-                  (thing-at-point
-                   (if (and (derived-mode-p 'prog-mode)
-                            (not (nth 3 (syntax-ppss))))
-                       'symbol 'filename)
-                   t))
+                  (thing-at-point (isl--type-for-mode) t))
            collect it))
 
 (defvar isl-mini-map
