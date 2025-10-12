@@ -1030,7 +1030,8 @@ See `isl-requires-pattern'."
                   isl--number-results  (max (length isl--item-overlays) 0))
             (isl--highlight-last-overlay 'isl-on)
             (isl-make-or-update-iterator)
-            (goto-char (overlay-end (isl-iter-next isl--iterator)))
+            (let ((next (isl-iter-next isl--iterator)))
+              (when next (goto-char (overlay-end next))))
             (setq isl--yank-point (point)))))
       (isl-setup-mode-line))))
 
