@@ -128,8 +128,6 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 (defconst isl--case-fold-choices '(smart nil t))
 (defvar isl--case-fold-choices-iterator nil)
 (defvar isl--hidding nil)
-(defvar isl--point-min nil)
-(defvar isl--point-max nil)
 (defvar isl--narrow-to-region nil)
 (defvar isl--buffer-tick nil)
 (defvar isl--closest-overlay nil)
@@ -660,8 +658,6 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
      0.1 nil
      (lambda ()
        (save-restriction
-         (when (and isl--point-min isl--point-max)
-           (narrow-to-region isl--point-min isl--point-max))
          (let ((case-fold-search (isl-set-case-fold-search regexp))
 	       result)
            (setq mark-active nil)
@@ -1165,11 +1161,8 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
                (setq-local mode-line-format ',mode-line-format
                            isl--last-query ,isl--pattern
                            isl--initial-pos ,pos
-                           isl--point-min ,isl--point-min
-                           isl--point-max ,isl--point-max
                            isl--beginning ,isl--beginning
                            isl--end ,isl--end
-                           isl--narrow-to-region ,isl--narrow-to-region
                            isl--yank-point ,isl--yank-point
                            isl--number-results ,isl--number-results
                            isl-case-fold-search ',isl-case-fold-search
@@ -1317,19 +1310,15 @@ This function is intended to be used in kmacros."
           isl--case-fold-choices-iterator nil)))
 
 ;;;###autoload
-(defun isl-search ()
+(defun isl-search (&optional beg end)
   "Start incremental searching in current buffer.
 When used in kbd macros, search next match forward from point and
 stop, assuming user starts its macro above the text to edit."
-  (interactive)
-  (setq isl--beginning (or (and (region-active-p) (region-beginning))
-                           (point-min))
-        isl--end (or (and (region-active-p) (region-end)) (point-max)))
+  (interactive "r")
+  (setq isl--beginning (or (and (use-region-p) beg) (point-min))
+        isl--end (or (and (use-region-p) end) (point-max)))
   (if executing-kbd-macro
       (isl--search-string)
-    (setq isl--point-min nil
-          isl--point-max nil
-          isl--narrow-to-region nil)
     (isl-search-1)))
 
 ;;;###autoload
@@ -1353,30 +1342,20 @@ With a prefix ARG choose one of the last buffers isl had visited."
   (let (beg end)
     (with-current-buffer isl--current-buffer
       (funcall isl--last-object)
-      (setq isl--pattern "")
-      ;; Last session was isl-narrow-to-defun.
-      (setq beg isl--point-min end isl--point-max))
+      (setq isl--pattern ""))
     (save-restriction
       (when (and beg end)
         (narrow-to-region beg end))
       (isl-search-1 'resume))))
 
 ;;;###autoload
-(defun isl-narrow-to-region-or-defun (beg end)
+(defun isl-narrow-to-region-or-defun ()
   "Start incremental searching in region from BEG to END or current defun."
-  (interactive "r")
-  (setq isl--point-min nil
-        isl--point-max nil
-        isl--narrow-to-region nil)
-  (save-restriction
-    (if (and beg end (region-active-p))
-        (progn
-          (narrow-to-region beg end)
-          (setq isl--narrow-to-region
-                (buffer-substring (point-min) (point-max))))
-      (narrow-to-defun))
-    (setq isl--point-min (point-min)
-          isl--point-max (point-max))
+  (interactive)
+  (setq isl--beginning (save-excursion (beginning-of-defun) (point))
+        isl--end       (save-excursion (end-of-defun) (point)))
+  (if executing-kbd-macro
+      (isl--search-string)
     (isl-search-1)))
 
 ;;;###autoload
