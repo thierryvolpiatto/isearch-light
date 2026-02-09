@@ -1312,6 +1312,8 @@ This function is intended to be used in kmacros."
 ;;;###autoload
 (defun isl-search (&optional beg end)
   "Start incremental searching in current buffer.
+If region is active, search in it instead of searching in the
+whole buffer.
 When used in kbd macros, search next match forward from point and
 stop, assuming user starts its macro above the text to edit."
   (interactive "r")
