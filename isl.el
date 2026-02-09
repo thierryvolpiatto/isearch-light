@@ -1349,8 +1349,8 @@ With a prefix ARG choose one of the last buffers isl had visited."
       (isl-search-1 'resume))))
 
 ;;;###autoload
-(defun isl-narrow-to-region-or-defun ()
-  "Start incremental searching in region from BEG to END or current defun."
+(defun isl-search-defun ()
+  "Start incremental searching in current defun."
   (interactive)
   (setq isl--beginning (save-excursion (beginning-of-defun) (point))
         isl--end       (save-excursion (end-of-defun) (point)))
@@ -1359,10 +1359,11 @@ With a prefix ARG choose one of the last buffers isl had visited."
     (isl-search-1)))
 
 ;;;###autoload
-(defalias 'isl-narrow-to-defun 'isl-narrow-to-region-or-defun)
+(defalias 'isl-narrow-to-region-or-defun 'isl-search-defun)
+(make-obsolete 'isl-narrow-to-region-or-defun 'isl-search-defun "1.6.1")
 ;;;###autoload
-(defalias 'isl-narrow-to-region 'isl-narrow-to-region-or-defun)
-
+(defalias 'isl-narrow-to-defun 'isl-search-defun)
+(make-obsolete 'isl-narrow-to-region-or-defun 'isl-search-defun "1.6.1")
 
 (provide 'isl)
 
