@@ -133,6 +133,8 @@ e.g. \"foo !bar\" would match any symbol containing foo but not bar.
 (defvar isl--narrow-to-region nil)
 (defvar isl--buffer-tick nil)
 (defvar isl--closest-overlay nil)
+(defvar isl--beginning nil)
+(defvar isl--end nil)
 
 ;; Others
 (defvar isl-help-buffer-name "*isl help*")
@@ -978,11 +980,11 @@ See `isl-requires-pattern'."
             ov bounds go nearest)
         (unless (string= isl--pattern "")
           (save-excursion
-            (goto-char (point-min))
+           (goto-char (or isl--beginning (point-min)))
             (condition-case-unless-debug nil
                 (while (and (setq bounds (or go (isl-multi-search-fwd
                                                  isl--pattern nil t)))
-                            (not (eobp)))
+                            (not (if isl--end (>= (point) isl--end) (eobp))))
                   (setq go nil)
                   (unless (and (not isl-search-invisible)
                                (invisible-p (cdr bounds)))
@@ -1165,6 +1167,8 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
                            isl--initial-pos ,pos
                            isl--point-min ,isl--point-min
                            isl--point-max ,isl--point-max
+                           isl--beginning ,isl--beginning
+                           isl--end ,isl--end
                            isl--narrow-to-region ,isl--narrow-to-region
                            isl--yank-point ,isl--yank-point
                            isl--number-results ,isl--number-results
@@ -1318,6 +1322,9 @@ This function is intended to be used in kmacros."
 When used in kbd macros, search next match forward from point and
 stop, assuming user starts its macro above the text to edit."
   (interactive)
+  (setq isl--beginning (or (and (region-active-p) (region-beginning))
+                           (point-min))
+        isl--end (or (and (region-active-p) (region-end)) (point-max)))
   (if executing-kbd-macro
       (isl--search-string)
     (setq isl--point-min nil
