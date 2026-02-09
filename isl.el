@@ -1339,14 +1339,10 @@ With a prefix ARG choose one of the last buffers isl had visited."
   (cl-assert isl--current-buffer
              nil "No previous Isl session yet recorded here")
   (switch-to-buffer isl--current-buffer)
-  (let (beg end)
-    (with-current-buffer isl--current-buffer
-      (funcall isl--last-object)
-      (setq isl--pattern ""))
-    (save-restriction
-      (when (and beg end)
-        (narrow-to-region beg end))
-      (isl-search-1 'resume))))
+  (with-current-buffer isl--current-buffer
+    (funcall isl--last-object)
+    (setq isl--pattern ""))
+  (isl-search-1 'resume))
 
 ;;;###autoload
 (defun isl-search-defun ()
