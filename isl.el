@@ -227,6 +227,26 @@ You can toggle this at any time with \\<isl-map>\\[isl-toggle-multi-search-in-li
 (defcustom isl-no-invisible-search-in-modes nil
   "Do not search invisible text in these modes."
   :type '(repeat symbol))
+
+(defcustom isl-use-region-when-at 'always
+  "Decide when and how to use region.
+If the value is \\='end and point is at region end or if the value is
+\\='beginning and point is at region beginning, search in this region,
+otherwise use the current region as default for searching.
+If the value is \\='always never use the region as default and always
+search in this region.
+According to the value used here you can decide if you want to search
+in region or use the region as default for searching by using
+`exchange-point-and-mark'."
+  :type '(choice
+          (symbol :tag "Search in region when point is at beginning" beginning)
+          (symbol :tag "Search in region when point is at end" end)
+          (symbol :tag "Always search in region" always)))
+
+(defcustom isl-max-region-length 30
+  "Maximum region length accepted to use region as default.
+It has no effect when `isl-use-region-when-at' value is \\='always."
+  :type 'integer)
 
 (defface isl-match
   '((t :background "brown4"))
@@ -1207,6 +1227,16 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
         (set-window-start (selected-window) isl--window-start t)))))
 
 
+(defun isl--default ()
+  (if (or (isl--use-region-p) (not (use-region-p)))
+      (isl--thing-at-point)
+    (let ((region (buffer-substring-no-properties
+                   (region-beginning)
+                   (region-end))))
+      (if (> (length region) isl-max-region-length)
+          (user-error "Isl: Region not suitable for using as default")
+        region))))
+
 (defun isl-search-1 (&optional resume input)
   "Start an isl session in `current-buffer'.
 When RESUME is specified, resume the previous session in this buffer
@@ -1236,11 +1266,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
     (setq-local isl-search-invisible nil))
   (let* ((format-fn (if (eq isl-search-function 'search-forward)
                         #'identity #'regexp-quote))
-         (default (if (region-active-p)
-                      (buffer-substring-no-properties
-                       (region-beginning)
-                       (region-end))
-                    (isl--thing-at-point)))
+         (default (isl--default))
          blink-matching-paren)
     (when (stringp default)
       (setq default (funcall format-fn
@@ -1309,16 +1335,29 @@ This function is intended to be used in kmacros."
     (setq isl-case-fold-search (default-value 'isl-case-fold-search)
           isl--case-fold-choices-iterator nil)))
 
+(defun isl--use-region-p ()
+  "Decide when to use the region for searching.
+This according to the value of `isl-use-region-when-at'."
+  (let ((fn (pcase isl-use-region-when-at
+              ('beginning #'region-beginning)
+              ('end       #'region-end)
+              ('always    #'point))))
+    (and (use-region-p)
+         (eql (funcall fn) (point)))))
+
 ;;;###autoload
 (defun isl-search (&optional beg end)
   "Start incremental searching in current buffer.
-If region is active, search in it instead of searching in the
-whole buffer.
-When used in kbd macros, search next match forward from point and
-stop, assuming user starts its macro above the text to edit."
+If region is active and point is at beginning or end of region according
+to `isl-use-region-when-at', search in it instead of searching in the
+whole buffer, otherwise the region is used as default search string.
+When used in kbd macros, search next match forward from point and stop,
+assuming user starts its macro above the text to edit."
   (interactive "r")
-  (setq isl--beginning (or (and (use-region-p) beg) (point-min))
-        isl--end (or (and (use-region-p) end) (point-max)))
+  (setq isl--beginning (or (and (isl--use-region-p) beg)
+                           (point-min))
+        isl--end (or (and (isl--use-region-p) end)
+                     (point-max)))
   (if executing-kbd-macro
       (isl--search-string)
     (isl-search-1)))
