@@ -619,7 +619,8 @@ automatically backward."
                (apply #'perform-replace
                       (list (nth 0 args) (nth 1 args)
                             t regexp-flag (nth 2 args) nil
-                            multi-query-replace-map nil nil backward))))))))
+                            multi-query-replace-map
+                            isl--beginning isl--end backward))))))))
     (abort-recursive-edit)))
 (put 'isl-query-replace 'no-helm-mx t)
 
