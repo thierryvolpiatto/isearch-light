@@ -650,7 +650,8 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
     (save-excursion
       (save-selected-window
         (goto-char beg)
-        (while (setq bounds (isl-multi-search-fwd occurrence-regexp end t))
+        (while (and (setq bounds (isl-multi-search-fwd occurrence-regexp end t))
+                    (not (>= (point) end)))
           (let ((beginning (car bounds))
                 (ending (cdr bounds)))
 	    (if (and (> length 0) (/= (- ending beginning) length))
@@ -690,7 +691,7 @@ Arguments OCCURRENCE-REGEXP, BEG and END have same meaning as in
                 (progn
                   (setq result
 	                (catch 'not-same-length
-	                  (iedit-start regexp (point-min) (point-max))))
+	                  (iedit-start regexp isl--beginning isl--end)))
                   (cond ((not iedit-occurrences-overlays)
                          (message "No matches found for %s" regexp)
                          (iedit-done))
