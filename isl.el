@@ -1236,9 +1236,9 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
                    (region-beginning)
                    (region-end))))
       (if (or (> (length region) isl-max-region-length)
+              ;; Prevent inserting multiline string in minibuf.
               (string-match-p "\n" region))
-          (user-error "Isl: Region not suitable for using as default")
-        region))))
+        "" region))))
 
 (defun isl-search-1 (&optional resume input)
   "Start an isl session in `current-buffer'.
@@ -1272,12 +1272,7 @@ Note that INPUT cannot be used with a non nil value for RESUME."
          (default (isl--default))
          blink-matching-paren)
     (when (stringp default)
-      (setq default (funcall format-fn
-                             ;; Prevent inserting multiline string in
-                             ;; minibuf.
-                             (if (string-match "\n" default)
-                                 (or (isl--thing-at-point) "")
-                               default))))
+      (setq default (funcall format-fn (or default ""))))
     (deactivate-mark)
     (unwind-protect
          (condition-case-unless-debug nil
