@@ -1235,7 +1235,8 @@ Arguments INITIAL-INPUT and DEFAULT are same as in `read-from-minibuffer'."
     (let ((region (buffer-substring-no-properties
                    (region-beginning)
                    (region-end))))
-      (if (> (length region) isl-max-region-length)
+      (if (or (> (length region) isl-max-region-length)
+              (string-match-p "\n" region))
           (user-error "Isl: Region not suitable for using as default")
         region))))
 
