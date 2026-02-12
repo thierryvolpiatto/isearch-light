@@ -1002,7 +1002,7 @@ See `isl-requires-pattern'."
             (condition-case-unless-debug nil
                 (while (and (setq bounds (or go (isl-multi-search-fwd
                                                  isl--pattern nil t)))
-                            (not (if isl--end (>= (point) isl--end) (eobp))))
+                            (<= (point) (or isl--end (point-max))))
                   (setq go nil)
                   (unless (and (not isl-search-invisible)
                                (invisible-p (cdr bounds)))
