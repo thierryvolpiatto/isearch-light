@@ -46,7 +46,7 @@ want as well [[https://github.com/emacs-helm/helm-bm][helm-bm]] to retrieve late
 
 *** From package
 
-Isl is available in NonGnu Elpa.
+Isl is available in [[https://elpa.nongnu.org/nongnu/isl.html][NonGnu Elpa]].
 Use =package-install= to install it.
 
 *** From source
