@@ -1,7 +1,7 @@
 ** Introduction
 
 Isl like Isearch-light.
-An Isearch replacement for Emacs.
+An incremental search tool to replace traditional Isearch in Emacs.
 Multi search expression(s) in symbols, words and/or lines in ~current-buffer~.
 
 ** Features
@@ -19,13 +19,14 @@ Multi search expression(s) in symbols, words and/or lines in ~current-buffer~.
 
 - When a region is detected search in this region only.
 
-- Switch to query-replace.
+- Allow switching to query-replace.
 
 - Allow jumping to =Iedit= at any time during the search.
 
 - Allow jumping to =helm-occur= at any time.
 
-- Allow showing only the matching lines with their context.
+- Allow showing only the matching lines with their context (number of
+  context lines customizable).
 
 - Help available at any time during search without having to quit
   session.
