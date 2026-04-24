@@ -1155,7 +1155,10 @@ See `isl-requires-pattern'."
           (with-selected-window (minibuffer-selected-window)
             (isl-delete-overlays)
             (isl-setup-mode-line)
-            (goto-char isl--initial-pos)))))))
+            ;; Avoid error when deleting minibuffer-contents with a
+            ;; resumed session with no candidates.
+            (when (numberp isl--initial-pos)
+              (goto-char isl--initial-pos))))))))
 
 (defun isl-read-from-minibuffer (prompt &optional initial-input default)
   "Read input from minibuffer with prompt PROMPT.
