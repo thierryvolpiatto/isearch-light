@@ -476,7 +476,7 @@ to end."
   "Exit minibuffer and jump at current position."
   (interactive)
   (with-selected-window (minibuffer-selected-window)
-    (when isl--last-overlay
+    (when (and isl--last-overlay (overlay-buffer isl--last-overlay))
       ;; Ensure user haven't scrolled to another place.
       (let ((end (overlay-end isl--last-overlay))
             (lp (overlay-get isl--last-overlay 'line-prefix)))
