@@ -48,6 +48,8 @@
 (defvar helm-occur-always-search-in-current)
 (defvar hs-minor-mode)
 (defvar hs-show-hook)
+(defvar gnus-newsgroup-processable)
+
 (declare-function iedit-make-read-only-occurrence-overlay "ext:iedit-lib.el")
 (declare-function iedit-make-occurrence-overlay "ext:iedit-lib.el")
 (declare-function iedit-update-index "ext:iedit-lib.el")
@@ -61,6 +63,9 @@
 (declare-function markdown-show-entry "ext:markdown-mode.el")
 (declare-function bm-toggle "ext:bm.el")
 (declare-function pulse-momentary-highlight-region "pulse.el")
+(declare-function gnus-summary-set-process-mark "gnus-sum.el")
+(declare-function gnus-summary-remove-process-mark "gnus-sum.el")
+(declare-function gnus-summary-article-number "gnus-sum.el")
 
 ;; History
 (defvar isl-history nil)
@@ -311,6 +316,8 @@ already provided by \\<isl-map>\\[next-history-element]."
     (define-key map (kbd "C-k")     'isl-delete-minibuffer-contents)
     (define-key map (kbd "C-j")     'isl-toggle-multi-search-in-line)
     (define-key map (kbd "C-!")     'isl-bm-this-pos)
+    (define-key map (kbd "C-#")     'isl-gnus-mark-as-processable)
+    (define-key map (kbd "M-#")     'isl-gnus-unmark-as-processable)
     (define-key map (kbd "C-c C-k") 'isl-kill-selection)
     map)
   "The map used when `isl-search' is running.
@@ -350,6 +357,33 @@ Need to have the `bm' package installed."
         ;; Use overlay-start otherwise with inline we are one line too far.
         (goto-char (overlay-start isl--last-overlay))
         (bm-toggle)))))
+
+(defun isl-gnus-mark-as-processable (&optional unmark)
+  "Mark gnus article at point as processable.
+Move to next occurence when done.
+See `gnus-summary-mark-as-processable'."
+  (interactive "P")
+  (with-selected-window (minibuffer-selected-window)
+    (cl-assert (eq major-mode 'gnus-summary-mode) nil
+               "Not a Gnus summary buffer")
+    (when isl--last-overlay
+      (save-excursion
+        ;; Use overlay-start otherwise with inline we are one line too far.
+        (goto-char (overlay-start isl--last-overlay))
+        (let* ((article     (gnus-summary-article-number))
+               (processable (memq article gnus-newsgroup-processable)))
+          (if (and processable unmark)
+              (gnus-summary-remove-process-mark article)
+            (unless (or processable unmark)
+              (gnus-summary-set-process-mark article))))
+        (run-with-timer 0.1 nil #'isl-goto-next 1)))))
+
+(defun isl-gnus-unmark-as-processable ()
+  "Unmark gnus article at point as processable.
+Move to next occurence when done.
+See `gnus-summary-mark-as-processable'."
+  (interactive)
+  (isl-gnus-mark-as-processable 'unmark))
 
 (defun isl--highlight-last-overlay (face)
   "Highlight `isl--last-overlay' with FACE."
